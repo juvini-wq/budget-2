@@ -4,169 +4,517 @@
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
     <meta name="apple-mobile-web-app-capable" content="yes">
-    <meta name="apple-mobile-web-app-status-bar-style" content="default">
-    <title>My Budget</title>
+    <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
+    <title>Budget & Planner</title>
+    <!-- Elegant Serif Font setup matching reference UI -->
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Instrument+Serif:ital@0;1&family=Inter:wght@300;400;500;600;700&display=swap" rel="stylesheet">
     <style>
         :root {
-            --bg-color: #f4f6f8;
-            --card-bg: rgba(255, 255, 255, 0.75);
-            --card-border: rgba(255, 255, 255, 0.8);
-            --text-primary: #1c1c1e;
-            --text-secondary: #8e8e93;
-            --accent-blue: #007aff;
-            --shadow: 0 8px 32px 0 rgba(31, 38, 135, 0.07);
+            --bg-main: #0b0f17;
+            --bg-sidebar: #111622;
+            --card-bg: rgba(23, 29, 43, 0.7);
+            --card-border: rgba(255, 255, 255, 0.08);
+            --accent-purple: #9d8ec7;
+            --accent-light: #e2d9f3;
+            --text-primary: #f0f3f8;
+            --text-muted: #7c889b;
+            --shadow-glow: 0 10px 30px rgba(157, 142, 199, 0.15);
         }
 
         * {
             box-sizing: border-box;
             -webkit-tap-highlight-color: transparent;
-            font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, Helvetica, Arial, sans-serif;
+            margin: 0;
+            padding: 0;
         }
 
         body {
-            background-color: var(--bg-color);
+            background-color: var(--bg-main);
             color: var(--text-primary);
-            margin: 0;
-            padding: 20px 16px 100px 16px;
+            font-family: 'Inter', -apple-system, sans-serif;
+            display: flex;
+            min-height: 100vh;
+            overflow-x: hidden;
+        }
+
+        /* Serif typography helpers */
+        .serif {
+            font-family: 'Instrument Serif', Georgia, serif;
+        }
+
+        /* Sidebar Styling */
+        .sidebar {
+            width: 260px;
+            background-color: var(--bg-sidebar);
+            border-right: 1px solid var(--card-border);
+            padding: 24px 16px;
             display: flex;
             flex-direction: column;
-            gap: 16px;
+            gap: 24px;
+            transition: transform 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+            z-index: 100;
         }
 
-        .header {
-            text-align: center;
-            margin-top: 10px;
+        .brand {
+            display: flex;
+            align-items: center;
+            gap: 12px;
+            padding: 0 8px;
         }
 
-        .header h1 {
-            font-size: 24px;
+        .brand-avatar {
+            width: 36px;
+            height: 36px;
+            border-radius: 10px;
+            background: linear-gradient(135deg, #7c5cbf, #a88beb);
+            display: flex;
+            align-items: center;
+            justify-content: center;
             font-weight: 700;
-            margin: 0;
+            font-size: 16px;
+        }
+
+        .brand-title {
+            font-size: 14px;
+            font-weight: 600;
+            letter-spacing: 1px;
+            text-transform: uppercase;
+            line-height: 1.2;
+        }
+
+        .nav-list {
+            list-style: none;
+            display: flex;
+            flex-direction: column;
+            gap: 4px;
+        }
+
+        .nav-link {
+            display: flex;
+            align-items: center;
+            gap: 12px;
+            padding: 10px 14px;
+            border-radius: 12px;
+            color: var(--text-muted);
+            text-decoration: none;
+            font-size: 14px;
+            font-weight: 500;
+            transition: all 0.2s ease;
+            cursor: pointer;
+        }
+
+        .nav-link:hover, .nav-link.active {
+            color: var(--text-primary);
+            background: rgba(255, 255, 255, 0.05);
+        }
+
+        .nav-link.active {
+            background: rgba(157, 142, 199, 0.15);
+            color: var(--accent-light);
+            border: 1px solid rgba(157, 142, 199, 0.2);
+        }
+
+        .nav-icon {
+            font-size: 16px;
+            width: 20px;
+            text-align: center;
+        }
+
+        /* Quick Log Box in Sidebar */
+        .sidebar-log {
+            margin-top: auto;
+            background: rgba(255, 255, 255, 0.03);
+            border: 1px solid var(--card-border);
+            border-radius: 16px;
+            padding: 16px;
+        }
+
+        .sidebar-log h4 {
+            font-size: 13px;
+            color: var(--text-muted);
+            margin-bottom: 12px;
+        }
+
+        .log-display {
+            font-size: 28px;
+            font-weight: 400;
+            margin-bottom: 12px;
+        }
+
+        .quick-pills {
+            display: flex;
+            gap: 6px;
+            flex-wrap: wrap;
+        }
+
+        .pill-btn {
+            background: rgba(255, 255, 255, 0.08);
+            border: 1px solid rgba(255, 255, 255, 0.1);
+            color: var(--text-primary);
+            padding: 6px 12px;
+            border-radius: 20px;
+            font-size: 12px;
+            cursor: pointer;
+        }
+
+        .pill-btn:active {
+            transform: scale(0.95);
+        }
+
+        /* Main Content Layout */
+        .main-wrapper {
+            flex: 1;
+            display: flex;
+            flex-direction: column;
+            min-width: 0;
+            height: 100vh;
+            overflow-y: auto;
+        }
+
+        /* Top Mobile Bar */
+        .top-bar {
+            padding: 16px 20px;
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+        }
+
+        .menu-toggle {
+            background: none;
+            border: none;
+            color: var(--text-primary);
+            font-size: 22px;
+            cursor: pointer;
+            display: none;
+        }
+
+        .greeting {
+            font-size: 26px;
+            font-weight: 400;
+        }
+
+        .greeting span {
+            display: block;
+            font-size: 11px;
+            text-transform: uppercase;
+            letter-spacing: 1px;
+            color: var(--text-muted);
+            font-family: 'Inter', sans-serif;
+        }
+
+        .dashboard-grid {
+            padding: 0 20px 40px 20px;
+            display: flex;
+            flex-direction: column;
+            gap: 20px;
+            max-width: 1000px;
+        }
+
+        /* Alert Banner ("Right Now - One Thing Only") */
+        .alert-banner {
+            background: #151a28;
+            border: 1px solid rgba(157, 142, 199, 0.3);
+            border-radius: 16px;
+            padding: 16px 20px;
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+        }
+
+        .alert-meta {
+            font-size: 10px;
+            text-transform: uppercase;
+            letter-spacing: 1.5px;
+            color: var(--accent-purple);
+            font-weight: 700;
+            margin-bottom: 4px;
+        }
+
+        .alert-title {
+            font-size: 18px;
+            font-weight: 500;
+        }
+
+        .btn-done {
+            background: rgba(255, 255, 255, 0.1);
+            border: 1px solid rgba(255, 255, 255, 0.2);
+            color: #fff;
+            padding: 8px 16px;
+            border-radius: 20px;
+            font-size: 12px;
+            font-weight: 600;
+            cursor: pointer;
+        }
+
+        /* Cards Grid */
+        .cards-row {
+            display: grid;
+            grid-template-columns: 1.4fr 1fr;
+            gap: 20px;
         }
 
         .glass-card {
             background: var(--card-bg);
-            backdrop-filter: blur(16px);
-            -webkit-backdrop-filter: blur(16px);
             border: 1px solid var(--card-border);
-            border-radius: 20px;
-            padding: 20px;
-            box-shadow: var(--shadow);
-        }
-
-        .envelope-title {
-            font-size: 14px;
-            font-weight: 600;
-            color: var(--text-secondary);
-            text-transform: uppercase;
-            letter-spacing: 0.5px;
-        }
-
-        .envelope-amount {
-            font-size: 32px;
-            font-weight: 800;
-            margin: 8px 0 16px 0;
-        }
-
-        .quick-actions {
-            display: grid;
-            grid-template-columns: repeat(3, 1fr);
-            gap: 8px;
-        }
-
-        .btn {
-            background: #ffffff;
-            border: 1px solid #e5e5ea;
-            border-radius: 12px;
-            padding: 12px 0;
-            font-size: 15px;
-            font-weight: 600;
-            color: var(--accent-blue);
-            cursor: pointer;
-            box-shadow: 0 2px 5px rgba(0,0,0,0.03);
-        }
-
-        .btn:active {
-            scale: 0.96;
-            background: #f0f0f5;
-        }
-
-        .nav-bar {
-            position: fixed;
-            bottom: 20px;
-            left: 16px;
-            right: 16px;
-            background: rgba(255, 255, 255, 0.85);
+            border-radius: 24px;
+            padding: 24px;
             backdrop-filter: blur(20px);
             -webkit-backdrop-filter: blur(20px);
-            border: 1px solid var(--card-border);
-            border-radius: 30px;
-            padding: 8px;
-            display: flex;
-            justify-content: space-around;
-            box-shadow: var(--shadow);
         }
 
-        .nav-item {
-            border: none;
-            background: none;
-            font-size: 13px;
+        .card-label {
+            font-size: 11px;
+            text-transform: uppercase;
+            letter-spacing: 1px;
+            color: var(--text-muted);
             font-weight: 600;
-            color: var(--text-secondary);
-            padding: 8px 16px;
-            border-radius: 20px;
+            margin-bottom: 12px;
         }
 
-        .nav-item.active {
-            background: #ffffff;
-            color: var(--accent-blue);
-            box-shadow: 0 2px 8px rgba(0,0,0,0.08);
+        .hero-amount {
+            font-size: 52px;
+            font-weight: 400;
+            line-height: 1;
+            margin-bottom: 8px;
+            color: var(--accent-light);
+        }
+
+        .sub-text {
+            font-size: 12px;
+            color: var(--text-muted);
+            margin-bottom: 20px;
+        }
+
+        .progress-bar {
+            height: 6px;
+            background: rgba(255, 255, 255, 0.08);
+            border-radius: 10px;
+            overflow: hidden;
+            margin-bottom: 20px;
+        }
+
+        .progress-fill {
+            height: 100%;
+            width: 65%;
+            background: linear-gradient(90deg, #7c5cbf, #bda2f0);
+            border-radius: 10px;
+        }
+
+        /* Checklist Section */
+        .checklist {
+            display: flex;
+            flex-direction: column;
+            gap: 12px;
+        }
+
+        .check-item {
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+            background: rgba(255, 255, 255, 0.02);
+            padding: 10px 14px;
+            border-radius: 12px;
+            border: 1px solid rgba(255, 255, 255, 0.03);
+            font-size: 13px;
+        }
+
+        .check-item.done span {
+            text-decoration: line-through;
+            color: var(--text-muted);
+        }
+
+        /* Responsive Mobile Drawer */
+        @media (max-width: 768px) {
+            .sidebar {
+                position: fixed;
+                top: 0;
+                left: 0;
+                bottom: 0;
+                transform: translateX(-100%);
+            }
+
+            .sidebar.open {
+                transform: translateX(0);
+                box-shadow: 20px 0 50px rgba(0,0,0,0.8);
+            }
+
+            .menu-toggle {
+                display: block;
+            }
+
+            .cards-row {
+                grid-template-columns: 1fr;
+            }
+
+            .hero-amount {
+                font-size: 42px;
+            }
         }
     </style>
 </head>
 <body>
 
-    <div class="header">
-        <h1>Envelope Budget</h1>
-    </div>
+    <!-- Left Navigation Sidebar -->
+    <aside class="sidebar" id="sidebar">
+        <div class="brand">
+            <div class="brand-avatar">B</div>
+            <div class="brand-title">Budget &<br>Planner</div>
+        </div>
 
-    <!-- Main Envelope Display -->
-    <div class="glass-card">
-        <div class="envelope-title">Safe-to-Spend</div>
-        <div class="envelope-amount" id="balance">$150.00</div>
-        
-        <div class="quick-actions">
-            <button class="btn" onclick="spend(5)">-$5</button>
-            <button class="btn" onclick="spend(10)">-$10</button>
-            <button class="btn" onclick="spend(20)">-$20</button>
+        <ul class="nav-list">
+            <li><a class="nav-link active" onclick="closeSidebar()"><span class="nav-icon">☼</span> Today</a></li>
+            <li><a class="nav-link" onclick="closeSidebar()"><span class="nav-icon">📅</span> The month</a></li>
+            <li><a class="nav-link" onclick="closeSidebar()"><span class="nav-icon">📋</span> Must-pays</a></li>
+            <li><a class="nav-link" onclick="closeSidebar()"><span class="nav-icon">📥</span> Money in</a></li>
+            <li><a class="nav-link" onclick="closeSidebar()"><span class="nav-icon">🎯</span> Goals</a></li>
+            <li><a class="nav-link" onclick="closeSidebar()"><span class="nav-icon">📉</span> Debt</a></li>
+            <li><a class="nav-link" onclick="closeSidebar()"><span class="nav-icon">✉️</span> Envelopes</a></li>
+            <li><a class="nav-link" onclick="closeSidebar()"><span class="nav-icon">⛳</span> Milestones</a></li>
+            <li><a class="nav-link" onclick="closeSidebar()"><span class="nav-icon">⚙️</span> Settings</a></li>
+        </ul>
+
+        <!-- Quick Log widget inside sidebar -->
+        <div class="sidebar-log">
+            <h4>Log a spend</h4>
+            <div class="log-display serif" id="logged-display">$0.00</div>
+            <div class="quick-pills">
+                <button class="pill-btn" onclick="addSpend(5, 'Coffee')">+Coffee</button>
+                <button class="pill-btn" onclick="addSpend(15, 'Food')">+Food</button>
+                <button class="pill-btn" onclick="resetLog()">Reset</button>
+            </div>
+        </div>
+    </aside>
+
+    <!-- Main App Container -->
+    <div class="main-wrapper">
+        <div class="top-bar">
+            <button class="menu-toggle" onclick="toggleSidebar()">☰</button>
+            <div class="greeting serif">
+                <span id="date-string">TODAY</span>
+                Good day
+            </div>
+        </div>
+
+        <div class="dashboard-grid">
+            
+            <!-- One Thing Right Now Alert -->
+            <div class="alert-banner">
+                <div>
+                    <div class="alert-meta">RIGHT NOW - ONE THING ONLY</div>
+                    <div class="alert-title serif">Mark Internet paid</div>
+                </div>
+                <button class="btn-done" onclick="this.parentElement.style.display='none'">Done - next</button>
+            </div>
+
+            <!-- Cards Row -->
+            <div class="cards-row">
+                
+                <!-- Hero Safe to Spend Card -->
+                <div class="glass-card">
+                    <div class="card-label">SAFE TO SPEND TODAY</div>
+                    <div class="hero-amount serif" id="safe-spend-val">$1,219.81</div>
+                    <div class="sub-text">of today's starting $1,329.81</div>
+                    
+                    <div class="progress-bar">
+                        <div class="progress-fill" id="progress-fill"></div>
+                    </div>
+
+                    <div class="quick-pills">
+                        <button class="pill-btn" onclick="subtractSpend(5)">+ Coffee ($5)</button>
+                        <button class="pill-btn" onclick="subtractSpend(15)">+ Lunch ($15)</button>
+                        <button class="pill-btn" onclick="subtractSpend(2.50)">+ Bus ($2.50)</button>
+                    </div>
+                </div>
+
+                <!-- Three Small Things Checklist -->
+                <div class="glass-card">
+                    <div class="card-label">THREE SMALL THINGS</div>
+                    <div class="checklist">
+                        <div class="check-item">
+                            <span>Mark Internet paid</span>
+                            <input type="checkbox">
+                        </div>
+                        <div class="check-item done">
+                            <span>Spending logged for today</span>
+                            <input type="checkbox" checked>
+                        </div>
+                        <div class="check-item done">
+                            <span>Checking balance is set</span>
+                            <input type="checkbox" checked>
+                        </div>
+                    </div>
+                </div>
+
+            </div>
+
+            <!-- What You Logged Section -->
+            <div class="glass-card">
+                <div class="card-label">WHAT YOU LOGGED</div>
+                <div class="sub-text">Newest first</div>
+                <div id="log-list" style="display: flex; flex-direction: column; gap: 8px;">
+                    <div class="check-item">
+                        <div>
+                            <strong>Gas</strong> <span style="color:var(--text-muted); font-size: 11px;">(costco)</span>
+                        </div>
+                        <span class="serif" style="font-size: 18px;">$110.00</span>
+                    </div>
+                </div>
+            </div>
+
         </div>
     </div>
 
-    <!-- Quick Navigation -->
-    <div class="nav-bar">
-        <button class="nav-item active">Daily</button>
-        <button class="nav-item">Bills</button>
-        <button class="nav-item">Goals</button>
-    </div>
-
     <script>
-        // Simple local storage script
-        let currentBalance = localStorage.getItem('budget_balance') 
-            ? parseFloat(localStorage.getItem('budget_balance')) 
-            : 150.00;
+        // Set Today Date dynamically
+        const now = new Date();
+        const options = { weekday: 'long', day: 'numeric', month: 'short' };
+        document.getElementById('date-string').innerText = now.toLocaleDateString('en-US', options).toUpperCase();
 
-        function updateDisplay() {
-            document.getElementById('balance').innerText = '$' + currentBalance.toFixed(2);
-            localStorage.setItem('budget_balance', currentBalance);
+        // Mobile Menu Drawer Control
+        function toggleSidebar() {
+            document.getElementById('sidebar').classList.toggle('open');
+        }
+        function closeSidebar() {
+            document.getElementById('sidebar').classList.remove('open');
         }
 
-        function spend(amount) {
-            currentBalance -= amount;
-            updateDisplay();
+        // Balance State Management using LocalStorage
+        let safeSpend = localStorage.getItem('app_safe_spend') ? parseFloat(localStorage.getItem('app_safe_spend')) : 1219.81;
+        let todayLogged = 0;
+
+        function updateUI() {
+            document.getElementById('safe-spend-val').innerText = '$' + safeSpend.toFixed(2);
+            document.getElementById('logged-display').innerText = '$' + todayLogged.toFixed(2);
+            localStorage.setItem('app_safe_spend', safeSpend);
         }
 
-        updateDisplay();
+        function subtractSpend(amount) {
+            safeSpend -= amount;
+            todayLogged += amount;
+            updateUI();
+        }
+
+        function addSpend(amount, category) {
+            safeSpend -= amount;
+            todayLogged += amount;
+            updateUI();
+            
+            // Add item to logged list dynamically
+            const logContainer = document.getElementById('log-list');
+            const newItem = document.createElement('div');
+            newItem.className = 'check-item';
+            newItem.innerHTML = `<div><strong>${category}</strong></div><span class="serif" style="font-size: 18px;">$${amount.toFixed(2)}</span>`;
+            logContainer.prepend(newItem);
+        }
+
+        function resetLog() {
+            todayLogged = 0;
+            updateUI();
+        }
+
+        updateUI();
     </script>
 </body>
 </html>
-
