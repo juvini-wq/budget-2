@@ -107,9 +107,10 @@
         }
 
         .page-title {
-            font-size: 34px;
+            font-size: 32px;
             font-weight: 400;
             margin-bottom: 16px;
+            line-height: 1.2;
         }
 
         .action-btn-primary {
@@ -353,31 +354,23 @@
             align-items: center;
             cursor: pointer;
         }
-
-        .menu-card.highlight {
-            background: var(--accent-purple);
-            color: #ffffff;
-        }
     </style>
 </head>
 <body data-theme="light">
 
-    <!-- Header Section -->
     <div class="header">
         <div class="brand-pill">
-            <div class="brand-avatar">B</div>
-            <div class="brand-text">Budget and Planner</div>
+            <div class="brand-avatar">V</div>
+            <div class="brand-text">Vicky's Planner</div>
         </div>
-        <div class="date-subtitle" id="current-date">THURSDAY, 27 AUGUST</div>
-        <h1 class="page-title serif">Good day</h1>
+        <div class="date-subtitle" id="current-date">TODAY</div>
+        <h1 class="page-title serif" id="dynamic-greeting">Good day, Vicky</h1>
         
         <button class="action-btn-primary" onclick="switchView('today')">Log a spend</button>
     </div>
 
-    <!-- Main Section -->
     <div class="container">
 
-        <!-- TODAY VIEW -->
         <div id="view-today" class="view-section active-view">
             <div class="card">
                 <div class="card-tag">RIGHT NOW • ONE THING ONLY</div>
@@ -393,7 +386,7 @@
             <div class="card">
                 <div class="card-tag">SAFE TO SPEND TODAY</div>
                 <div class="card-title serif" style="font-size: 42px; margin-top: 4px;">$1,107.31</div>
-                <div class="card-desc">of today's starting $1,329.81</div>
+                <div class="card-desc">of today's starting balance</div>
                 
                 <div class="quick-pills">
                     <button class="pill-btn">+ Coffee ($5)</button>
@@ -403,10 +396,9 @@
             </div>
         </div>
 
-        <!-- PLANNER VIEW -->
         <div id="view-planner" class="view-section">
             <div class="card">
-                <div class="card-tag">AUGUST AT A GLANCE</div>
+                <div class="card-tag">THIS MONTH AT A GLANCE</div>
                 <div class="card-desc">$10 kept</div>
                 
                 <div class="stats-grid">
@@ -430,16 +422,14 @@
             </div>
         </div>
 
-        <!-- BILLS VIEW -->
         <div id="view-bills" class="view-section">
             <div class="card">
                 <div class="card-tag">STILL TO GO OUT</div>
                 <div class="card-title serif" style="font-size: 36px; color: var(--accent-purple);">$2,000.00</div>
-                <div class="card-desc">all clear until Fri 4 Sep</div>
+                <div class="card-desc">all clear for now</div>
             </div>
         </div>
 
-        <!-- GOALS VIEW -->
         <div id="view-goals" class="view-section">
             <div class="card">
                 <div class="card-title serif" style="font-size: 26px;">Add a goal</div>
@@ -461,7 +451,6 @@
             </div>
         </div>
 
-        <!-- SETTINGS VIEW -->
         <div id="view-settings" class="view-section">
             <div class="card">
                 <div class="card-tag">APPEARANCE</div>
@@ -484,7 +473,6 @@
 
     </div>
 
-    <!-- Sticky Navigation Bar -->
     <nav class="bottom-nav">
         <button class="nav-item active" onclick="switchView('today', this)"><span class="icon">☼</span>Today</button>
         <button class="nav-item" onclick="switchView('planner', this)"><span class="icon">📅</span>Planner</button>
@@ -493,7 +481,6 @@
         <button class="nav-item" onclick="openMoreModal()"><span class="icon">•••</span>More</button>
     </nav>
 
-    <!-- More Modal -->
     <div class="more-modal" id="moreModal" onclick="closeMoreModal()">
         <div class="more-content" onclick="event.stopPropagation()">
             <div style="display:flex; justify-content:space-between; align-items:center;">
@@ -513,6 +500,29 @@
     </div>
 
     <script>
+        // Set Today's Date Text
+        const today = new Date();
+        const days = ['SUNDAY', 'MONDAY', 'TUESDAY', 'WEDNESDAY', 'THURSDAY', 'FRIDAY', 'SATURDAY'];
+        const months = ['JAN', 'FEB', 'MAR', 'APR', 'MAY', 'JUN', 'JUL', 'AUG', 'SEP', 'OCT', 'NOV', 'DEC'];
+        const dayName = days[today.getDay()];
+        document.getElementById('current-date').innerText = `${dayName}, ${today.getDate()} ${months[today.getMonth()]}`;
+
+        // Cute & Funny Daily Greetings for Vicky
+        const greetings = [
+            `Happy ${dayName.toLowerCase().replace(/^\w/, c => c.toUpperCase())}, Vicky! ✨`,
+            `Good day, Vicky! Let's make that money make sense. 💸`,
+            `Hey Vicky, look at you checking your finances! 💅`,
+            `Happy ${dayName.toLowerCase().replace(/^\w/, c => c.toUpperCase())}, Vicky! Safe-to-spend is looking fine.`,
+            `You got this today, Vicky! 💫`,
+            `Welcome back, Vicky! Another day, another dollar saved. ☕`,
+            `Hey Vicky, taking care of business today? 🌸`,
+            `Good day Vicky! Time to stack those savings. 💖`
+        ];
+
+        // Pick a greeting randomly each session
+        const randomGreeting = greetings[Math.floor(Math.random() * greetings.length)];
+        document.getElementById('dynamic-greeting').innerText = randomGreeting;
+
         function switchView(viewId, el) {
             document.querySelectorAll('.view-section').forEach(sec => sec.classList.remove('active-view'));
             const target = document.getElementById('view-' + viewId);
