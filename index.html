@@ -1,26 +1,44 @@
-DOCTYPE html>
+<!DOCTYPE html>
 <html lang="en">
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
     <meta name="apple-mobile-web-app-capable" content="yes">
-    <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
-    <title>Budget & Planner</title>
-    <!-- Elegant Serif Font setup matching reference UI -->
+    <title>Budget and Planner</title>
     <link rel="preconnect" href="https://fonts.googleapis.com">
     <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
     <link href="https://fonts.googleapis.com/css2?family=Instrument+Serif:ital@0;1&family=Inter:wght@300;400;500;600;700&display=swap" rel="stylesheet">
     <style>
         :root {
-            --bg-main: #0b0f17;
-            --bg-sidebar: #111622;
-            --card-bg: rgba(23, 29, 43, 0.7);
-            --card-border: rgba(255, 255, 255, 0.08);
-            --accent-purple: #9d8ec7;
-            --accent-light: #e2d9f3;
+            /* Light Theme (Default) */
+            --bg-main: #f8f9fc;
+            --bg-card: #ffffff;
+            --bg-card-border: rgba(0, 0, 0, 0.08);
+            --text-primary: #111827;
+            --text-muted: #6b7280;
+            --accent-purple: #7c3aed;
+            --accent-purple-light: rgba(124, 58, 237, 0.08);
+            --accent-green: #059669;
+            --accent-red: #dc2626;
+            --input-bg: #f3f4f6;
+            --input-border: #e5e7eb;
+            --nav-bg: #ffffff;
+        }
+
+        [data-theme="dark"] {
+            /* Dark Theme Option */
+            --bg-main: #131722;
+            --bg-card: #1c2230;
+            --bg-card-border: rgba(255, 255, 255, 0.08);
             --text-primary: #f0f3f8;
-            --text-muted: #7c889b;
-            --shadow-glow: 0 10px 30px rgba(157, 142, 199, 0.15);
+            --text-muted: #8e9bb0;
+            --accent-purple: #8b72de;
+            --accent-purple-light: rgba(139, 114, 222, 0.15);
+            --accent-green: #71b898;
+            --accent-red: #d97d75;
+            --input-bg: #151a26;
+            --input-border: rgba(255, 255, 255, 0.15);
+            --nav-bg: #131722;
         }
 
         * {
@@ -30,491 +48,495 @@ DOCTYPE html>
             padding: 0;
         }
 
-        body {
+        html, body {
+            width: 100%;
+            overflow-x: hidden;
             background-color: var(--bg-main);
             color: var(--text-primary);
             font-family: 'Inter', -apple-system, sans-serif;
-            display: flex;
             min-height: 100vh;
-            overflow-x: hidden;
+            padding-bottom: 90px;
+            transition: background-color 0.2s, color 0.2s;
         }
 
-        /* Serif typography helpers */
         .serif {
             font-family: 'Instrument Serif', Georgia, serif;
         }
 
-        /* Sidebar Styling */
-        .sidebar {
-            width: 260px;
-            background-color: var(--bg-sidebar);
-            border-right: 1px solid var(--card-border);
-            padding: 24px 16px;
-            display: flex;
-            flex-direction: column;
-            gap: 24px;
-            transition: transform 0.3s cubic-bezier(0.4, 0, 0.2, 1);
-            z-index: 100;
+        /* Header Layout */
+        .header {
+            padding: 24px 20px 12px 20px;
+            max-width: 500px;
+            margin: 0 auto;
+            width: 100%;
         }
 
-        .brand {
-            display: flex;
+        .brand-pill {
+            display: inline-flex;
             align-items: center;
-            gap: 12px;
-            padding: 0 8px;
+            gap: 8px;
+            margin-bottom: 12px;
         }
 
         .brand-avatar {
-            width: 36px;
-            height: 36px;
-            border-radius: 10px;
-            background: linear-gradient(135deg, #7c5cbf, #a88beb);
+            width: 28px;
+            height: 28px;
+            border-radius: 8px;
+            background: var(--accent-purple);
+            color: #fff;
             display: flex;
             align-items: center;
             justify-content: center;
             font-weight: 700;
-            font-size: 16px;
-        }
-
-        .brand-title {
             font-size: 14px;
-            font-weight: 600;
-            letter-spacing: 1px;
-            text-transform: uppercase;
-            line-height: 1.2;
         }
 
-        .nav-list {
-            list-style: none;
+        .brand-text {
+            font-size: 11px;
+            font-weight: 700;
+            letter-spacing: 1.5px;
+            text-transform: uppercase;
+        }
+
+        .date-subtitle {
+            font-size: 11px;
+            text-transform: uppercase;
+            letter-spacing: 1.2px;
+            color: var(--text-muted);
+            margin-bottom: 4px;
+        }
+
+        .page-title {
+            font-size: 34px;
+            font-weight: 400;
+            margin-bottom: 16px;
+        }
+
+        .action-btn-primary {
+            width: 100%;
+            background: var(--accent-purple);
+            color: #ffffff;
+            border: none;
+            padding: 14px;
+            border-radius: 16px;
+            font-size: 15px;
+            font-weight: 600;
+            cursor: pointer;
+            text-align: center;
+        }
+
+        /* Main Container */
+        .container {
+            max-width: 500px;
+            margin: 0 auto;
+            padding: 0 16px;
+            width: 100%;
+            display: flex;
+            flex-direction: column;
+            gap: 16px;
+        }
+
+        .view-section {
+            display: none;
+            flex-direction: column;
+            gap: 16px;
+            width: 100%;
+        }
+
+        .view-section.active-view {
+            display: flex;
+        }
+
+        /* Responsive Clean Cards */
+        .card {
+            background: var(--bg-card);
+            border: 1px solid var(--bg-card-border);
+            border-radius: 20px;
+            padding: 20px;
+            box-shadow: 0 2px 12px rgba(0,0,0,0.03);
+            width: 100%;
+        }
+
+        .card-tag {
+            font-size: 10px;
+            font-weight: 700;
+            letter-spacing: 1.5px;
+            text-transform: uppercase;
+            color: var(--accent-purple);
+            margin-bottom: 8px;
+            display: flex;
+            align-items: center;
+            gap: 6px;
+        }
+
+        .card-tag::before {
+            content: "•";
+            font-size: 14px;
+        }
+
+        .card-title {
+            font-size: 24px;
+            font-weight: 400;
+            margin-bottom: 6px;
+        }
+
+        .card-desc {
+            font-size: 13px;
+            color: var(--text-muted);
+            line-height: 1.4;
+            margin-bottom: 16px;
+        }
+
+        /* Quick Spend Pills */
+        .quick-pills {
+            display: flex;
+            flex-direction: column;
+            gap: 8px;
+            margin-top: 14px;
+        }
+
+        .pill-btn {
+            background: var(--input-bg);
+            border: 1px solid var(--input-border);
+            color: var(--text-primary);
+            padding: 12px;
+            border-radius: 12px;
+            font-size: 14px;
+            font-weight: 500;
+            text-align: center;
+            cursor: pointer;
+        }
+
+        /* Forms */
+        .form-group {
+            display: flex;
+            flex-direction: column;
+            gap: 6px;
+            margin-bottom: 14px;
+        }
+
+        .form-label {
+            font-size: 13px;
+            font-weight: 500;
+        }
+
+        .form-input {
+            width: 100%;
+            background: var(--input-bg);
+            border: 1px solid var(--input-border);
+            color: var(--text-primary);
+            padding: 12px 14px;
+            border-radius: 12px;
+            font-size: 15px;
+            outline: none;
+        }
+
+        .toggle-group {
+            display: flex;
+            gap: 8px;
+            margin-bottom: 16px;
+        }
+
+        .toggle-btn {
+            flex: 1;
+            padding: 10px;
+            border-radius: 14px;
+            border: 1px solid var(--input-border);
+            background: transparent;
+            color: var(--text-primary);
+            font-size: 13px;
+            font-weight: 500;
+            cursor: pointer;
+        }
+
+        .toggle-btn.active {
+            border-color: var(--accent-purple);
+            background: var(--accent-purple-light);
+            color: var(--accent-purple);
+            font-weight: 600;
+        }
+
+        /* Grid Stats */
+        .stats-grid {
+            display: grid;
+            grid-template-columns: 1fr 1fr;
+            gap: 10px;
+        }
+
+        .stat-box {
+            padding: 14px;
+            border-radius: 14px;
             display: flex;
             flex-direction: column;
             gap: 4px;
         }
 
-        .nav-link {
+        .stat-box.green { background: rgba(5, 150, 105, 0.08); }
+        .stat-box.red { background: rgba(220, 38, 38, 0.08); }
+        .stat-box.purple { background: rgba(124, 58, 237, 0.08); }
+        .stat-box.blue { background: rgba(37, 99, 235, 0.08); }
+
+        .stat-label { font-size: 12px; color: var(--text-muted); }
+        .stat-val { font-size: 24px; font-weight: 400; }
+
+        /* Bottom Fixed Navigation */
+        .bottom-nav {
+            position: fixed;
+            bottom: 0;
+            left: 0;
+            right: 0;
+            background: var(--nav-bg);
+            border-top: 1px solid var(--bg-card-border);
             display: flex;
-            align-items: center;
-            gap: 12px;
-            padding: 10px 14px;
-            border-radius: 12px;
-            color: var(--text-muted);
-            text-decoration: none;
-            font-size: 14px;
-            font-weight: 500;
-            transition: all 0.2s ease;
-            cursor: pointer;
+            justify-content: space-around;
+            padding: 10px 0 20px 0;
+            z-index: 200;
         }
 
-        .nav-link:hover, .nav-link.active {
-            color: var(--text-primary);
-            background: rgba(255, 255, 255, 0.05);
-        }
-
-        .nav-link.active {
-            background: rgba(157, 142, 199, 0.15);
-            color: var(--accent-light);
-            border: 1px solid rgba(157, 142, 199, 0.2);
-        }
-
-        .nav-icon {
-            font-size: 16px;
-            width: 20px;
-            text-align: center;
-        }
-
-        /* Quick Log Box in Sidebar */
-        .sidebar-log {
-            margin-top: auto;
-            background: rgba(255, 255, 255, 0.03);
-            border: 1px solid var(--card-border);
-            border-radius: 16px;
-            padding: 16px;
-        }
-
-        .sidebar-log h4 {
-            font-size: 13px;
-            color: var(--text-muted);
-            margin-bottom: 12px;
-        }
-
-        .log-display {
-            font-size: 28px;
-            font-weight: 400;
-            margin-bottom: 12px;
-        }
-
-        .quick-pills {
-            display: flex;
-            gap: 6px;
-            flex-wrap: wrap;
-        }
-
-        .pill-btn {
-            background: rgba(255, 255, 255, 0.08);
-            border: 1px solid rgba(255, 255, 255, 0.1);
-            color: var(--text-primary);
-            padding: 6px 12px;
-            border-radius: 20px;
-            font-size: 12px;
-            cursor: pointer;
-        }
-
-        .pill-btn:active {
-            transform: scale(0.95);
-        }
-
-        /* Main Content Layout */
-        .main-wrapper {
-            flex: 1;
+        .nav-item {
             display: flex;
             flex-direction: column;
-            min-width: 0;
-            height: 100vh;
+            align-items: center;
+            gap: 4px;
+            color: var(--text-muted);
+            font-size: 11px;
+            background: none;
+            border: none;
+            cursor: pointer;
+            width: 20%;
+        }
+
+        .nav-item.active {
+            color: var(--accent-purple);
+            font-weight: 600;
+        }
+
+        .nav-item .icon { font-size: 18px; }
+
+        /* Drawer Overlay */
+        .more-modal {
+            position: fixed;
+            inset: 0;
+            background: rgba(0, 0, 0, 0.4);
+            backdrop-filter: blur(4px);
+            z-index: 300;
+            display: none;
+            align-items: flex-end;
+        }
+
+        .more-modal.open { display: flex; }
+
+        .more-content {
+            background: var(--bg-main);
+            width: 100%;
+            border-top-left-radius: 24px;
+            border-top-right-radius: 24px;
+            padding: 24px 20px 40px 20px;
+            max-height: 80vh;
             overflow-y: auto;
         }
 
-        /* Top Mobile Bar */
-        .top-bar {
-            padding: 16px 20px;
-            display: flex;
-            align-items: center;
-            justify-content: space-between;
-        }
-
-        .menu-toggle {
-            background: none;
-            border: none;
-            color: var(--text-primary);
-            font-size: 22px;
-            cursor: pointer;
-            display: none;
-        }
-
-        .greeting {
-            font-size: 26px;
-            font-weight: 400;
-        }
-
-        .greeting span {
-            display: block;
-            font-size: 11px;
-            text-transform: uppercase;
-            letter-spacing: 1px;
-            color: var(--text-muted);
-            font-family: 'Inter', sans-serif;
-        }
-
-        .dashboard-grid {
-            padding: 0 20px 40px 20px;
+        .menu-list {
             display: flex;
             flex-direction: column;
-            gap: 20px;
-            max-width: 1000px;
+            gap: 10px;
+            margin-top: 16px;
         }
 
-        /* Alert Banner ("Right Now - One Thing Only") */
-        .alert-banner {
-            background: #151a28;
-            border: 1px solid rgba(157, 142, 199, 0.3);
+        .menu-card {
+            background: var(--bg-card);
+            border: 1px solid var(--bg-card-border);
+            padding: 16px;
             border-radius: 16px;
-            padding: 16px 20px;
             display: flex;
-            align-items: center;
             justify-content: space-between;
-        }
-
-        .alert-meta {
-            font-size: 10px;
-            text-transform: uppercase;
-            letter-spacing: 1.5px;
-            color: var(--accent-purple);
-            font-weight: 700;
-            margin-bottom: 4px;
-        }
-
-        .alert-title {
-            font-size: 18px;
-            font-weight: 500;
-        }
-
-        .btn-done {
-            background: rgba(255, 255, 255, 0.1);
-            border: 1px solid rgba(255, 255, 255, 0.2);
-            color: #fff;
-            padding: 8px 16px;
-            border-radius: 20px;
-            font-size: 12px;
-            font-weight: 600;
+            align-items: center;
             cursor: pointer;
         }
 
-        /* Cards Grid */
-        .cards-row {
-            display: grid;
-            grid-template-columns: 1.4fr 1fr;
-            gap: 20px;
-        }
-
-        .glass-card {
-            background: var(--card-bg);
-            border: 1px solid var(--card-border);
-            border-radius: 24px;
-            padding: 24px;
-            backdrop-filter: blur(20px);
-            -webkit-backdrop-filter: blur(20px);
-        }
-
-        .card-label {
-            font-size: 11px;
-            text-transform: uppercase;
-            letter-spacing: 1px;
-            color: var(--text-muted);
-            font-weight: 600;
-            margin-bottom: 12px;
-        }
-
-        .hero-amount {
-            font-size: 52px;
-            font-weight: 400;
-            line-height: 1;
-            margin-bottom: 8px;
-            color: var(--accent-light);
-        }
-
-        .sub-text {
-            font-size: 12px;
-            color: var(--text-muted);
-            margin-bottom: 20px;
-        }
-
-        .progress-bar {
-            height: 6px;
-            background: rgba(255, 255, 255, 0.08);
-            border-radius: 10px;
-            overflow: hidden;
-            margin-bottom: 20px;
-        }
-
-        .progress-fill {
-            height: 100%;
-            width: 65%;
-            background: linear-gradient(90deg, #7c5cbf, #bda2f0);
-            border-radius: 10px;
-        }
-
-        /* Checklist Section */
-        .checklist {
-            display: flex;
-            flex-direction: column;
-            gap: 12px;
-        }
-
-        .check-item {
-            display: flex;
-            align-items: center;
-            justify-content: space-between;
-            background: rgba(255, 255, 255, 0.02);
-            padding: 10px 14px;
-            border-radius: 12px;
-            border: 1px solid rgba(255, 255, 255, 0.03);
-            font-size: 13px;
-        }
-
-        .check-item.done span {
-            text-decoration: line-through;
-            color: var(--text-muted);
-        }
-
-        /* Responsive Mobile Drawer */
-        @media (max-width: 768px) {
-            .sidebar {
-                position: fixed;
-                top: 0;
-                left: 0;
-                bottom: 0;
-                transform: translateX(-100%);
-            }
-
-            .sidebar.open {
-                transform: translateX(0);
-                box-shadow: 20px 0 50px rgba(0,0,0,0.8);
-            }
-
-            .menu-toggle {
-                display: block;
-            }
-
-            .cards-row {
-                grid-template-columns: 1fr;
-            }
-
-            .hero-amount {
-                font-size: 42px;
-            }
+        .menu-card.highlight {
+            background: var(--accent-purple);
+            color: #ffffff;
         }
     </style>
 </head>
-<body>
+<body data-theme="light">
 
-    <!-- Left Navigation Sidebar -->
-    <aside class="sidebar" id="sidebar">
-        <div class="brand">
+    <!-- Header Section -->
+    <div class="header">
+        <div class="brand-pill">
             <div class="brand-avatar">B</div>
-            <div class="brand-title">Budget &<br>Planner</div>
+            <div class="brand-text">Budget and Planner</div>
         </div>
+        <div class="date-subtitle" id="current-date">THURSDAY, 27 AUGUST</div>
+        <h1 class="page-title serif">Good day</h1>
+        
+        <button class="action-btn-primary" onclick="switchView('today')">Log a spend</button>
+    </div>
 
-        <ul class="nav-list">
-            <li><a class="nav-link active" onclick="closeSidebar()"><span class="nav-icon">☼</span> Today</a></li>
-            <li><a class="nav-link" onclick="closeSidebar()"><span class="nav-icon">📅</span> The month</a></li>
-            <li><a class="nav-link" onclick="closeSidebar()"><span class="nav-icon">📋</span> Must-pays</a></li>
-            <li><a class="nav-link" onclick="closeSidebar()"><span class="nav-icon">📥</span> Money in</a></li>
-            <li><a class="nav-link" onclick="closeSidebar()"><span class="nav-icon">🎯</span> Goals</a></li>
-            <li><a class="nav-link" onclick="closeSidebar()"><span class="nav-icon">📉</span> Debt</a></li>
-            <li><a class="nav-link" onclick="closeSidebar()"><span class="nav-icon">✉️</span> Envelopes</a></li>
-            <li><a class="nav-link" onclick="closeSidebar()"><span class="nav-icon">⛳</span> Milestones</a></li>
-            <li><a class="nav-link" onclick="closeSidebar()"><span class="nav-icon">⚙️</span> Settings</a></li>
-        </ul>
+    <!-- Main Section -->
+    <div class="container">
 
-        <!-- Quick Log widget inside sidebar -->
-        <div class="sidebar-log">
-            <h4>Log a spend</h4>
-            <div class="log-display serif" id="logged-display">$0.00</div>
-            <div class="quick-pills">
-                <button class="pill-btn" onclick="addSpend(5, 'Coffee')">+Coffee</button>
-                <button class="pill-btn" onclick="addSpend(15, 'Food')">+Food</button>
-                <button class="pill-btn" onclick="resetLog()">Reset</button>
-            </div>
-        </div>
-    </aside>
-
-    <!-- Main App Container -->
-    <div class="main-wrapper">
-        <div class="top-bar">
-            <button class="menu-toggle" onclick="toggleSidebar()">☰</button>
-            <div class="greeting serif">
-                <span id="date-string">TODAY</span>
-                Good day
-            </div>
-        </div>
-
-        <div class="dashboard-grid">
-            
-            <!-- One Thing Right Now Alert -->
-            <div class="alert-banner">
-                <div>
-                    <div class="alert-meta">RIGHT NOW - ONE THING ONLY</div>
-                    <div class="alert-title serif">Mark Internet paid</div>
+        <!-- TODAY VIEW -->
+        <div id="view-today" class="view-section active-view">
+            <div class="card">
+                <div class="card-tag">RIGHT NOW • ONE THING ONLY</div>
+                <div style="display: flex; justify-content: space-between; align-items: center;">
+                    <div>
+                        <div class="card-title serif">Mark Internet paid</div>
+                        <div class="card-desc" style="margin: 0;">10 sec</div>
+                    </div>
+                    <button class="action-btn-primary" style="width: auto; padding: 10px 16px;" onclick="this.closest('.card').style.display='none'">Done — next</button>
                 </div>
-                <button class="btn-done" onclick="this.parentElement.style.display='none'">Done - next</button>
             </div>
 
-            <!-- Cards Row -->
-            <div class="cards-row">
+            <div class="card">
+                <div class="card-tag">SAFE TO SPEND TODAY</div>
+                <div class="card-title serif" style="font-size: 42px; margin-top: 4px;">$1,107.31</div>
+                <div class="card-desc">of today's starting $1,329.81</div>
                 
-                <!-- Hero Safe to Spend Card -->
-                <div class="glass-card">
-                    <div class="card-label">SAFE TO SPEND TODAY</div>
-                    <div class="hero-amount serif" id="safe-spend-val">$1,219.81</div>
-                    <div class="sub-text">of today's starting $1,329.81</div>
-                    
-                    <div class="progress-bar">
-                        <div class="progress-fill" id="progress-fill"></div>
-                    </div>
-
-                    <div class="quick-pills">
-                        <button class="pill-btn" onclick="subtractSpend(5)">+ Coffee ($5)</button>
-                        <button class="pill-btn" onclick="subtractSpend(15)">+ Lunch ($15)</button>
-                        <button class="pill-btn" onclick="subtractSpend(2.50)">+ Bus ($2.50)</button>
-                    </div>
+                <div class="quick-pills">
+                    <button class="pill-btn">+ Coffee ($5)</button>
+                    <button class="pill-btn">+ Lunch ($15)</button>
+                    <button class="pill-btn">+ Bus ($2.50)</button>
                 </div>
-
-                <!-- Three Small Things Checklist -->
-                <div class="glass-card">
-                    <div class="card-label">THREE SMALL THINGS</div>
-                    <div class="checklist">
-                        <div class="check-item">
-                            <span>Mark Internet paid</span>
-                            <input type="checkbox">
-                        </div>
-                        <div class="check-item done">
-                            <span>Spending logged for today</span>
-                            <input type="checkbox" checked>
-                        </div>
-                        <div class="check-item done">
-                            <span>Checking balance is set</span>
-                            <input type="checkbox" checked>
-                        </div>
-                    </div>
-                </div>
-
             </div>
+        </div>
 
-            <!-- What You Logged Section -->
-            <div class="glass-card">
-                <div class="card-label">WHAT YOU LOGGED</div>
-                <div class="sub-text">Newest first</div>
-                <div id="log-list" style="display: flex; flex-direction: column; gap: 8px;">
-                    <div class="check-item">
-                        <div>
-                            <strong>Gas</strong> <span style="color:var(--text-muted); font-size: 11px;">(costco)</span>
-                        </div>
-                        <span class="serif" style="font-size: 18px;">$110.00</span>
+        <!-- PLANNER VIEW -->
+        <div id="view-planner" class="view-section">
+            <div class="card">
+                <div class="card-tag">AUGUST AT A GLANCE</div>
+                <div class="card-desc">$10 kept</div>
+                
+                <div class="stats-grid">
+                    <div class="stat-box green">
+                        <span class="stat-label">Came in</span>
+                        <span class="stat-val serif">$600</span>
+                    </div>
+                    <div class="stat-box red">
+                        <span class="stat-label">Went out</span>
+                        <span class="stat-val serif">$590</span>
+                    </div>
+                    <div class="stat-box purple">
+                        <span class="stat-label">Kept</span>
+                        <span class="stat-val serif">$10</span>
+                    </div>
+                    <div class="stat-box blue">
+                        <span class="stat-label">Still yours</span>
+                        <span class="stat-val serif">$0</span>
                     </div>
                 </div>
             </div>
+        </div>
 
+        <!-- BILLS VIEW -->
+        <div id="view-bills" class="view-section">
+            <div class="card">
+                <div class="card-tag">STILL TO GO OUT</div>
+                <div class="card-title serif" style="font-size: 36px; color: var(--accent-purple);">$2,000.00</div>
+                <div class="card-desc">all clear until Fri 4 Sep</div>
+            </div>
+        </div>
+
+        <!-- GOALS VIEW -->
+        <div id="view-goals" class="view-section">
+            <div class="card">
+                <div class="card-title serif" style="font-size: 26px;">Add a goal</div>
+                <div class="card-desc">name, amount, pace</div>
+
+                <div class="form-group">
+                    <label class="form-label">What it is for</label>
+                    <input type="text" class="form-input" placeholder="Japan, next spring">
+                </div>
+
+                <div class="form-group">
+                    <label class="form-label">How much you need</label>
+                    <input type="number" class="form-input" placeholder="0.00">
+                </div>
+
+                <div style="display: flex; gap: 10px; margin-top: 10px;">
+                    <button class="action-btn-primary" style="flex:1;">Add goal</button>
+                </div>
+            </div>
+        </div>
+
+        <!-- SETTINGS VIEW -->
+        <div id="view-settings" class="view-section">
+            <div class="card">
+                <div class="card-tag">APPEARANCE</div>
+                <div class="card-desc">Choose your preferred workspace theme.</div>
+
+                <div class="toggle-group">
+                    <button class="toggle-btn active" id="btn-light" onclick="setTheme('light')">White / Light</button>
+                    <button class="toggle-btn" id="btn-dark" onclick="setTheme('dark')">Midnight Dark</button>
+                </div>
+            </div>
+
+            <div class="card">
+                <div class="card-tag">YOUR MONEY</div>
+                <div class="form-group">
+                    <label class="form-label">Already set aside</label>
+                    <input type="number" class="form-input" value="1054.00">
+                </div>
+            </div>
+        </div>
+
+    </div>
+
+    <!-- Sticky Navigation Bar -->
+    <nav class="bottom-nav">
+        <button class="nav-item active" onclick="switchView('today', this)"><span class="icon">☼</span>Today</button>
+        <button class="nav-item" onclick="switchView('planner', this)"><span class="icon">📅</span>Planner</button>
+        <button class="nav-item" onclick="switchView('bills', this)"><span class="icon">📋</span>Bills</button>
+        <button class="nav-item" onclick="switchView('goals', this)"><span class="icon">🎯</span>Goals</button>
+        <button class="nav-item" onclick="openMoreModal()"><span class="icon">•••</span>More</button>
+    </nav>
+
+    <!-- More Modal -->
+    <div class="more-modal" id="moreModal" onclick="closeMoreModal()">
+        <div class="more-content" onclick="event.stopPropagation()">
+            <div style="display:flex; justify-content:space-between; align-items:center;">
+                <div class="card-title serif" style="font-size: 22px;">Menu</div>
+                <button class="action-btn-primary" style="width: auto; padding: 6px 14px;" onclick="closeMoreModal()">Close</button>
+            </div>
+            <div class="menu-list">
+                <div class="menu-card" onclick="switchView('settings'); closeMoreModal();">
+                    <div>
+                        <div style="font-weight:600;">Settings & Themes</div>
+                        <div style="font-size:12px; color:var(--text-muted);">Adjust colors & preferences</div>
+                    </div>
+                    <span>›</span>
+                </div>
+            </div>
         </div>
     </div>
 
     <script>
-        // Set Today Date dynamically
-        const now = new Date();
-        const options = { weekday: 'long', day: 'numeric', month: 'short' };
-        document.getElementById('date-string').innerText = now.toLocaleDateString('en-US', options).toUpperCase();
+        function switchView(viewId, el) {
+            document.querySelectorAll('.view-section').forEach(sec => sec.classList.remove('active-view'));
+            const target = document.getElementById('view-' + viewId);
+            if(target) target.classList.add('active-view');
 
-        // Mobile Menu Drawer Control
-        function toggleSidebar() {
-            document.getElementById('sidebar').classList.toggle('open');
-        }
-        function closeSidebar() {
-            document.getElementById('sidebar').classList.remove('open');
+            if(el) {
+                document.querySelectorAll('.nav-item').forEach(item => item.classList.remove('active'));
+                el.classList.add('active');
+            }
         }
 
-        // Balance State Management using LocalStorage
-        let safeSpend = localStorage.getItem('app_safe_spend') ? parseFloat(localStorage.getItem('app_safe_spend')) : 1219.81;
-        let todayLogged = 0;
-
-        function updateUI() {
-            document.getElementById('safe-spend-val').innerText = '$' + safeSpend.toFixed(2);
-            document.getElementById('logged-display').innerText = '$' + todayLogged.toFixed(2);
-            localStorage.setItem('app_safe_spend', safeSpend);
+        function openMoreModal() {
+            document.getElementById('moreModal').classList.add('open');
         }
 
-        function subtractSpend(amount) {
-            safeSpend -= amount;
-            todayLogged += amount;
-            updateUI();
+        function closeMoreModal() {
+            document.getElementById('moreModal').classList.remove('open');
         }
 
-        function addSpend(amount, category) {
-            safeSpend -= amount;
-            todayLogged += amount;
-            updateUI();
-            
-            // Add item to logged list dynamically
-            const logContainer = document.getElementById('log-list');
-            const newItem = document.createElement('div');
-            newItem.className = 'check-item';
-            newItem.innerHTML = `<div><strong>${category}</strong></div><span class="serif" style="font-size: 18px;">$${amount.toFixed(2)}</span>`;
-            logContainer.prepend(newItem);
+        function setTheme(theme) {
+            document.body.setAttribute('data-theme', theme);
+            document.getElementById('btn-light').classList.toggle('active', theme === 'light');
+            document.getElementById('btn-dark').classList.toggle('active', theme === 'dark');
         }
-
-        function resetLog() {
-            todayLogged = 0;
-            updateUI();
-        }
-
-        updateUI();
     </script>
 </body>
 </html>
