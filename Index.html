@@ -1,1 +1,172 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
+    <meta name="apple-mobile-web-app-capable" content="yes">
+    <meta name="apple-mobile-web-app-status-bar-style" content="default">
+    <title>My Budget</title>
+    <style>
+        :root {
+            --bg-color: #f4f6f8;
+            --card-bg: rgba(255, 255, 255, 0.75);
+            --card-border: rgba(255, 255, 255, 0.8);
+            --text-primary: #1c1c1e;
+            --text-secondary: #8e8e93;
+            --accent-blue: #007aff;
+            --shadow: 0 8px 32px 0 rgba(31, 38, 135, 0.07);
+        }
+
+        * {
+            box-sizing: border-box;
+            -webkit-tap-highlight-color: transparent;
+            font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, Helvetica, Arial, sans-serif;
+        }
+
+        body {
+            background-color: var(--bg-color);
+            color: var(--text-primary);
+            margin: 0;
+            padding: 20px 16px 100px 16px;
+            display: flex;
+            flex-direction: column;
+            gap: 16px;
+        }
+
+        .header {
+            text-align: center;
+            margin-top: 10px;
+        }
+
+        .header h1 {
+            font-size: 24px;
+            font-weight: 700;
+            margin: 0;
+        }
+
+        .glass-card {
+            background: var(--card-bg);
+            backdrop-filter: blur(16px);
+            -webkit-backdrop-filter: blur(16px);
+            border: 1px solid var(--card-border);
+            border-radius: 20px;
+            padding: 20px;
+            box-shadow: var(--shadow);
+        }
+
+        .envelope-title {
+            font-size: 14px;
+            font-weight: 600;
+            color: var(--text-secondary);
+            text-transform: uppercase;
+            letter-spacing: 0.5px;
+        }
+
+        .envelope-amount {
+            font-size: 32px;
+            font-weight: 800;
+            margin: 8px 0 16px 0;
+        }
+
+        .quick-actions {
+            display: grid;
+            grid-template-columns: repeat(3, 1fr);
+            gap: 8px;
+        }
+
+        .btn {
+            background: #ffffff;
+            border: 1px solid #e5e5ea;
+            border-radius: 12px;
+            padding: 12px 0;
+            font-size: 15px;
+            font-weight: 600;
+            color: var(--accent-blue);
+            cursor: pointer;
+            box-shadow: 0 2px 5px rgba(0,0,0,0.03);
+        }
+
+        .btn:active {
+            scale: 0.96;
+            background: #f0f0f5;
+        }
+
+        .nav-bar {
+            position: fixed;
+            bottom: 20px;
+            left: 16px;
+            right: 16px;
+            background: rgba(255, 255, 255, 0.85);
+            backdrop-filter: blur(20px);
+            -webkit-backdrop-filter: blur(20px);
+            border: 1px solid var(--card-border);
+            border-radius: 30px;
+            padding: 8px;
+            display: flex;
+            justify-content: space-around;
+            box-shadow: var(--shadow);
+        }
+
+        .nav-item {
+            border: none;
+            background: none;
+            font-size: 13px;
+            font-weight: 600;
+            color: var(--text-secondary);
+            padding: 8px 16px;
+            border-radius: 20px;
+        }
+
+        .nav-item.active {
+            background: #ffffff;
+            color: var(--accent-blue);
+            box-shadow: 0 2px 8px rgba(0,0,0,0.08);
+        }
+    </style>
+</head>
+<body>
+
+    <div class="header">
+        <h1>Envelope Budget</h1>
+    </div>
+
+    <!-- Main Envelope Display -->
+    <div class="glass-card">
+        <div class="envelope-title">Safe-to-Spend</div>
+        <div class="envelope-amount" id="balance">$150.00</div>
+        
+        <div class="quick-actions">
+            <button class="btn" onclick="spend(5)">-$5</button>
+            <button class="btn" onclick="spend(10)">-$10</button>
+            <button class="btn" onclick="spend(20)">-$20</button>
+        </div>
+    </div>
+
+    <!-- Quick Navigation -->
+    <div class="nav-bar">
+        <button class="nav-item active">Daily</button>
+        <button class="nav-item">Bills</button>
+        <button class="nav-item">Goals</button>
+    </div>
+
+    <script>
+        // Simple local storage script
+        let currentBalance = localStorage.getItem('budget_balance') 
+            ? parseFloat(localStorage.getItem('budget_balance')) 
+            : 150.00;
+
+        function updateDisplay() {
+            document.getElementById('balance').innerText = '$' + currentBalance.toFixed(2);
+            localStorage.setItem('budget_balance', currentBalance);
+        }
+
+        function spend(amount) {
+            currentBalance -= amount;
+            updateDisplay();
+        }
+
+        updateDisplay();
+    </script>
+</body>
+</html>
 
