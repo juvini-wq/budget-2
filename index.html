@@ -18,19 +18,14 @@
     --bg-card-border: rgba(0,0,0,0.08);
     --text-primary: #111827;
     --text-muted: #6b7280;
-
     --accent-purple: #7c3aed;
     --accent-purple-light: rgba(124,58,237,0.08);
-
     --accent-green: #059669;
     --accent-green-bg: rgba(5,150,105,0.1);
-
     --accent-red: #dc2626;
     --accent-red-bg: rgba(220,38,38,0.1);
-
     --input-bg: #f3f4f6;
     --input-border: #e5e7eb;
-
     --nav-bg: #ffffff;
 }
 
@@ -40,19 +35,14 @@
     --bg-card-border: rgba(255,255,255,0.08);
     --text-primary: #f0f3f8;
     --text-muted: #8e9bb0;
-
     --accent-purple: #8b72de;
     --accent-purple-light: rgba(139,114,222,0.15);
-
     --accent-green: #71b898;
     --accent-green-bg: rgba(113,184,152,0.15);
-
     --accent-red: #d97d75;
     --accent-red-bg: rgba(217,125,117,0.15);
-
     --input-bg: #151a26;
     --input-border: rgba(255,255,255,0.15);
-
     --nav-bg: #131722;
 }
 
@@ -67,7 +57,7 @@ html,
 body {
     width: 100%;
     overflow-x: hidden;
-    background-color: var(--bg-main);
+    background: var(--bg-main);
     color: var(--text-primary);
     font-family: 'Inter', -apple-system, sans-serif;
     min-height: 100vh;
@@ -83,23 +73,165 @@ body {
 ========================= */
 
 .header {
-    padding: 24px 20px 12px;
+    padding: 20px 16px 12px;
     max-width: 500px;
     margin: 0 auto;
     width: 100%;
 }
 
+/* Month row */
+
+.month-row {
+    position: relative;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    min-height: 72px;
+    margin-bottom: 4px;
+}
+
+/* Month */
+
+.month-title {
+    font-family: 'Instrument Serif', Georgia, serif;
+    font-size: 48px;
+    font-weight: 400;
+    line-height: 1;
+    text-align: center;
+    position: relative;
+    z-index: 5;
+}
+
+/* =========================
+   STICKER AREAS
+========================= */
+
+.sticker-zone {
+    position: absolute;
+    top: 0;
+    width: 105px;
+    height: 72px;
+
+    overflow: visible;
+
+    /* IMPORTANT:
+       This is NOT a box.
+       It is simply an invisible
+       area where stickers can live.
+    */
+
+    border: none;
+    background: transparent;
+}
+
+.sticker-zone.left {
+    left: 0;
+}
+
+.sticker-zone.right {
+    right: 0;
+}
+
+/* Little hint before stickers are added */
+
+.sticker-zone:empty::after {
+    content: "+";
+    position: absolute;
+    top: 28px;
+
+    width: 18px;
+    height: 18px;
+
+    border-radius: 50%;
+
+    display: flex;
+    align-items: center;
+    justify-content: center;
+
+    color: var(--text-muted);
+    opacity: 0.35;
+
+    font-size: 14px;
+}
+
+.sticker-zone.left:empty::after {
+    right: 10px;
+}
+
+.sticker-zone.right:empty::after {
+    left: 10px;
+}
+
+/* =========================
+   STICKERS
+========================= */
+
+.sticker {
+    position: absolute;
+
+    width: 55px;
+    height: 55px;
+
+    object-fit: contain;
+
+    cursor: move;
+
+    user-select: none;
+    -webkit-user-select: none;
+
+    touch-action: none;
+
+    z-index: 10;
+}
+
+/* selected sticker */
+
+.sticker.selected {
+    outline: 1px dashed var(--accent-purple);
+    outline-offset: 3px;
+}
+
+/* resize handle */
+
+.resize-handle {
+    position: absolute;
+
+    width: 16px;
+    height: 16px;
+
+    border-radius: 50%;
+
+    background: var(--accent-purple);
+
+    border: 2px solid white;
+
+    z-index: 50;
+
+    cursor: nwse-resize;
+
+    display: none;
+}
+
+.sticker-wrapper.selected .resize-handle {
+    display: block;
+}
+
+/* =========================
+   BRAND
+========================= */
+
 .brand-pill {
-    display: inline-flex;
+    display: flex;
     align-items: center;
     gap: 8px;
-    margin-bottom: 12px;
+    margin-bottom: 8px;
 }
 
 .brand-avatar {
     width: 28px;
     height: 28px;
     border-radius: 8px;
+
     background: var(--accent-purple);
     color: white;
 
@@ -118,195 +250,79 @@ body {
     text-transform: uppercase;
 }
 
+/* =========================
+   WELCOME
+========================= */
+
+.welcome-row {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    gap: 8px;
+}
+
+.welcome-text {
+    flex: 1;
+}
+
 .date-subtitle {
-    font-size: 11px;
+    font-size: 10px;
     text-transform: uppercase;
     letter-spacing: 1.2px;
     color: var(--text-muted);
     margin-bottom: 4px;
 }
 
+.page-title {
+    font-size: 27px;
+    font-weight: 400;
+    line-height: 1.15;
+}
+
 /* =========================
-   MONTH + STICKERS
+   PASTE BUTTON
 ========================= */
 
-.month-row {
-    display: flex;
-    align-items: center;
-    justify-content: space-between;
-    gap: 8px;
+.sticker-paste-button {
+    flex-shrink: 0;
 
-    margin-top: 2px;
-    margin-bottom: 4px;
-}
+    border: 1px solid var(--input-border);
+    background: var(--bg-card);
 
-.month-title {
-    font-size: 38px;
-    font-weight: 400;
-    line-height: 1;
-    text-align: center;
+    color: var(--text-muted);
 
-    flex: 0 0 auto;
-}
-
-.sticker-mini-area {
-    width: 72px;
-    height: 48px;
-
-    position: relative;
-
-    border: 1px dashed var(--input-border);
     border-radius: 12px;
 
-    background: transparent;
-
-    overflow: visible;
-
-    cursor: text;
-}
-
-.sticker-mini-area:focus {
-    outline: 2px solid var(--accent-purple-light);
-}
-
-.sticker-hint {
-    position: absolute;
-    inset: 0;
-
-    display: flex;
-    align-items: center;
-    justify-content: center;
-
-    font-size: 9px;
-    color: var(--text-muted);
-    text-transform: uppercase;
-    letter-spacing: 0.5px;
-
-    pointer-events: none;
-}
-
-/* =========================
-   STICKER BOARD
-========================= */
-
-.sticker-board {
-    position: relative;
-
-    width: 100%;
-    min-height: 100px;
-
-    margin: 8px 0 14px;
-
-    border-radius: 18px;
-
-    border: 1px dashed transparent;
-
-    transition: 0.2s ease;
-}
-
-.sticker-board.active-paste {
-    border-color: var(--accent-purple);
-    background: var(--accent-purple-light);
-}
-
-.sticker-board-hint {
-    position: absolute;
-
-    left: 50%;
-    top: 50%;
-
-    transform: translate(-50%, -50%);
+    padding: 8px 10px;
 
     font-size: 11px;
-    color: var(--text-muted);
+    font-weight: 600;
 
-    text-align: center;
+    cursor: pointer;
+}
 
-    pointer-events: none;
+.sticker-paste-button:active {
+    transform: scale(0.96);
+}
 
-    opacity: 0.7;
+/* hidden paste area */
+
+#pasteArea {
+    position: fixed;
+
+    left: -9999px;
+    top: -9999px;
+
+    width: 1px;
+    height: 1px;
+
+    opacity: 0;
+
+    overflow: hidden;
 }
 
 /* =========================
-   STICKERS
-========================= */
-
-.sticker {
-    position: absolute;
-
-    width: 80px;
-
-    min-width: 40px;
-
-    user-select: none;
-    -webkit-user-select: none;
-
-    touch-action: none;
-
-    cursor: grab;
-
-    z-index: 20;
-}
-
-.sticker:active {
-    cursor: grabbing;
-}
-
-.sticker img {
-    display: block;
-
-    width: 100%;
-    height: auto;
-
-    pointer-events: none;
-
-    user-select: none;
-    -webkit-user-drag: none;
-}
-
-.sticker.selected {
-    outline: 2px dashed var(--accent-purple);
-    outline-offset: 4px;
-}
-
-/* resize handle */
-
-.sticker-resize {
-    position: absolute;
-
-    right: -9px;
-    bottom: -9px;
-
-    width: 20px;
-    height: 20px;
-
-    border-radius: 50%;
-
-    background: var(--accent-purple);
-
-    border: 3px solid var(--bg-main);
-
-    cursor: nwse-resize;
-
-    touch-action: none;
-}
-
-/* =========================
-   TITLE
-========================= */
-
-.page-title {
-    font-size: 28px;
-    font-weight: 400;
-
-    margin-top: 8px;
-    margin-bottom: 16px;
-
-    line-height: 1.2;
-}
-
-/* =========================
-   BUTTONS
+   BUTTON
 ========================= */
 
 .action-btn-primary {
@@ -329,13 +345,16 @@ body {
     text-align: center;
 }
 
+.log-button {
+    margin-top: 14px;
+}
+
 /* =========================
    CONTAINER
 ========================= */
 
 .container {
     max-width: 500px;
-
     margin: 0 auto;
 
     padding: 0 16px;
@@ -398,6 +417,7 @@ body {
     margin-bottom: 8px;
 
     display: flex;
+
     align-items: center;
 
     gap: 6px;
@@ -405,15 +425,12 @@ body {
 
 .card-tag::before {
     content: "•";
-
     font-size: 14px;
 }
 
 .card-title {
     font-size: 24px;
-
     font-weight: 400;
-
     margin-bottom: 6px;
 }
 
@@ -428,7 +445,7 @@ body {
 }
 
 /* =========================
-   UPCOMING
+   LIST
 ========================= */
 
 .upcoming-list {
@@ -454,19 +471,15 @@ body {
     border-radius: 14px;
 
     border: 1px solid var(--input-border);
-
-    gap: 10px;
 }
 
 .upcoming-info h4 {
     font-size: 14px;
-
     font-weight: 600;
 }
 
 .upcoming-info span {
     font-size: 12px;
-
     color: var(--text-muted);
 }
 
@@ -540,48 +553,6 @@ body {
     font-size: 15px;
 
     outline: none;
-}
-
-/* =========================
-   TOGGLE
-========================= */
-
-.toggle-group {
-    display: flex;
-
-    gap: 8px;
-
-    margin-bottom: 16px;
-}
-
-.toggle-btn {
-    flex: 1;
-
-    padding: 10px;
-
-    border-radius: 14px;
-
-    border: 1px solid var(--input-border);
-
-    background: transparent;
-
-    color: var(--text-primary);
-
-    font-size: 13px;
-
-    font-weight: 500;
-
-    cursor: pointer;
-}
-
-.toggle-btn.active {
-    border-color: var(--accent-purple);
-
-    background: var(--accent-purple-light);
-
-    color: var(--accent-purple);
-
-    font-weight: 600;
 }
 
 /* =========================
@@ -677,7 +648,7 @@ body {
 
     text-transform: uppercase;
 
-    letter-spacing: 0.5px;
+    letter-spacing: .5px;
 
     color: var(--text-muted);
 }
@@ -741,7 +712,49 @@ body {
 }
 
 /* =========================
-   BOTTOM NAV
+   TOGGLE
+========================= */
+
+.toggle-group {
+    display: flex;
+
+    gap: 8px;
+
+    margin-bottom: 16px;
+}
+
+.toggle-btn {
+    flex: 1;
+
+    padding: 10px;
+
+    border-radius: 14px;
+
+    border: 1px solid var(--input-border);
+
+    background: transparent;
+
+    color: var(--text-primary);
+
+    font-size: 13px;
+
+    font-weight: 500;
+
+    cursor: pointer;
+}
+
+.toggle-btn.active {
+    border-color: var(--accent-purple);
+
+    background: var(--accent-purple-light);
+
+    color: var(--accent-purple);
+
+    font-weight: 600;
+}
+
+/* =========================
+   NAVIGATION
 ========================= */
 
 .bottom-nav {
@@ -807,7 +820,7 @@ body {
 
     inset: 0;
 
-    background: rgba(0,0,0,0.4);
+    background: rgba(0,0,0,.4);
 
     backdrop-filter: blur(4px);
 
@@ -879,7 +892,9 @@ body {
 
     <div class="brand-pill">
 
-        <div class="brand-avatar">V</div>
+        <div class="brand-avatar">
+            V
+        </div>
 
         <div class="brand-text">
             Vicky's Planner
@@ -888,83 +903,88 @@ body {
     </div>
 
 
-    <!-- MONTH WITH SMALL STICKER AREAS -->
+    <!-- MONTH + STICKERS -->
 
     <div class="month-row">
 
         <div
-            class="sticker-mini-area"
-            id="leftMiniStickerArea"
-            tabindex="0"
-            aria-label="Paste sticker here"
-        >
-            <span class="sticker-hint">Sticker</span>
+            class="sticker-zone left"
+            id="sticker-left"
+            contenteditable="true"
+            spellcheck="false">
         </div>
 
 
-        <h1 class="month-title serif" id="month-title">
+        <h1
+            class="month-title"
+            id="month-title">
             August
         </h1>
 
 
         <div
-            class="sticker-mini-area"
-            id="rightMiniStickerArea"
-            tabindex="0"
-            aria-label="Paste sticker here"
-        >
-            <span class="sticker-hint">Sticker</span>
+            class="sticker-zone right"
+            id="sticker-right"
+            contenteditable="true"
+            spellcheck="false">
         </div>
 
     </div>
 
 
-    <div
-        class="date-subtitle"
-        id="current-date"
-    >
-        TODAY
+    <!-- WELCOME -->
+
+    <div class="welcome-row">
+
+        <div class="welcome-text">
+
+            <div
+                class="date-subtitle"
+                id="current-date">
+                TODAY
+            </div>
+
+            <h2
+                class="page-title serif"
+                id="dynamic-greeting">
+                Welcome back, Vicky
+            </h2>
+
+        </div>
+
+
+        <button
+            class="sticker-paste-button"
+            onclick="activateStickerPaste()">
+
+            ＋ Sticker
+
+        </button>
+
     </div>
 
 
-    <h2
-        class="page-title serif"
-        id="dynamic-greeting"
-    >
-        Welcome back, Vicky!
-    </h2>
-
-
-    <!-- STICKER BOARD -->
+    <!-- INVISIBLE PASTE AREA -->
 
     <div
-        class="sticker-board"
-        id="stickerBoard"
-        tabindex="0"
-    >
-
-        <div
-            class="sticker-board-hint"
-            id="stickerBoardHint"
-        >
-            Paste a sticker here ✨
-        </div>
-
+        id="pasteArea"
+        contenteditable="true">
     </div>
 
 
     <button
-        class="action-btn-primary"
-        onclick="switchView('today', null)"
-    >
+        class="action-btn-primary log-button"
+        onclick="switchView('today', null)">
+
         Log a spend
+
     </button>
 
 </div>
 
 
 <!-- =========================
-     MAIN CONTENT
+     MAIN
 ========================= -->
 
 <div class="container">
@@ -974,8 +994,8 @@ body {
 
 <div
     id="view-today"
-    class="view-section active-view"
->
+    class="view-section active-view">
+
 
     <div class="card card-large">
 
@@ -985,9 +1005,10 @@ body {
 
         <div
             class="card-title serif"
-            style="font-size:28px;"
-        >
+            style="font-size:28px;">
+
             Priority Actions
+
         </div>
 
         <div class="card-desc">
@@ -996,6 +1017,7 @@ body {
 
 
         <div class="upcoming-list">
+
 
             <div class="upcoming-item">
 
@@ -1011,12 +1033,14 @@ body {
 
                 </div>
 
+
                 <button
                     class="action-btn-primary"
                     style="width:auto;padding:8px 14px;font-size:13px;"
-                    onclick="this.closest('.upcoming-item').style.display='none'"
-                >
+                    onclick="this.closest('.upcoming-item').style.display='none'">
+
                     Done
+
                 </button>
 
             </div>
@@ -1036,12 +1060,14 @@ body {
 
                 </div>
 
+
                 <button
                     class="action-btn-primary"
                     style="width:auto;padding:8px 14px;font-size:13px;"
-                    onclick="this.closest('.upcoming-item').style.display='none'"
-                >
+                    onclick="this.closest('.upcoming-item').style.display='none'">
+
                     Done
+
                 </button>
 
             </div>
@@ -1059,9 +1085,10 @@ body {
 
         <div
             class="card-title serif"
-            style="font-size:42px;margin-top:4px;"
-        >
+            style="font-size:42px;margin-top:4px;">
+
             $1,107.31
+
         </div>
 
         <div class="card-desc">
@@ -1094,8 +1121,7 @@ body {
 
 <div
     id="view-planner"
-    class="view-section"
->
+    class="view-section">
 
     <div class="card">
 
@@ -1172,8 +1198,7 @@ body {
 
 <div
     id="view-bills"
-    class="view-section"
->
+    class="view-section">
 
     <div class="card">
 
@@ -1183,9 +1208,10 @@ body {
 
         <div
             class="card-title serif"
-            style="font-size:36px;color:var(--accent-purple);"
-        >
+            style="font-size:36px;color:var(--accent-purple);">
+
             $2,000.00
+
         </div>
 
         <div class="card-desc">
@@ -1201,16 +1227,17 @@ body {
 
 <div
     id="view-goals"
-    class="view-section"
->
+    class="view-section">
+
 
     <div class="card">
 
         <div
             class="card-title serif"
-            style="font-size:26px;"
-        >
+            style="font-size:26px;">
+
             Add a goal
+
         </div>
 
         <div class="card-desc">
@@ -1227,8 +1254,7 @@ body {
             <input
                 type="text"
                 class="form-input"
-                placeholder="Japan, next spring"
-            >
+                placeholder="Japan, next spring">
 
         </div>
 
@@ -1242,22 +1268,14 @@ body {
             <input
                 type="number"
                 class="form-input"
-                placeholder="0.00"
-            >
+                placeholder="0.00">
 
         </div>
 
 
-        <div style="display:flex;gap:10px;margin-top:10px;">
-
-            <button
-                class="action-btn-primary"
-                style="flex:1;"
-            >
-                Add goal
-            </button>
-
-        </div>
+        <button class="action-btn-primary">
+            Add goal
+        </button>
 
     </div>
 
@@ -1270,9 +1288,10 @@ body {
 
         <div
             class="card-title serif"
-            style="font-size:24px;"
-        >
+            style="font-size:24px;">
+
             Monthly Bureau Updates
+
         </div>
 
         <div class="card-desc">
@@ -1283,6 +1302,7 @@ body {
 
         <div class="bureau-grid">
 
+
             <div class="bureau-card">
 
                 <span class="bureau-name">
@@ -1291,16 +1311,18 @@ body {
 
                 <span
                     class="bureau-score serif"
-                    id="score-exp"
-                >
+                    id="score-exp">
+
                     742
+
                 </span>
 
                 <span
                     class="score-change score-up"
-                    id="change-exp"
-                >
+                    id="change-exp">
+
                     +12 pts
+
                 </span>
 
             </div>
@@ -1314,16 +1336,18 @@ body {
 
                 <span
                     class="bureau-score serif"
-                    id="score-tu"
-                >
+                    id="score-tu">
+
                     738
+
                 </span>
 
                 <span
                     class="score-change score-up"
-                    id="change-tu"
-                >
+                    id="change-tu">
+
                     +5 pts
+
                 </span>
 
             </div>
@@ -1337,16 +1361,18 @@ body {
 
                 <span
                     class="bureau-score serif"
-                    id="score-eq"
-                >
+                    id="score-eq">
+
                     745
+
                 </span>
 
                 <span
                     class="score-change score-up"
-                    id="change-eq"
-                >
+                    id="change-eq">
+
                     +8 pts
+
                 </span>
 
             </div>
@@ -1362,8 +1388,7 @@ body {
 
             <select
                 class="form-input"
-                id="bureau-select"
-            >
+                id="bureau-select">
 
                 <option value="exp">
                     Experian
@@ -1388,15 +1413,15 @@ body {
                 type="number"
                 class="form-input"
                 id="new-score-input"
-                placeholder="New Score (e.g. 750)"
-            >
+                placeholder="New Score (e.g. 750)">
 
             <button
                 class="action-btn-primary"
                 style="width:auto;padding:0 18px;"
-                onclick="updateCreditScore()"
-            >
+                onclick="updateCreditScore()">
+
                 Update
+
             </button>
 
         </div>
@@ -1406,30 +1431,28 @@ body {
 
             <div
                 class="card-tag"
-                style="margin-bottom:4px;font-size:9px;"
-            >
+                style="margin-bottom:4px;font-size:9px;">
+
                 SCORE GROWTH TREND
+
             </div>
 
             <svg
                 viewBox="0 0 300 50"
-                style="width:100%;height:45px;"
-            >
+                style="width:100%;height:45px;">
 
                 <path
                     d="M 0 40 Q 75 35, 150 20 T 300 10"
                     fill="none"
                     stroke="var(--accent-purple)"
                     stroke-width="3"
-                    stroke-linecap="round"
-                />
+                    stroke-linecap="round"/>
 
                 <circle
                     cx="300"
                     cy="10"
                     r="4"
-                    fill="var(--accent-purple)"
-                />
+                    fill="var(--accent-purple)"/>
 
             </svg>
 
@@ -1444,8 +1467,8 @@ body {
 
 <div
     id="view-settings"
-    class="view-section"
->
+    class="view-section">
+
 
     <div class="card">
 
@@ -1463,17 +1486,20 @@ body {
             <button
                 class="toggle-btn active"
                 id="btn-light"
-                onclick="setTheme('light')"
-            >
+                onclick="setTheme('light')">
+
                 White / Light
+
             </button>
+
 
             <button
                 class="toggle-btn"
                 id="btn-dark"
-                onclick="setTheme('dark')"
-            >
+                onclick="setTheme('dark')">
+
                 Midnight Dark
+
             </button>
 
         </div>
@@ -1487,6 +1513,7 @@ body {
             YOUR MONEY
         </div>
 
+
         <div class="form-group">
 
             <label class="form-label">
@@ -1496,8 +1523,7 @@ body {
             <input
                 type="number"
                 class="form-input"
-                value="1054.00"
-            >
+                value="1054.00">
 
         </div>
 
@@ -1509,7 +1535,7 @@ body {
 
 
 <!-- =========================
-     BOTTOM NAV
+     NAV
 ========================= -->
 
 <nav class="bottom-nav">
@@ -1517,50 +1543,55 @@ body {
     <button
         class="nav-item active"
         id="nav-today"
-        onclick="switchView('today',this)"
-    >
+        onclick="switchView('today',this)">
+
         <span class="icon">☼</span>
         Today
+
     </button>
 
 
     <button
         class="nav-item"
         id="nav-planner"
-        onclick="switchView('planner',this)"
-    >
+        onclick="switchView('planner',this)">
+
         <span class="icon">📅</span>
         Planner
+
     </button>
 
 
     <button
         class="nav-item"
         id="nav-bills"
-        onclick="switchView('bills',this)"
-    >
+        onclick="switchView('bills',this)">
+
         <span class="icon">📋</span>
         Bills
+
     </button>
 
 
     <button
         class="nav-item"
         id="nav-goals"
-        onclick="switchView('goals',this)"
-    >
+        onclick="switchView('goals',this)">
+
         <span class="icon">🎯</span>
         Goals
+
     </button>
 
 
     <button
         class="nav-item"
         id="nav-more"
-        onclick="openMoreModal()"
-    >
+        onclick="openMoreModal()">
+
         <span class="icon">•••</span>
         More
+
     </button>
 
 </nav>
@@ -1573,32 +1604,32 @@ body {
 <div
     class="more-modal"
     id="moreModal"
-    onclick="closeMoreModal()"
->
+    onclick="closeMoreModal()">
 
     <div
         class="more-content"
-        onclick="event.stopPropagation()"
-    >
+        onclick="event.stopPropagation()">
+
 
         <div
-            style="display:flex;justify-content:space-between;align-items:center;"
-        >
+            style="display:flex;justify-content:space-between;align-items:center;">
 
             <div
                 class="card-title serif"
-                style="font-size:22px;"
-            >
+                style="font-size:22px;">
+
                 Menu
+
             </div>
 
 
             <button
                 class="action-btn-primary"
                 style="width:auto;padding:6px 14px;"
-                onclick="closeMoreModal()"
-            >
+                onclick="closeMoreModal()">
+
                 Close
+
             </button>
 
         </div>
@@ -1608,8 +1639,7 @@ body {
 
             <div
                 class="menu-card"
-                onclick="switchView('settings',null);closeMoreModal();"
-            >
+                onclick="switchView('settings',null);closeMoreModal();">
 
                 <div>
 
@@ -1618,9 +1648,10 @@ body {
                     </div>
 
                     <div
-                        style="font-size:12px;color:var(--text-muted);"
-                    >
+                        style="font-size:12px;color:var(--text-muted);">
+
                         Adjust colors & preferences
+
                     </div>
 
                 </div>
@@ -1638,9 +1669,9 @@ body {
 
 <script>
 
-/* ==========================================
+/* =========================
    DATE + MONTH
-========================================== */
+========================= */
 
 window.onload = function() {
 
@@ -1671,25 +1702,23 @@ window.onload = function() {
         'December'
     ];
 
-    var shortMonths = [
-        'JAN',
-        'FEB',
-        'MAR',
-        'APR',
-        'MAY',
-        'JUN',
-        'JUL',
-        'AUG',
-        'SEP',
-        'OCT',
-        'NOV',
-        'DEC'
-    ];
-
     var dayName = days[today.getDay()];
 
-    var dateEl =
-        document.getElementById('current-date');
+    var monthName = months[today.getMonth()];
+
+
+    /* Month */
+
+    var monthEl = document.getElementById('month-title');
+
+    if (monthEl) {
+        monthEl.innerText = monthName;
+    }
+
+
+    /* Date */
+
+    var dateEl = document.getElementById('current-date');
 
     if (dateEl) {
 
@@ -1698,26 +1727,27 @@ window.onload = function() {
             ', ' +
             today.getDate() +
             ' ' +
-            shortMonths[today.getMonth()];
+            monthName.substring(0,3).toUpperCase();
 
     }
 
 
-    var monthEl =
-        document.getElementById('month-title');
+    /* Greeting */
 
-    if (monthEl) {
+    var greetings = [
 
-        monthEl.innerText =
-            months[today.getMonth()];
+        'Welcome back, Vicky',
 
-    }
+        'Good day, Vicky',
 
+        'Hey Vicky',
 
-    /*
-       No motivational quote.
-       Just a simple welcome message.
-    */
+        'Welcome back, Vicky ✨',
+
+        'You got this today, Vicky'
+
+    ];
+
 
     var greetEl =
         document.getElementById('dynamic-greeting');
@@ -1725,781 +1755,27 @@ window.onload = function() {
     if (greetEl) {
 
         greetEl.innerText =
-            'Welcome back, Vicky!';
+            greetings[
+                Math.floor(
+                    Math.random() * greetings.length
+                )
+            ];
 
     }
-
-
-    loadSavedStickers();
 
 };
 
 
-/* ==========================================
-   STICKER PASTE SYSTEM
-========================================== */
-
-/*
-   This is the important part.
-
-   When you copy a cut-out sticker from
-   iPhone Photos, the clipboard contains
-   an image.
-
-   We listen for the paste event and turn
-   that clipboard image into a sticker.
-*/
-
-var stickerBoard =
-    document.getElementById('stickerBoard');
-
-
-document.addEventListener('paste', function(event) {
-
-    var items =
-        event.clipboardData &&
-        event.clipboardData.items;
-
-    if (!items) return;
-
-
-    for (var i = 0; i < items.length; i++) {
-
-        var item = items[i];
-
-
-        if (item.type.indexOf('image') !== -1) {
-
-            var file = item.getAsFile();
-
-            if (file) {
-
-                createStickerFromFile(file);
-
-            }
-
-            event.preventDefault();
-
-            return;
-
-        }
-
-    }
-
-});
-
-
-/* ==========================================
-   CREATE STICKER
-========================================== */
-
-function createStickerFromFile(file) {
-
-    var reader = new FileReader();
-
-
-    reader.onload = function(e) {
-
-        createSticker(e.target.result);
-
-    };
-
-
-    reader.readAsDataURL(file);
-
-}
-
-
-/* ==========================================
-   CREATE STICKER ELEMENT
-========================================== */
-
-function createSticker(imageSrc) {
-
-    var board =
-        document.getElementById('stickerBoard');
-
-    if (!board) return;
-
-
-    var sticker =
-        document.createElement('div');
-
-    sticker.className =
-        'sticker';
-
-
-    /*
-       Give every new sticker a slightly
-       different starting position.
-    */
-
-    var existing =
-        board.querySelectorAll('.sticker').length;
-
-
-    var startX =
-        25 + ((existing * 55) % 260);
-
-    var startY =
-        10 + ((existing * 25) % 70);
-
-
-    sticker.style.left =
-        startX + 'px';
-
-    sticker.style.top =
-        startY + 'px';
-
-
-    sticker.style.width =
-        '80px';
-
-
-    var img =
-        document.createElement('img');
-
-    img.src =
-        imageSrc;
-
-
-    img.draggable =
-        false;
-
-
-    sticker.appendChild(img);
-
-
-    /*
-       Resize handle
-    */
-
-    var resize =
-        document.createElement('div');
-
-    resize.className =
-        'sticker-resize';
-
-
-    sticker.appendChild(resize);
-
-
-    board.appendChild(sticker);
-
-
-    /*
-       Hide empty-board message
-    */
-
-    updateStickerHint();
-
-
-    /*
-       Make it draggable
-    */
-
-    makeStickerDraggable(sticker);
-
-
-    /*
-       Make it resizable
-    */
-
-    makeStickerResizable(
-        sticker,
-        resize
-    );
-
-
-    /*
-       Save it
-    */
-
-    saveStickers();
-
-
-    selectSticker(sticker);
-
-}
-
-
-/* ==========================================
-   DRAG STICKER
-========================================== */
-
-function makeStickerDraggable(sticker) {
-
-    var dragging = false;
-
-    var startPointerX = 0;
-    var startPointerY = 0;
-
-    var startLeft = 0;
-    var startTop = 0;
-
-
-    sticker.addEventListener(
-        'pointerdown',
-        function(event) {
-
-            /*
-               Don't start dragging when the
-               user grabs the resize handle.
-            */
-
-            if (
-                event.target.classList.contains(
-                    'sticker-resize'
-                )
-            ) {
-                return;
-            }
-
-
-            event.preventDefault();
-
-
-            dragging = true;
-
-
-            sticker.setPointerCapture(
-                event.pointerId
-            );
-
-
-            startPointerX =
-                event.clientX;
-
-            startPointerY =
-                event.clientY;
-
-
-            startLeft =
-                parseFloat(
-                    sticker.style.left
-                ) || 0;
-
-
-            startTop =
-                parseFloat(
-                    sticker.style.top
-                ) || 0;
-
-
-            selectSticker(sticker);
-
-        }
-    );
-
-
-    sticker.addEventListener(
-        'pointermove',
-        function(event) {
-
-            if (!dragging) return;
-
-
-            var dx =
-                event.clientX -
-                startPointerX;
-
-            var dy =
-                event.clientY -
-                startPointerY;
-
-
-            sticker.style.left =
-                (startLeft + dx) + 'px';
-
-            sticker.style.top =
-                (startTop + dy) + 'px';
-
-        }
-    );
-
-
-    sticker.addEventListener(
-        'pointerup',
-        function(event) {
-
-            if (!dragging) return;
-
-            dragging = false;
-
-
-            try {
-
-                sticker.releasePointerCapture(
-                    event.pointerId
-                );
-
-            } catch(e) {}
-
-
-            saveStickers();
-
-        }
-    );
-
-}
-
-
-/* ==========================================
-   RESIZE STICKER
-========================================== */
-
-function makeStickerResizable(
-    sticker,
-    handle
-) {
-
-    var resizing = false;
-
-    var startX = 0;
-
-    var startWidth = 0;
-
-
-    handle.addEventListener(
-        'pointerdown',
-        function(event) {
-
-            event.preventDefault();
-            event.stopPropagation();
-
-
-            resizing = true;
-
-
-            handle.setPointerCapture(
-                event.pointerId
-            );
-
-
-            startX =
-                event.clientX;
-
-
-            startWidth =
-                parseFloat(
-                    sticker.style.width
-                ) || 80;
-
-
-            selectSticker(sticker);
-
-        }
-    );
-
-
-    handle.addEventListener(
-        'pointermove',
-        function(event) {
-
-            if (!resizing) return;
-
-
-            var difference =
-                event.clientX -
-                startX;
-
-
-            var newWidth =
-                startWidth +
-                difference;
-
-
-            /*
-               Prevent sticker from becoming
-               ridiculously tiny or huge.
-            */
-
-            newWidth =
-                Math.max(
-                    40,
-                    Math.min(
-                        220,
-                        newWidth
-                    )
-                );
-
-
-            sticker.style.width =
-                newWidth + 'px';
-
-        }
-    );
-
-
-    handle.addEventListener(
-        'pointerup',
-        function(event) {
-
-            if (!resizing) return;
-
-
-            resizing = false;
-
-
-            try {
-
-                handle.releasePointerCapture(
-                    event.pointerId
-                );
-
-            } catch(e) {}
-
-
-            saveStickers();
-
-        }
-    );
-
-}
-
-
-/* ==========================================
-   SELECT STICKER
-========================================== */
-
-function selectSticker(sticker) {
-
-    var stickers =
-        document.querySelectorAll(
-            '.sticker'
-        );
-
-
-    for (
-        var i = 0;
-        i < stickers.length;
-        i++
-    ) {
-
-        stickers[i].classList.remove(
-            'selected'
-        );
-
-    }
-
-
-    sticker.classList.add(
-        'selected'
-    );
-
-}
-
-
-/* ==========================================
-   BOARD HINT
-========================================== */
-
-function updateStickerHint() {
-
-    var board =
-        document.getElementById(
-            'stickerBoard'
-        );
-
-    var hint =
-        document.getElementById(
-            'stickerBoardHint'
-        );
-
-
-    if (!board || !hint) return;
-
-
-    var stickers =
-        board.querySelectorAll(
-            '.sticker'
-        );
-
-
-    hint.style.display =
-        stickers.length
-        ? 'none'
-        : 'block';
-
-}
-
-
-/* ==========================================
-   CLICK BOARD
-========================================== */
-
-stickerBoard.addEventListener(
-    'click',
-    function() {
-
-        stickerBoard.focus();
-
-    }
-);
-
-
-/* ==========================================
-   PASTE HIGHLIGHT
-========================================== */
-
-stickerBoard.addEventListener(
-    'focus',
-    function() {
-
-        stickerBoard.classList.add(
-            'active-paste'
-        );
-
-    }
-);
-
-
-stickerBoard.addEventListener(
-    'blur',
-    function() {
-
-        stickerBoard.classList.remove(
-            'active-paste'
-        );
-
-    }
-);
-
-
-/* ==========================================
-   SAVE STICKERS
-========================================== */
-
-/*
-   Stickers are stored in localStorage
-   so they stay on the page after closing
-   and reopening it.
-
-   NOTE:
-   This stores the sticker image itself,
-   not your personal Photos library.
-*/
-
-function saveStickers() {
-
-    var board =
-        document.getElementById(
-            'stickerBoard'
-        );
-
-
-    if (!board) return;
-
-
-    var stickers =
-        board.querySelectorAll(
-            '.sticker'
-        );
-
-
-    var saved = [];
-
-
-    for (
-        var i = 0;
-        i < stickers.length;
-        i++
-    ) {
-
-        var sticker =
-            stickers[i];
-
-        var img =
-            sticker.querySelector(
-                'img'
-            );
-
-
-        if (!img) continue;
-
-
-        saved.push({
-
-            src: img.src,
-
-            left:
-                sticker.style.left,
-
-            top:
-                sticker.style.top,
-
-            width:
-                sticker.style.width
-
-        });
-
-    }
-
-
-    try {
-
-        localStorage.setItem(
-            'vickyPlannerStickers',
-            JSON.stringify(saved)
-        );
-
-    } catch(error) {
-
-        console.log(
-            'Could not save stickers.'
-        );
-
-    }
-
-}
-
-
-/* ==========================================
-   LOAD STICKERS
-========================================== */
-
-function loadSavedStickers() {
-
-    var saved;
-
-
-    try {
-
-        saved =
-            JSON.parse(
-                localStorage.getItem(
-                    'vickyPlannerStickers'
-                )
-            );
-
-    } catch(error) {
-
-        saved = [];
-
-    }
-
-
-    if (!saved || !saved.length) {
-
-        updateStickerHint();
-
-        return;
-
-    }
-
-
-    var board =
-        document.getElementById(
-            'stickerBoard'
-        );
-
-
-    for (
-        var i = 0;
-        i < saved.length;
-        i++
-    ) {
-
-        var data =
-            saved[i];
-
-
-        var sticker =
-            document.createElement(
-                'div'
-            );
-
-        sticker.className =
-            'sticker';
-
-
-        sticker.style.left =
-            data.left || '20px';
-
-
-        sticker.style.top =
-            data.top || '20px';
-
-
-        sticker.style.width =
-            data.width || '80px';
-
-
-        var img =
-            document.createElement(
-                'img'
-            );
-
-
-        img.src =
-            data.src;
-
-
-        img.draggable =
-            false;
-
-
-        sticker.appendChild(img);
-
-
-        var resize =
-            document.createElement(
-                'div'
-            );
-
-
-        resize.className =
-            'sticker-resize';
-
-
-        sticker.appendChild(
-            resize
-        );
-
-
-        board.appendChild(
-            sticker
-        );
-
-
-        makeStickerDraggable(
-            sticker
-        );
-
-
-        makeStickerResizable(
-            sticker,
-            resize
-        );
-
-    }
-
-
-    updateStickerHint();
-
-}
-
-
-/* ==========================================
-   NAVIGATION
-========================================== */
-
-function switchView(
-    viewId,
-    el
-) {
+/* =========================
+   VIEW SWITCHING
+========================= */
+
+function switchView(viewId, el) {
 
     var sections =
-        document.querySelectorAll(
-            '.view-section'
-        );
+        document.querySelectorAll('.view-section');
 
-
-    for (
-        var i = 0;
-        i < sections.length;
-        i++
-    ) {
+    for (var i = 0; i < sections.length; i++) {
 
         sections[i].classList.remove(
             'active-view'
@@ -2512,7 +1788,6 @@ function switchView(
         document.getElementById(
             'view-' + viewId
         );
-
 
     if (target) {
 
@@ -2530,7 +1805,6 @@ function switchView(
                 '.nav-item'
             );
 
-
         for (
             var j = 0;
             j < navItems.length;
@@ -2543,33 +1817,25 @@ function switchView(
 
         }
 
-
-        el.classList.add(
-            'active'
-        );
+        el.classList.add('active');
 
     }
 
 }
 
 
-/* ==========================================
+/* =========================
    MORE MENU
-========================================== */
+========================= */
 
 function openMoreModal() {
 
     var modal =
-        document.getElementById(
-            'moreModal'
-        );
-
+        document.getElementById('moreModal');
 
     if (modal) {
 
-        modal.classList.add(
-            'open'
-        );
+        modal.classList.add('open');
 
     }
 
@@ -2579,25 +1845,20 @@ function openMoreModal() {
 function closeMoreModal() {
 
     var modal =
-        document.getElementById(
-            'moreModal'
-        );
-
+        document.getElementById('moreModal');
 
     if (modal) {
 
-        modal.classList.remove(
-            'open'
-        );
+        modal.classList.remove('open');
 
     }
 
 }
 
 
-/* ==========================================
-   DARK / LIGHT THEME
-========================================== */
+/* =========================
+   THEME
+========================= */
 
 function setTheme(theme) {
 
@@ -2608,15 +1869,10 @@ function setTheme(theme) {
 
 
     var btnLight =
-        document.getElementById(
-            'btn-light'
-        );
-
+        document.getElementById('btn-light');
 
     var btnDark =
-        document.getElementById(
-            'btn-dark'
-        );
+        document.getElementById('btn-dark');
 
 
     if (btnLight) {
@@ -2641,16 +1897,14 @@ function setTheme(theme) {
 }
 
 
-/* ==========================================
-   CREDIT SCORE
-========================================== */
+/* =========================
+   CREDIT SCORES
+========================= */
 
 var previousScores = {
 
     exp: 730,
-
     tu: 733,
-
     eq: 737
 
 };
@@ -2663,17 +1917,15 @@ function updateCreditScore() {
             'bureau-select'
         );
 
-
     var scoreInput =
         document.getElementById(
             'new-score-input'
         );
 
 
-    if (
-        !bureauSelect ||
-        !scoreInput
-    ) return;
+    if (!bureauSelect || !scoreInput) {
+        return;
+    }
 
 
     var bureau =
@@ -2687,10 +1939,9 @@ function updateCreditScore() {
         );
 
 
-    if (
-        !newScoreVal ||
-        isNaN(newScoreVal)
-    ) return;
+    if (!newScoreVal || isNaN(newScoreVal)) {
+        return;
+    }
 
 
     var scoreEl =
@@ -2748,6 +1999,682 @@ function updateCreditScore() {
     scoreInput.value = '';
 
 }
+
+
+/* =====================================================
+   STICKER SYSTEM
+===================================================== */
+
+/*
+    HOW IT WORKS:
+
+    1. Copy a cut-out from iPhone Photos.
+    2. Tap "+ Sticker".
+    3. Paste.
+
+    The copied image is inserted as an actual sticker.
+
+    Stickers can then be dragged around and resized.
+*/
+
+
+var activeStickerZone = null;
+
+
+/* Activate paste */
+
+function activateStickerPaste() {
+
+    /*
+       Default to the left side.
+       If the user taps the right side first,
+       the right side becomes active.
+    */
+
+    if (!activeStickerZone) {
+
+        activeStickerZone =
+            document.getElementById(
+                'sticker-left'
+            );
+
+    }
+
+
+    var pasteArea =
+        document.getElementById(
+            'pasteArea'
+        );
+
+
+    pasteArea.focus();
+
+
+    /*
+       On iPhone/iPad this opens the
+       paste action when the user
+       chooses Paste.
+    */
+
+    try {
+
+        document.execCommand(
+            'paste'
+        );
+
+    } catch (e) {
+
+        /*
+           The browser will handle the
+           normal Paste command.
+        */
+
+    }
+
+}
+
+
+/* Clicking either sticker area chooses it */
+
+document.addEventListener(
+    'click',
+    function(event) {
+
+        var left =
+            document.getElementById(
+                'sticker-left'
+            );
+
+        var right =
+            document.getElementById(
+                'sticker-right'
+            );
+
+
+        if (
+            event.target === left ||
+            left.contains(event.target)
+        ) {
+
+            activeStickerZone = left;
+
+        }
+
+
+        if (
+            event.target === right ||
+            right.contains(event.target)
+        ) {
+
+            activeStickerZone = right;
+
+        }
+
+    }
+);
+
+
+/* =========================
+   PASTE HANDLER
+========================= */
+
+document.addEventListener(
+    'paste',
+    function(event) {
+
+        var items =
+            event.clipboardData &&
+            event.clipboardData.items;
+
+
+        if (!items) {
+            return;
+        }
+
+
+        for (
+            var i = 0;
+            i < items.length;
+            i++
+        ) {
+
+            var item = items[i];
+
+
+            if (
+                item.type &&
+                item.type.indexOf(
+                    'image'
+                ) !== -1
+            ) {
+
+                var file =
+                    item.getAsFile();
+
+
+                if (file) {
+
+                    createSticker(
+                        file
+                    );
+
+                    event.preventDefault();
+
+                    return;
+
+                }
+
+            }
+
+        }
+
+    }
+);
+
+
+/* =========================
+   CREATE STICKER
+========================= */
+
+function createSticker(file) {
+
+    if (!activeStickerZone) {
+
+        activeStickerZone =
+            document.getElementById(
+                'sticker-left'
+            );
+
+    }
+
+
+    var reader =
+        new FileReader();
+
+
+    reader.onload = function(e) {
+
+        var wrapper =
+            document.createElement(
+                'div'
+            );
+
+
+        wrapper.className =
+            'sticker-wrapper';
+
+
+        wrapper.style.position =
+            'absolute';
+
+
+        wrapper.style.left =
+            '20px';
+
+
+        wrapper.style.top =
+            '5px';
+
+
+        wrapper.style.width =
+            '55px';
+
+
+        wrapper.style.height =
+            '55px';
+
+
+        wrapper.style.zIndex =
+            '20';
+
+
+        var img =
+            document.createElement(
+                'img'
+            );
+
+
+        img.className =
+            'sticker';
+
+
+        img.src =
+            e.target.result;
+
+
+        img.draggable =
+            false;
+
+
+        wrapper.appendChild(
+            img
+        );
+
+
+        /*
+           Resize handle
+        */
+
+        var handle =
+            document.createElement(
+                'div'
+            );
+
+
+        handle.className =
+            'resize-handle';
+
+
+        wrapper.appendChild(
+            handle
+        );
+
+
+        activeStickerZone.appendChild(
+            wrapper
+        );
+
+
+        enableStickerDrag(
+            wrapper,
+            img
+        );
+
+
+        enableStickerResize(
+            wrapper,
+            handle
+        );
+
+
+        selectSticker(
+            wrapper
+        );
+
+    };
+
+
+    reader.readAsDataURL(file);
+
+}
+
+
+/* =========================
+   SELECT STICKER
+========================= */
+
+function selectSticker(wrapper) {
+
+    var all =
+        document.querySelectorAll(
+            '.sticker-wrapper'
+        );
+
+
+    for (
+        var i = 0;
+        i < all.length;
+        i++
+    ) {
+
+        all[i].classList.remove(
+            'selected'
+        );
+
+    }
+
+
+    wrapper.classList.add(
+        'selected'
+    );
+
+}
+
+
+/* =========================
+   DRAG STICKER
+========================= */
+
+function enableStickerDrag(
+    wrapper,
+    img
+) {
+
+    var dragging = false;
+
+    var startX = 0;
+    var startY = 0;
+
+    var startLeft = 0;
+    var startTop = 0;
+
+
+    function start(e) {
+
+        /*
+           Don't drag if touching resize
+           handle.
+        */
+
+        if (
+            e.target.classList.contains(
+                'resize-handle'
+            )
+        ) {
+
+            return;
+
+        }
+
+
+        dragging = true;
+
+
+        var point =
+            e.touches
+            ? e.touches[0]
+            : e;
+
+
+        startX =
+            point.clientX;
+
+        startY =
+            point.clientY;
+
+
+        startLeft =
+            wrapper.offsetLeft;
+
+        startTop =
+            wrapper.offsetTop;
+
+
+        selectSticker(
+            wrapper
+        );
+
+
+        e.preventDefault();
+
+    }
+
+
+    function move(e) {
+
+        if (!dragging) {
+            return;
+        }
+
+
+        var point =
+            e.touches
+            ? e.touches[0]
+            : e;
+
+
+        var dx =
+            point.clientX -
+            startX;
+
+
+        var dy =
+            point.clientY -
+            startY;
+
+
+        wrapper.style.left =
+            (startLeft + dx) +
+            'px';
+
+
+        wrapper.style.top =
+            (startTop + dy) +
+            'px';
+
+
+        e.preventDefault();
+
+    }
+
+
+    function end() {
+
+        dragging = false;
+
+    }
+
+
+    wrapper.addEventListener(
+        'mousedown',
+        start
+    );
+
+
+    wrapper.addEventListener(
+        'touchstart',
+        start,
+        {
+            passive:false
+        }
+    );
+
+
+    document.addEventListener(
+        'mousemove',
+        move
+    );
+
+
+    document.addEventListener(
+        'touchmove',
+        move,
+        {
+            passive:false
+        }
+    );
+
+
+    document.addEventListener(
+        'mouseup',
+        end
+    );
+
+
+    document.addEventListener(
+        'touchend',
+        end
+    );
+
+}
+
+
+/* =========================
+   RESIZE STICKER
+========================= */
+
+function enableStickerResize(
+    wrapper,
+    handle
+) {
+
+    var resizing = false;
+
+    var startX = 0;
+
+    var startWidth = 0;
+
+
+    function start(e) {
+
+        resizing = true;
+
+
+        var point =
+            e.touches
+            ? e.touches[0]
+            : e;
+
+
+        startX =
+            point.clientX;
+
+
+        startWidth =
+            wrapper.offsetWidth;
+
+
+        selectSticker(
+            wrapper
+        );
+
+
+        e.preventDefault();
+
+        e.stopPropagation();
+
+    }
+
+
+    function move(e) {
+
+        if (!resizing) {
+            return;
+        }
+
+
+        var point =
+            e.touches
+            ? e.touches[0]
+            : e;
+
+
+        var dx =
+            point.clientX -
+            startX;
+
+
+        var newSize =
+            startWidth + dx;
+
+
+        /*
+           Prevent stickers from becoming
+           ridiculously tiny or huge.
+        */
+
+        newSize =
+            Math.max(
+                25,
+                Math.min(
+                    140,
+                    newSize
+                )
+            );
+
+
+        wrapper.style.width =
+            newSize + 'px';
+
+
+        wrapper.style.height =
+            newSize + 'px';
+
+
+        e.preventDefault();
+
+    }
+
+
+    function end() {
+
+        resizing = false;
+
+    }
+
+
+    handle.addEventListener(
+        'mousedown',
+        start
+    );
+
+
+    handle.addEventListener(
+        'touchstart',
+        start,
+        {
+            passive:false
+        }
+    );
+
+
+    document.addEventListener(
+        'mousemove',
+        move
+    );
+
+
+    document.addEventListener(
+        'touchmove',
+        move,
+        {
+            passive:false
+        }
+    );
+
+
+    document.addEventListener(
+        'mouseup',
+        end
+    );
+
+
+    document.addEventListener(
+        'touchend',
+        end
+    );
+
+}
+
+
+/* =========================
+   CLICK OUTSIDE = DESELECT
+========================= */
+
+document.addEventListener(
+    'click',
+    function(e) {
+
+        if (
+            !e.target.closest(
+                '.sticker-wrapper'
+            )
+        ) {
+
+            var stickers =
+                document.querySelectorAll(
+                    '.sticker-wrapper'
+                );
+
+
+            for (
+                var i = 0;
+                i < stickers.length;
+                i++
+            ) {
+
+                stickers[i]
+                    .classList
+                    .remove(
+                        'selected'
+                    );
+
+            }
+
+        }
+
+    }
+);
 
 </script>
 
