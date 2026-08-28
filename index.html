@@ -1,1552 +1,1261 @@
 <!DOCTYPE html>
 <html lang="en">
 <head>
-<meta charset="UTF-8">
-<meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
-
-<title>Vicky's Planner</title>
-
-<link rel="preconnect" href="https://fonts.googleapis.com">
-<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
-<link href="https://fonts.googleapis.com/css2?family=Instrument+Serif:ital@0;1&family=Inter:wght@300;400;500;600;700&display=swap" rel="stylesheet">
-
-<style>
-
-:root {
-    --bg-main: #f8f9fc;
-    --bg-card: #ffffff;
-    --bg-card-border: rgba(0,0,0,0.08);
-    --text-primary: #111827;
-    --text-muted: #6b7280;
-    --accent-purple: #7c3aed;
-    --accent-purple-light: rgba(124,58,237,0.08);
-    --accent-green: #059669;
-    --accent-green-bg: rgba(5,150,105,0.1);
-    --accent-red: #dc2626;
-    --accent-red-bg: rgba(220,38,38,0.1);
-    --input-bg: #f3f4f6;
-    --input-border: #e5e7eb;
-    --nav-bg: #ffffff;
-}
-
-[data-theme="dark"] {
-    --bg-main: #131722;
-    --bg-card: #1c2230;
-    --bg-card-border: rgba(255,255,255,0.08);
-    --text-primary: #f0f3f8;
-    --text-muted: #8e9bb0;
-    --accent-purple: #8b72de;
-    --accent-purple-light: rgba(139,114,222,0.15);
-    --accent-green: #71b898;
-    --accent-green-bg: rgba(113,184,152,0.15);
-    --accent-red: #d97d75;
-    --accent-red-bg: rgba(217,125,117,0.15);
-    --input-bg: #151a26;
-    --input-border: rgba(255,255,255,0.15);
-    --nav-bg: #131722;
-}
-
-* {
-    box-sizing: border-box;
-    -webkit-tap-highlight-color: transparent;
-    margin: 0;
-    padding: 0;
-}
-
-html,
-body {
-    width: 100%;
-    overflow-x: hidden;
-    background: var(--bg-main);
-    color: var(--text-primary);
-    font-family: 'Inter', -apple-system, BlinkMacSystemFont, sans-serif;
-    min-height: 100vh;
-    padding-bottom: 90px;
-}
-
-.serif {
-    font-family: 'Instrument Serif', Georgia, serif;
-}
-
-
-/* =====================================================
-   HEADER
-===================================================== */
-
-.<div class="header">
-
-    <div class="month-sticker-header">
-
-        <div class="sticker-zone" id="left-stickers"
-             contenteditable="true"
-             spellcheck="false"
-             onpaste="pasteSticker(event, this)">
-        </div>
-
-        <div class="month-title">
-            <span id="current-month">AUGUST</span>
-        </div>
-
-        <div class="sticker-zone" id="right-stickers"
-             contenteditable="true"
-             spellcheck="false"
-             onpaste="pasteSticker(event, this)">
-        </div>
-
-    </div>
-
-    <div class="date-subtitle" id="current-date">TODAY</div>
-
-    <h1 class="page-title serif" id="dynamic-greeting">
-        Welcome back, Vicky
-    </h1>
-
-    <button class="action-btn-primary" onclick="switchView('today', null)">
-        Log a spend
-    </button>
-
-</div>
-
-/* =====================================================
-   MONTH
-===================================================== */
-
-.month-header {
-    text-align: center;
-    margin: 4px 0 12px;
-}
-
-.month-name {
-    font-family: 'Instrument Serif', Georgia, serif;
-    font-size: 34px;
-    font-weight: 400;
-    line-height: 1;
-    text-transform: uppercase;
-}
-
-.month-year {
-    font-size: 10px;
-    letter-spacing: 2px;
-    color: var(--text-muted);
-    margin-top: 4px;
-}
-
-
-/* =====================================================
-   TODAY + GREETING + STICKER CANVAS
-===================================================== */
-
-.today-row {
-    display: flex;
-    align-items: center;
-    justify-content: space-between;
-    gap: 10px;
-    margin-bottom: 16px;
-}
-
-.greeting-area {
-    flex: 1;
-    min-width: 0;
-}
-
-.date-subtitle {
-    font-size: 10px;
-    text-transform: uppercase;
-    letter-spacing: 1.2px;
-    color: var(--text-muted);
-    margin-bottom: 3px;
-}
-
-.page-title {
-    font-size: 28px;
-    font-weight: 400;
-    line-height: 1.1;
-}
-
-
-/* =====================================================
-   SMALL OPEN STICKER CANVAS
-===================================================== */
-
-.sticker-canvas {
-    width: 145px;
-    height: 72px;
-    flex-shrink: 0;
-    position: relative;
-    overflow: hidden;
-
-    /*
-       Completely invisible when empty.
-       There is no box, border, or background.
-    */
-    background: transparent;
-
-    touch-action: none;
-}
-
-
-/*
-   Hidden editable paste target.
-
-   This is what gives iOS a real editable element
-   to work with when the user wants to paste.
-*/
-
-.paste-target {
-    position: absolute;
-    width: 1px;
-    height: 1px;
-    opacity: 0;
-    left: 50%;
-    top: 50%;
-    border: 0;
-    padding: 0;
-    outline: none;
-    background: transparent;
-    color: transparent;
-    z-index: 1;
-}
-
-
-/*
-   Small + appears only when there are no stickers.
-*/
-
-.sticker-add {
-    position: absolute;
-    inset: 0;
-    display: flex;
-    align-items: center;
-    justify-content: center;
-    color: var(--text-muted);
-    font-size: 22px;
-    opacity: 0.35;
-    pointer-events: none;
-}
-
-
-/* =====================================================
-   INDIVIDUAL STICKERS
-===================================================== */
-
-.sticker {
-    position: absolute;
-    width: 58px;
-    height: 58px;
-
-    object-fit: contain;
-
-    cursor: grab;
-    user-select: none;
-    -webkit-user-select: none;
-    -webkit-touch-callout: none;
-
-    touch-action: none;
-
-    z-index: 5;
-
-    filter: drop-shadow(
-        0 2px 3px rgba(0,0,0,0.08)
-    );
-}
-
-.sticker.dragging {
-    cursor: grabbing;
-    z-index: 100;
-    transform: scale(1.08);
-}
-
-.sticker-delete {
-    position: absolute;
-    width: 18px;
-    height: 18px;
-
-    border-radius: 50%;
-    border: none;
-
-    background: rgba(0,0,0,0.55);
-    color: white;
-
-    font-size: 12px;
-    line-height: 18px;
-
-    padding: 0;
-
-    display: none;
-
-    z-index: 200;
-}
-
-.sticker.selected + .sticker-delete {
-    display: block;
-}
-
-
-/* =====================================================
-   MAIN
-===================================================== */
-
-.container {
-    max-width: 500px;
-    margin: 0 auto;
-    padding: 0 16px;
-    width: 100%;
-
-    display: flex;
-    flex-direction: column;
-    gap: 16px;
-}
-
-.view-section {
-    display: none;
-    flex-direction: column;
-    gap: 16px;
-    width: 100%;
-}
-
-.view-section.active-view {
-    display: flex;
-}
-
-
-/* =====================================================
-   CARDS
-===================================================== */
-
-.card {
-    background: var(--bg-card);
-    border: 1px solid var(--bg-card-border);
-    border-radius: 20px;
-    padding: 22px;
-    box-shadow: 0 2px 12px rgba(0,0,0,0.03);
-    width: 100%;
-}
-
-.card-large {
-    padding: 26px;
-}
-
-.card-tag {
-    font-size: 10px;
-    font-weight: 700;
-    letter-spacing: 1.5px;
-    text-transform: uppercase;
-    color: var(--accent-purple);
-    margin-bottom: 8px;
-
-    display: flex;
-    align-items: center;
-    gap: 6px;
-}
-
-.card-tag::before {
-    content: "•";
-    font-size: 14px;
-}
-
-.card-title {
-    font-size: 24px;
-    font-weight: 400;
-    margin-bottom: 6px;
-}
-
-.card-desc {
-    font-size: 13px;
-    color: var(--text-muted);
-    line-height: 1.4;
-    margin-bottom: 16px;
-}
-
-
-/* =====================================================
-   UPCOMING
-===================================================== */
-
-.upcoming-list {
-    display: flex;
-    flex-direction: column;
-    gap: 12px;
-    margin-top: 14px;
-}
-
-.upcoming-item {
-    display: flex;
-    align-items: center;
-    justify-content: space-between;
-
-    padding: 12px 14px;
-
-    background: var(--input-bg);
-    border-radius: 14px;
-    border: 1px solid var(--input-border);
-}
-
-.upcoming-info h4 {
-    font-size: 14px;
-    font-weight: 600;
-}
-
-.upcoming-info span {
-    font-size: 12px;
-    color: var(--text-muted);
-}
-
-
-/* =====================================================
-   BUTTONS
-===================================================== */
-
-.action-btn-primary {
-    width: 100%;
-    background: var(--accent-purple);
-    color: white;
-    border: none;
-    padding: 14px;
-    border-radius: 16px;
-    font-size: 15px;
-    font-weight: 600;
-    cursor: pointer;
-    text-align: center;
-}
-
-.quick-pills {
-    display: flex;
-    flex-direction: column;
-    gap: 8px;
-    margin-top: 14px;
-}
-
-.pill-btn {
-    background: var(--input-bg);
-    border: 1px solid var(--input-border);
-    color: var(--text-primary);
-
-    padding: 12px;
-    border-radius: 12px;
-
-    font-size: 14px;
-    font-weight: 500;
-
-    text-align: center;
-    cursor: pointer;
-}
-
-
-/* =====================================================
-   FORMS
-===================================================== */
-
-.form-group {
-    display: flex;
-    flex-direction: column;
-    gap: 6px;
-    margin-bottom: 14px;
-}
-
-.form-label {
-    font-size: 13px;
-    font-weight: 500;
-}
-
-.form-input {
-    width: 100%;
-    background: var(--input-bg);
-    border: 1px solid var(--input-border);
-    color: var(--text-primary);
-
-    padding: 12px 14px;
-    border-radius: 12px;
-
-    font-size: 15px;
-    outline: none;
-}
-
-.toggle-group {
-    display: flex;
-    gap: 8px;
-    margin-bottom: 16px;
-}
-
-.toggle-btn {
-    flex: 1;
-    padding: 10px;
-    border-radius: 14px;
-
-    border: 1px solid var(--input-border);
-    background: transparent;
-    color: var(--text-primary);
-
-    font-size: 13px;
-    font-weight: 500;
-    cursor: pointer;
-}
-
-.toggle-btn.active {
-    border-color: var(--accent-purple);
-    background: var(--accent-purple-light);
-    color: var(--accent-purple);
-    font-weight: 600;
-}
-
-
-/* =====================================================
-   STATS
-===================================================== */
-
-.stats-grid {
-    display: grid;
-    grid-template-columns: 1fr 1fr;
-    gap: 10px;
-}
-
-.stat-box {
-    padding: 14px;
-    border-radius: 14px;
-
-    display: flex;
-    flex-direction: column;
-    gap: 4px;
-}
-
-.stat-box.green {
-    background: rgba(5,150,105,0.08);
-}
-
-.stat-box.red {
-    background: rgba(220,38,38,0.08);
-}
-
-.stat-box.purple {
-    background: rgba(124,58,237,0.08);
-}
-
-.stat-box.blue {
-    background: rgba(37,99,235,0.08);
-}
-
-.stat-label {
-    font-size: 12px;
-    color: var(--text-muted);
-}
-
-.stat-val {
-    font-size: 24px;
-    font-weight: 400;
-}
-
-
-/* =====================================================
-   CREDIT SCORES
-===================================================== */
-
-.bureau-grid {
-    display: grid;
-    grid-template-columns: repeat(3,1fr);
-    gap: 8px;
-
-    margin-top: 12px;
-    margin-bottom: 16px;
-}
-
-.bureau-card {
-    background: var(--input-bg);
-    border: 1px solid var(--input-border);
-    border-radius: 14px;
-
-    padding: 12px 8px;
-
-    text-align: center;
-
-    display: flex;
-    flex-direction: column;
-    gap: 4px;
-}
-
-.bureau-name {
-    font-size: 10px;
-    font-weight: 700;
-    text-transform: uppercase;
-    letter-spacing: 0.5px;
-    color: var(--text-muted);
-}
-
-.bureau-score {
-    font-size: 22px;
-}
-
-.score-change {
-    font-size: 10px;
-    font-weight: 700;
-    padding: 2px 6px;
-    border-radius: 10px;
-    display: inline-block;
-    margin: 0 auto;
-}
-
-.score-up {
-    color: var(--accent-green);
-    background: var(--accent-green-bg);
-}
-
-.score-down {
-    color: var(--accent-red);
-    background: var(--accent-red-bg);
-}
-
-.credit-input-row {
-    display: flex;
-    gap: 8px;
-    margin-top: 10px;
-}
-
-.chart-container {
-    width: 100%;
-    height: 100px;
-    margin-top: 14px;
-
-    background: var(--input-bg);
-    border-radius: 14px;
-    padding: 10px;
-
-    display: flex;
-    flex-direction: column;
-    justify-content: flex-end;
-}
-
-
-/* =====================================================
-   BOTTOM NAV
-===================================================== */
-
-.bottom-nav {
-    position: fixed;
-
-    bottom: 0;
-    left: 0;
-    right: 0;
-
-    background: var(--nav-bg);
-
-    border-top: 1px solid var(--bg-card-border);
-
-    display: flex;
-    justify-content: space-around;
-
-    padding: 10px 0 20px;
-
-    z-index: 200;
-}
-
-.nav-item {
-    display: flex;
-    flex-direction: column;
-    align-items: center;
-
-    gap: 4px;
-
-    color: var(--text-muted);
-
-    font-size: 11px;
-
-    background: none;
-    border: none;
-
-    cursor: pointer;
-
-    width: 20%;
-}
-
-.nav-item.active {
-    color: var(--accent-purple);
-    font-weight: 600;
-}
-
-.nav-item .icon {
-    font-size: 18px;
-}
-
-
-/* =====================================================
-   MORE MENU
-===================================================== */
-
-.more-modal {
-    position: fixed;
-    inset: 0;
-
-    background: rgba(0,0,0,0.4);
-
-    backdrop-filter: blur(4px);
-
-    z-index: 300;
-
-    display: none;
-    align-items: flex-end;
-}
-
-.more-modal.open {
-    display: flex;
-}
-
-.more-content {
-    background: var(--bg-main);
-
-    width: 100%;
-
-    border-top-left-radius: 24px;
-    border-top-right-radius: 24px;
-
-    padding: 24px 20px 40px;
-
-    max-height: 80vh;
-    overflow-y: auto;
-}
-
-.menu-list {
-    display: flex;
-    flex-direction: column;
-    gap: 10px;
-    margin-top: 16px;
-}
-
-.menu-card {
-    background: var(--bg-card);
-
-    border: 1px solid var(--bg-card-border);
-
-    padding: 16px;
-
-    border-radius: 16px;
-
-    display: flex;
-    justify-content: space-between;
-    align-items: center;
-
-    cursor: pointer;
-}
-
-</style>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
+    <title>Budget and Planner</title>
+
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Instrument+Serif:ital@0;1&family=Inter:wght@300;400;500;600;700&display=swap" rel="stylesheet">
+
+    <style>
+        :root {
+            --bg-main: #f8f9fc;
+            --bg-card: #ffffff;
+            --bg-card-border: rgba(0, 0, 0, 0.08);
+            --text-primary: #111827;
+            --text-muted: #6b7280;
+            --accent-purple: #7c3aed;
+            --accent-purple-light: rgba(124, 58, 237, 0.08);
+            --accent-green: #059669;
+            --accent-green-bg: rgba(5, 150, 105, 0.1);
+            --accent-red: #dc2626;
+            --accent-red-bg: rgba(220, 38, 38, 0.1);
+            --input-bg: #f3f4f6;
+            --input-border: #e5e7eb;
+            --nav-bg: #ffffff;
+        }
+
+        [data-theme="dark"] {
+            --bg-main: #131722;
+            --bg-card: #1c2230;
+            --bg-card-border: rgba(255, 255, 255, 0.08);
+            --text-primary: #f0f3f8;
+            --text-muted: #8e9bb0;
+            --accent-purple: #8b72de;
+            --accent-purple-light: rgba(139, 114, 222, 0.15);
+            --accent-green: #71b898;
+            --accent-green-bg: rgba(113, 184, 152, 0.15);
+            --accent-red: #d97d75;
+            --accent-red-bg: rgba(217, 125, 117, 0.15);
+            --input-bg: #151a26;
+            --input-border: rgba(255, 255, 255, 0.15);
+            --nav-bg: #131722;
+        }
+
+        * {
+            box-sizing: border-box;
+            -webkit-tap-highlight-color: transparent;
+            margin: 0;
+            padding: 0;
+        }
+
+        html,
+        body {
+            width: 100%;
+            overflow-x: hidden;
+            background-color: var(--bg-main);
+            color: var(--text-primary);
+            font-family: 'Inter', -apple-system, sans-serif;
+            min-height: 100vh;
+            padding-bottom: 90px;
+        }
+
+        body {
+            -webkit-touch-callout: none;
+        }
+
+        .serif {
+            font-family: 'Instrument Serif', Georgia, serif;
+        }
+
+        /* ==========================================
+           HEADER
+           ========================================== */
+
+        .header {
+            padding: 20px 20px 12px 20px;
+            max-width: 500px;
+            margin: 0 auto;
+            width: 100%;
+        }
+
+        /*
+           MONTH HEADER
+
+           Sticker area | AUGUST | Sticker area
+        */
+
+        .month-sticker-header {
+            width: 100%;
+            min-height: 86px;
+
+            display: grid;
+            grid-template-columns: 1fr auto 1fr;
+            align-items: center;
+
+            gap: 5px;
+            margin-bottom: 5px;
+        }
+
+        .month-title {
+            text-align: center;
+            padding: 0 4px;
+        }
+
+        .month-title span {
+            font-family: 'Instrument Serif', Georgia, serif;
+            font-size: 44px;
+            font-weight: 400;
+            line-height: 1;
+            white-space: nowrap;
+        }
+
+        /*
+           These are intentionally NOT boxes.
+           They are just little invisible
+           sticker canvases.
+        */
+
+        .sticker-zone {
+            position: relative;
+
+            width: 100%;
+            height: 86px;
+
+            overflow: hidden;
+
+            background: transparent;
+            border: none;
+            outline: none;
+
+            touch-action: none;
+            user-select: none;
+            -webkit-user-select: none;
+        }
+
+        /*
+           Tiny + sign only appears when empty.
+        */
+
+        .sticker-zone:empty::after {
+            content: "+";
+
+            position: absolute;
+            left: 50%;
+            top: 50%;
+
+            transform: translate(-50%, -50%);
+
+            font-size: 18px;
+            font-weight: 300;
+
+            color: var(--text-muted);
+            opacity: 0.28;
+
+            pointer-events: none;
+        }
+
+        /*
+           STICKER
+        */
+
+        .sticker-item {
+            position: absolute;
+
+            width: 55px;
+            height: 55px;
+
+            object-fit: contain;
+
+            user-select: none;
+            -webkit-user-select: none;
+            -webkit-user-drag: none;
+
+            cursor: grab;
+
+            touch-action: none;
+
+            transform-origin: center center;
+
+            z-index: 5;
+        }
+
+        .sticker-item:active {
+            cursor: grabbing;
+        }
+
+        .date-subtitle {
+            font-size: 11px;
+            text-transform: uppercase;
+            letter-spacing: 1.2px;
+            color: var(--text-muted);
+            margin-bottom: 4px;
+        }
+
+        .page-title {
+            font-size: 30px;
+            font-weight: 400;
+            margin-bottom: 16px;
+            line-height: 1.2;
+        }
+
+        .action-btn-primary {
+            width: 100%;
+            background: var(--accent-purple);
+            color: #ffffff;
+            border: none;
+            padding: 14px;
+            border-radius: 16px;
+            font-size: 15px;
+            font-weight: 600;
+            cursor: pointer;
+            text-align: center;
+        }
+
+        /* ==========================================
+           MAIN CONTAINER
+           ========================================== */
+
+        .container {
+            max-width: 500px;
+            margin: 0 auto;
+            padding: 0 16px;
+            width: 100%;
+
+            display: flex;
+            flex-direction: column;
+            gap: 16px;
+        }
+
+        .view-section {
+            display: none;
+            flex-direction: column;
+            gap: 16px;
+            width: 100%;
+        }
+
+        .view-section.active-view {
+            display: flex;
+        }
+
+        /* ==========================================
+           CARDS
+           ========================================== */
+
+        .card {
+            background: var(--bg-card);
+            border: 1px solid var(--bg-card-border);
+            border-radius: 20px;
+            padding: 22px;
+            box-shadow: 0 2px 12px rgba(0,0,0,0.03);
+            width: 100%;
+        }
+
+        .card-large {
+            padding: 26px;
+        }
+
+        .card-tag {
+            font-size: 10px;
+            font-weight: 700;
+            letter-spacing: 1.5px;
+            text-transform: uppercase;
+            color: var(--accent-purple);
+            margin-bottom: 8px;
+
+            display: flex;
+            align-items: center;
+            gap: 6px;
+        }
+
+        .card-tag::before {
+            content: "•";
+            font-size: 14px;
+        }
+
+        .card-title {
+            font-size: 24px;
+            font-weight: 400;
+            margin-bottom: 6px;
+        }
+
+        .card-desc {
+            font-size: 13px;
+            color: var(--text-muted);
+            line-height: 1.4;
+            margin-bottom: 16px;
+        }
+
+        /* ==========================================
+           UPCOMING
+           ========================================== */
+
+        .upcoming-list {
+            display: flex;
+            flex-direction: column;
+            gap: 12px;
+            margin-top: 14px;
+        }
+
+        .upcoming-item {
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+
+            padding: 12px 14px;
+
+            background: var(--input-bg);
+            border-radius: 14px;
+
+            border: 1px solid var(--input-border);
+        }
+
+        .upcoming-info h4 {
+            font-size: 14px;
+            font-weight: 600;
+        }
+
+        .upcoming-info span {
+            font-size: 12px;
+            color: var(--text-muted);
+        }
+
+        /* ==========================================
+           CREDIT
+           ========================================== */
+
+        .bureau-grid {
+            display: grid;
+            grid-template-columns: repeat(3, 1fr);
+            gap: 8px;
+
+            margin-top: 12px;
+            margin-bottom: 16px;
+        }
+
+        .bureau-card {
+            background: var(--input-bg);
+            border: 1px solid var(--input-border);
+
+            border-radius: 14px;
+            padding: 12px 8px;
+
+            text-align: center;
+
+            display: flex;
+            flex-direction: column;
+            gap: 4px;
+        }
+
+        .bureau-name {
+            font-size: 10px;
+            font-weight: 700;
+            text-transform: uppercase;
+            letter-spacing: 0.5px;
+            color: var(--text-muted);
+        }
+
+        .bureau-score {
+            font-size: 22px;
+            font-weight: 400;
+        }
+
+        .score-change {
+            font-size: 10px;
+            font-weight: 700;
+
+            padding: 2px 6px;
+            border-radius: 10px;
+
+            display: inline-block;
+            margin: 0 auto;
+        }
+
+        .score-up {
+            color: var(--accent-green);
+            background: var(--accent-green-bg);
+        }
+
+        .score-down {
+            color: var(--accent-red);
+            background: var(--accent-red-bg);
+        }
+
+        .credit-input-row {
+            display: flex;
+            gap: 8px;
+            margin-top: 10px;
+        }
+
+        .chart-container {
+            width: 100%;
+            height: 100px;
+
+            margin-top: 14px;
+
+            background: var(--input-bg);
+            border-radius: 14px;
+            padding: 10px;
+
+            display: flex;
+            flex-direction: column;
+            justify-content: flex-end;
+        }
+
+        /* ==========================================
+           QUICK PILLS
+           ========================================== */
+
+        .quick-pills {
+            display: flex;
+            flex-direction: column;
+            gap: 8px;
+            margin-top: 14px;
+        }
+
+        .pill-btn {
+            background: var(--input-bg);
+            border: 1px solid var(--input-border);
+
+            color: var(--text-primary);
+
+            padding: 12px;
+            border-radius: 12px;
+
+            font-size: 14px;
+            font-weight: 500;
+
+            text-align: center;
+            cursor: pointer;
+        }
+
+        /* ==========================================
+           FORMS
+           ========================================== */
+
+        .form-group {
+            display: flex;
+            flex-direction: column;
+            gap: 6px;
+
+            margin-bottom: 14px;
+        }
+
+        .form-label {
+            font-size: 13px;
+            font-weight: 500;
+        }
+
+        .form-input {
+            width: 100%;
+
+            background: var(--input-bg);
+            border: 1px solid var(--input-border);
+
+            color: var(--text-primary);
+
+            padding: 12px 14px;
+            border-radius: 12px;
+
+            font-size: 15px;
+            outline: none;
+        }
+
+        .toggle-group {
+            display: flex;
+            gap: 8px;
+            margin-bottom: 16px;
+        }
+
+        .toggle-btn {
+            flex: 1;
+
+            padding: 10px;
+            border-radius: 14px;
+
+            border: 1px solid var(--input-border);
+
+            background: transparent;
+            color: var(--text-primary);
+
+            font-size: 13px;
+            font-weight: 500;
+
+            cursor: pointer;
+        }
+
+        .toggle-btn.active {
+            border-color: var(--accent-purple);
+            background: var(--accent-purple-light);
+            color: var(--accent-purple);
+            font-weight: 600;
+        }
+
+        /* ==========================================
+           STATS
+           ========================================== */
+
+        .stats-grid {
+            display: grid;
+            grid-template-columns: 1fr 1fr;
+            gap: 10px;
+        }
+
+        .stat-box {
+            padding: 14px;
+            border-radius: 14px;
+
+            display: flex;
+            flex-direction: column;
+            gap: 4px;
+        }
+
+        .stat-box.green {
+            background: rgba(5, 150, 105, 0.08);
+        }
+
+        .stat-box.red {
+            background: rgba(220, 38, 38, 0.08);
+        }
+
+        .stat-box.purple {
+            background: rgba(124, 58, 237, 0.08);
+        }
+
+        .stat-box.blue {
+            background: rgba(37, 99, 235, 0.08);
+        }
+
+        .stat-label {
+            font-size: 12px;
+            color: var(--text-muted);
+        }
+
+        .stat-val {
+            font-size: 24px;
+            font-weight: 400;
+        }
+
+        /* ==========================================
+           BOTTOM NAV
+           ========================================== */
+
+        .bottom-nav {
+            position: fixed;
+
+            bottom: 0;
+            left: 0;
+            right: 0;
+
+            background: var(--nav-bg);
+
+            border-top: 1px solid var(--bg-card-border);
+
+            display: flex;
+            justify-content: space-around;
+
+            padding: 10px 0 20px 0;
+
+            z-index: 200;
+        }
+
+        .nav-item {
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            gap: 4px;
+
+            color: var(--text-muted);
+
+            font-size: 11px;
+
+            background: none;
+            border: none;
+
+            cursor: pointer;
+
+            width: 20%;
+        }
+
+        .nav-item.active {
+            color: var(--accent-purple);
+            font-weight: 600;
+        }
+
+        .nav-item .icon {
+            font-size: 18px;
+        }
+
+        /* ==========================================
+           MORE MODAL
+           ========================================== */
+
+        .more-modal {
+            position: fixed;
+            inset: 0;
+
+            background: rgba(0, 0, 0, 0.4);
+
+            backdrop-filter: blur(4px);
+
+            z-index: 300;
+
+            display: none;
+            align-items: flex-end;
+        }
+
+        .more-modal.open {
+            display: flex;
+        }
+
+        .more-content {
+            background: var(--bg-main);
+
+            width: 100%;
+
+            border-top-left-radius: 24px;
+            border-top-right-radius: 24px;
+
+            padding: 24px 20px 40px 20px;
+
+            max-height: 80vh;
+            overflow-y: auto;
+        }
+
+        .menu-list {
+            display: flex;
+            flex-direction: column;
+
+            gap: 10px;
+
+            margin-top: 16px;
+        }
+
+        .menu-card {
+            background: var(--bg-card);
+
+            border: 1px solid var(--bg-card-border);
+
+            padding: 16px;
+
+            border-radius: 16px;
+
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+
+            cursor: pointer;
+        }
+
+        /* ==========================================
+           SMALL PHONES
+           ========================================== */
+
+        @media (max-width: 380px) {
+
+            .month-sticker-header {
+                min-height: 72px;
+            }
+
+            .sticker-zone {
+                height: 72px;
+            }
+
+            .month-title span {
+                font-size: 36px;
+            }
+
+            .sticker-item {
+                width: 48px;
+                height: 48px;
+            }
+        }
+
+    </style>
 </head>
-
 
 <body data-theme="light">
 
+    <!-- ==========================================
+         HEADER
+         ========================================== -->
 
-<!-- =====================================================
-     HEADER
-===================================================== -->
+    <div class="header">
 
-<div class="header">
+        <div class="month-sticker-header">
 
-    <div class="brand-pill">
-
-        <div class="brand-avatar">
-            V
-        </div>
-
-        <div class="brand-text">
-            Vicky's Planner
-        </div>
-
-    </div>
-
-
-    <!-- MONTH -->
-
-    <div class="month-header">
-
-        <div
-            class="month-name"
-            id="month-name"
-        >
-            August
-        </div>
-
-        <div
-            class="month-year"
-            id="month-year"
-        >
-            2026
-        </div>
-
-    </div>
-
-
-    <!-- TODAY + GREETING + STICKERS -->
-
-    <div class="today-row">
-
-        <div class="greeting-area">
-
+            <!-- LEFT STICKER AREA -->
             <div
-                class="date-subtitle"
-                id="current-date"
-            >
-                TODAY
+                class="sticker-zone"
+                id="left-stickers"
+                tabindex="0"
+                onpaste="pasteSticker(event, this)"
+            ></div>
+
+            <!-- MONTH -->
+            <div class="month-title">
+                <span id="current-month">AUGUST</span>
             </div>
 
-            <h1
-                class="page-title serif"
-                id="dynamic-greeting"
-            >
-                Welcome back, Vicky!
-            </h1>
-
-        </div>
-
-
-        <!--
-            OPEN STICKER CANVAS
-
-            No boxes.
-            No visible border.
-            Stickers float here.
-        -->
-
-        <div
-            class="sticker-canvas"
-            id="stickerCanvas"
-            onclick="activatePaste()"
-        >
-
+            <!-- RIGHT STICKER AREA -->
             <div
-                class="sticker-add"
-                id="stickerAdd"
-            >
-                +
-            </div>
-
-
-            <!--
-                Real editable element for iPhone Paste.
-            -->
-
-            <textarea
-                class="paste-target"
-                id="pasteTarget"
-                aria-label="Paste sticker here"
-            ></textarea>
+                class="sticker-zone"
+                id="right-stickers"
+                tabindex="0"
+                onpaste="pasteSticker(event, this)"
+            ></div>
 
         </div>
 
-    </div>
-
-
-    <button
-        class="action-btn-primary"
-        onclick="switchView('today', null)"
-    >
-        Log a spend
-    </button>
-
-</div>
-
-
-<!-- =====================================================
-     MAIN CONTENT
-===================================================== -->
-
-<div class="container">
-
-
-<!-- =====================================================
-     TODAY
-===================================================== -->
-
-<div
-    id="view-today"
-    class="view-section active-view"
->
-
-    <div class="card card-large">
-
-        <div class="card-tag">
-            COMING UP NEXT...
+        <div class="date-subtitle" id="current-date">
+            TODAY
         </div>
 
-        <div
-            class="card-title serif"
-            style="font-size:28px;"
-        >
-            Priority Actions
-        </div>
-
-        <div class="card-desc">
-            Quick items to keep everything on track
-        </div>
-
-
-        <div class="upcoming-list">
-
-            <div class="upcoming-item">
-
-                <div class="upcoming-info">
-
-                    <h4>
-                        Mark Internet paid
-                    </h4>
-
-                    <span>
-                        Due today • $79.99
-                    </span>
-
-                </div>
-
-                <button
-                    class="action-btn-primary"
-                    style="
-                        width:auto;
-                        padding:8px 14px;
-                        font-size:13px;
-                    "
-                    onclick="
-                        this.closest('.upcoming-item').style.display='none'
-                    "
-                >
-                    Done
-                </button>
-
-            </div>
-
-
-            <div class="upcoming-item">
-
-                <div class="upcoming-info">
-
-                    <h4>
-                        Log weekly groceries
-                    </h4>
-
-                    <span>
-                        Pending update
-                    </span>
-
-                </div>
-
-                <button
-                    class="action-btn-primary"
-                    style="
-                        width:auto;
-                        padding:8px 14px;
-                        font-size:13px;
-                    "
-                    onclick="
-                        this.closest('.upcoming-item').style.display='none'
-                    "
-                >
-                    Done
-                </button>
-
-            </div>
-
-        </div>
-
-    </div>
-
-
-    <!-- SAFE TO SPEND -->
-
-    <div class="card">
-
-        <div class="card-tag">
-            SAFE TO SPEND TODAY
-        </div>
-
-        <div
-            class="card-title serif"
-            style="
-                font-size:42px;
-                margin-top:4px;
-            "
-        >
-            $1,107.31
-        </div>
-
-        <div class="card-desc">
-            of today's starting balance
-        </div>
-
-
-        <div class="quick-pills">
-
-            <button class="pill-btn">
-                + Coffee ($5)
-            </button>
-
-            <button class="pill-btn">
-                + Lunch ($15)
-            </button>
-
-            <button class="pill-btn">
-                + Bus ($2.50)
-            </button>
-
-        </div>
-
-    </div>
-
-</div>
-
-
-<!-- =====================================================
-     PLANNER
-===================================================== -->
-
-<div
-    id="view-planner"
-    class="view-section"
->
-
-    <div class="card">
-
-        <div class="card-tag">
-            THIS MONTH AT A GLANCE
-        </div>
-
-        <div class="card-desc">
-            $10 kept
-        </div>
-
-        <div class="stats-grid">
-
-            <div class="stat-box green">
-
-                <span class="stat-label">
-                    Came in
-                </span>
-
-                <span class="stat-val serif">
-                    $600
-                </span>
-
-            </div>
-
-
-            <div class="stat-box red">
-
-                <span class="stat-label">
-                    Went out
-                </span>
-
-                <span class="stat-val serif">
-                    $590
-                </span>
-
-            </div>
-
-
-            <div class="stat-box purple">
-
-                <span class="stat-label">
-                    Kept
-                </span>
-
-                <span class="stat-val serif">
-                    $10
-                </span>
-
-            </div>
-
-
-            <div class="stat-box blue">
-
-                <span class="stat-label">
-                    Still yours
-                </span>
-
-                <span class="stat-val serif">
-                    $0
-                </span>
-
-            </div>
-
-        </div>
-
-    </div>
-
-</div>
-
-
-<!-- =====================================================
-     BILLS
-===================================================== -->
-
-<div
-    id="view-bills"
-    class="view-section"
->
-
-    <div class="card">
-
-        <div class="card-tag">
-            STILL TO GO OUT
-        </div>
-
-        <div
-            class="card-title serif"
-            style="
-                font-size:36px;
-                color:var(--accent-purple);
-            "
-        >
-            $2,000.00
-        </div>
-
-        <div class="card-desc">
-            all clear for now
-        </div>
-
-    </div>
-
-</div>
-
-
-<!-- =====================================================
-     GOALS
-===================================================== -->
-
-<div
-    id="view-goals"
-    class="view-section"
->
-
-    <div class="card">
-
-        <div
-            class="card-title serif"
-            style="font-size:26px;"
-        >
-            Add a goal
-        </div>
-
-        <div class="card-desc">
-            name, amount, pace
-        </div>
-
-
-        <div class="form-group">
-
-            <label class="form-label">
-                What it is for
-            </label>
-
-            <input
-                type="text"
-                class="form-input"
-                placeholder="Japan, next spring"
-            >
-
-        </div>
-
-
-        <div class="form-group">
-
-            <label class="form-label">
-                How much you need
-            </label>
-
-            <input
-                type="number"
-                class="form-input"
-                placeholder="0.00"
-            >
-
-        </div>
-
+        <h1 class="page-title serif" id="dynamic-greeting">
+            Welcome back, Vicky
+        </h1>
 
         <button
             class="action-btn-primary"
+            onclick="switchView('today', null)"
         >
-            Add goal
+            Log a spend
         </button>
 
     </div>
 
 
-    <!-- CREDIT SCORES -->
+    <!-- ==========================================
+         MAIN CONTAINER
+         ========================================== -->
 
-    <div class="card">
-
-        <div class="card-tag">
-            CREDIT SCORES & BUREAUS
-        </div>
-
-        <div
-            class="card-title serif"
-            style="font-size:24px;"
-        >
-            Monthly Bureau Updates
-        </div>
-
-        <div class="card-desc">
-            Track scores & trend growth for
-            Experian, TransUnion, and Equifax.
-        </div>
+    <div class="container">
 
 
-        <div class="bureau-grid">
+        <!-- ======================================
+             TODAY
+             ====================================== -->
 
-            <div class="bureau-card">
+        <div id="view-today" class="view-section active-view">
 
-                <span class="bureau-name">
-                    Experian
-                </span>
+            <div class="card card-large">
 
-                <span
-                    class="bureau-score serif"
-                    id="score-exp"
+                <div class="card-tag">
+                    COMING UP NEXT...
+                </div>
+
+                <div
+                    class="card-title serif"
+                    style="font-size: 28px;"
                 >
-                    742
-                </span>
+                    Priority Actions
+                </div>
 
-                <span
-                    class="score-change score-up"
-                    id="change-exp"
-                >
-                    +12 pts
-                </span>
+                <div class="card-desc">
+                    Quick items to keep everything on track
+                </div>
 
-            </div>
+                <div class="upcoming-list">
 
+                    <div class="upcoming-item">
 
-            <div class="bureau-card">
+                        <div class="upcoming-info">
 
-                <span class="bureau-name">
-                    TransUnion
-                </span>
+                            <h4>
+                                Mark Internet paid
+                            </h4>
 
-                <span
-                    class="bureau-score serif"
-                    id="score-tu"
-                >
-                    738
-                </span>
+                            <span>
+                                Due today • $79.99
+                            </span>
 
-                <span
-                    class="score-change score-up"
-                    id="change-tu"
-                >
-                    +5 pts
-                </span>
+                        </div>
 
-            </div>
+                        <button
+                            class="action-btn-primary"
+                            style="width:auto; padding:8px 14px; font-size:13px;"
+                            onclick="this.closest('.upcoming-item').style.display='none'"
+                        >
+                            Done
+                        </button>
 
-
-            <div class="bureau-card">
-
-                <span class="bureau-name">
-                    Equifax
-                </span>
-
-                <span
-                    class="bureau-score serif"
-                    id="score-eq"
-                >
-                    745
-                </span>
-
-                <span
-                    class="score-change score-up"
-                    id="change-eq"
-                >
-                    +8 pts
-                </span>
-
-            </div>
-
-        </div>
-
-
-        <div class="form-group">
-
-            <label class="form-label">
-                Update Score
-            </label>
-
-            <select
-                class="form-input"
-                id="bureau-select"
-            >
-
-                <option value="exp">
-                    Experian
-                </option>
-
-                <option value="tu">
-                    TransUnion
-                </option>
-
-                <option value="eq">
-                    Equifax
-                </option>
-
-            </select>
-
-        </div>
-
-
-        <div class="credit-input-row">
-
-            <input
-                type="number"
-                class="form-input"
-                id="new-score-input"
-                placeholder="New Score (e.g. 750)"
-            >
-
-            <button
-                class="action-btn-primary"
-                style="
-                    width:auto;
-                    padding:0 18px;
-                "
-                onclick="updateCreditScore()"
-            >
-                Update
-            </button>
-
-        </div>
-
-
-        <div class="chart-container">
-
-            <div
-                class="card-tag"
-                style="
-                    margin-bottom:4px;
-                    font-size:9px;
-                "
-            >
-                SCORE GROWTH TREND
-            </div>
-
-            <svg
-                viewBox="0 0 300 50"
-                style="
-                    width:100%;
-                    height:45px;
-                "
-            >
-
-                <path
-                    d="M 0 40 Q 75 35, 150 20 T 300 10"
-                    fill="none"
-                    stroke="var(--accent-purple)"
-                    stroke-width="3"
-                    stroke-linecap="round"
-                />
-
-                <circle
-                    cx="300"
-                    cy="10"
-                    r="4"
-                    fill="var(--accent-purple)"
-                />
-
-            </svg>
-
-        </div>
-
-    </div>
-
-</div>
-
-
-<!-- =====================================================
-     SETTINGS
-===================================================== -->
-
-<div
-    id="view-settings"
-    class="view-section"
->
-
-    <div class="card">
-
-        <div class="card-tag">
-            APPEARANCE
-        </div>
-
-        <div class="card-desc">
-            Choose your preferred workspace theme.
-        </div>
-
-
-        <div class="toggle-group">
-
-            <button
-                class="toggle-btn active"
-                id="btn-light"
-                onclick="setTheme('light')"
-            >
-                White / Light
-            </button>
-
-            <button
-                class="toggle-btn"
-                id="btn-dark"
-                onclick="setTheme('dark')"
-            >
-                Midnight Dark
-            </button>
-
-        </div>
-
-    </div>
-
-
-    <div class="card">
-
-        <div class="card-tag">
-            YOUR MONEY
-        </div>
-
-        <div class="form-group">
-
-            <label class="form-label">
-                Already set aside
-            </label>
-
-            <input
-                type="number"
-                class="form-input"
-                value="1054.00"
-            >
-
-        </div>
-
-    </div>
-
-</div>
-
-</div>
-
-
-<!-- =====================================================
-     BOTTOM NAV
-===================================================== -->
-
-<nav class="bottom-nav">
-
-    <button
-        class="nav-item active"
-        onclick="switchView('today', this)"
-    >
-        <span class="icon">☼</span>
-        Today
-    </button>
-
-
-    <button
-        class="nav-item"
-        onclick="switchView('planner', this)"
-    >
-        <span class="icon">📅</span>
-        Planner
-    </button>
-
-
-    <button
-        class="nav-item"
-        onclick="switchView('bills', this)"
-    >
-        <span class="icon">📋</span>
-        Bills
-    </button>
-
-
-    <button
-        class="nav-item"
-        onclick="switchView('goals', this)"
-    >
-        <span class="icon">🎯</span>
-        Goals
-    </button>
-
-
-    <button
-        class="nav-item"
-        onclick="openMoreModal()"
-    >
-        <span class="icon">•••</span>
-        More
-    </button>
-
-</nav>
-
-
-<!-- =====================================================
-     MORE MODAL
-===================================================== -->
-
-<div
-    class="more-modal"
-    id="moreModal"
-    onclick="closeMoreModal()"
->
-
-    <div
-        class="more-content"
-        onclick="event.stopPropagation()"
-    >
-
-        <div
-            style="
-                display:flex;
-                justify-content:space-between;
-                align-items:center;
-            "
-        >
-
-            <div
-                class="card-title serif"
-                style="font-size:22px;"
-            >
-                Menu
-            </div>
-
-            <button
-                class="action-btn-primary"
-                style="
-                    width:auto;
-                    padding:6px 14px;
-                "
-                onclick="closeMoreModal()"
-            >
-                Close
-            </button>
-
-        </div>
-
-
-        <div class="menu-list">
-
-            <div
-                class="menu-card"
-                onclick="
-                    switchView('settings', null);
-                    closeMoreModal();
-                "
-            >
-
-                <div>
-
-                    <div style="font-weight:600;">
-                        Settings & Themes
                     </div>
 
-                    <div
-                        style="
-                            font-size:12px;
-                            color:var(--text-muted);
-                        "
-                    >
-                        Adjust colors & preferences
+
+                    <div class="upcoming-item">
+
+                        <div class="upcoming-info">
+
+                            <h4>
+                                Log weekly groceries
+                            </h4>
+
+                            <span>
+                                Pending update
+                            </span>
+
+                        </div>
+
+                        <button
+                            class="action-btn-primary"
+                            style="width:auto; padding:8px 14px; font-size:13px;"
+                            onclick="this.closest('.upcoming-item').style.display='none'"
+                        >
+                            Done
+                        </button>
+
                     </div>
 
                 </div>
 
-                <span>›</span>
+            </div>
+
+
+            <div class="card">
+
+                <div class="card-tag">
+                    SAFE TO SPEND TODAY
+                </div>
+
+                <div
+                    class="card-title serif"
+                    style="font-size:42px; margin-top:4px;"
+                >
+                    $1,107.31
+                </div>
+
+                <div class="card-desc">
+                    of today's starting balance
+                </div>
+
+                <div class="quick-pills">
+
+                    <button class="pill-btn">
+                        + Coffee ($5)
+                    </button>
+
+                    <button class="pill-btn">
+                        + Lunch ($15)
+                    </button>
+
+                    <button class="pill-btn">
+                        + Bus ($2.50)
+                    </button>
+
+                </div>
+
+            </div>
+
+        </div>
+
+
+        <!-- ======================================
+             PLANNER
+             ====================================== -->
+
+        <div id="view-planner" class="view-section">
+
+            <div class="card">
+
+                <div class="card-tag">
+                    THIS MONTH AT A GLANCE
+                </div>
+
+                <div class="card-desc">
+                    $10 kept
+                </div>
+
+                <div class="stats-grid">
+
+                    <div class="stat-box green">
+
+                        <span class="stat-label">
+                            Came in
+                        </span>
+
+                        <span class="stat-val serif">
+                            $600
+                        </span>
+
+                    </div>
+
+
+                    <div class="stat-box red">
+
+                        <span class="stat-label">
+                            Went out
+                        </span>
+
+                        <span class="stat-val serif">
+                            $590
+                        </span>
+
+                    </div>
+
+
+                    <div class="stat-box purple">
+
+                        <span class="stat-label">
+                            Kept
+                        </span>
+
+                        <span class="stat-val serif">
+                            $10
+                        </span>
+
+                    </div>
+
+
+                    <div class="stat-box blue">
+
+                        <span class="stat-label">
+                            Still yours
+                        </span>
+
+                        <span class="stat-val serif">
+                            $0
+                        </span>
+
+                    </div>
+
+                </div>
+
+            </div>
+
+        </div>
+
+
+        <!-- ======================================
+             BILLS
+             ====================================== -->
+
+        <div id="view-bills" class="view-section">
+
+            <div class="card">
+
+                <div class="card-tag">
+                    STILL TO GO OUT
+                </div>
+
+                <div
+                    class="card-title serif"
+                    style="font-size:36px; color:var(--accent-purple);"
+                >
+                    $2,000.00
+                </div>
+
+                <div class="card-desc">
+                    all clear for now
+                </div>
+
+            </div>
+
+        </div>
+
+
+        <!-- ======================================
+             GOALS
+             ====================================== -->
+
+        <div id="view-goals" class="view-section">
+
+            <div class="card">
+
+                <div
+                    class="card-title serif"
+                    style="font-size:26px;"
+                >
+                    Add a goal
+                </div>
+
+                <div class="card-desc">
+                    name, amount, pace
+                </div>
+
+                <div class="form-group">
+
+                    <label class="form-label">
+                        What it is for
+                    </label>
+
+                    <input
+                        type="text"
+                        class="form-input"
+                        placeholder="Japan, next spring"
+                    >
+
+                </div>
+
+
+                <div class="form-group">
+
+                    <label class="form-label">
+                        How much you need
+                    </label>
+
+                    <input
+                        type="number"
+                        class="form-input"
+                        placeholder="0.00"
+                    >
+
+                </div>
+
+
+                <div
+                    style="display:flex; gap:10px; margin-top:10px;"
+                >
+
+                    <button
+                        class="action-btn-primary"
+                        style="flex:1;"
+                    >
+                        Add goal
+                    </button>
+
+                </div>
+
+            </div>
+
+
+            <div class="card">
+
+                <div class="card-tag">
+                    CREDIT SCORES & BUREAUS
+                </div>
+
+                <div
+                    class="card-title serif"
+                    style="font-size:24px;"
+                >
+                    Monthly Bureau Updates
+                </div>
+
+                <div class="card-desc">
+                    Track scores & trend growth for Experian,
+                    TransUnion, and Equifax.
+                </div>
+
+
+                <div class="bureau-grid">
+
+                    <div class="bureau-card">
+
+                        <span class="bureau-name">
+                            Experian
+                        </span>
+
+                        <span
+                            class="bureau-score serif"
+                            id="score-exp"
+                        >
+                            742
+                        </span>
+
+                        <span
+                            class="score-change score-up"
+                            id="change-exp"
+                        >
+                            +12 pts
+                        </span>
+
+                    </div>
+
+
+                    <div class="bureau-card">
+
+                        <span class="bureau-name">
+                            TransUnion
+                        </span>
+
+                        <span
+                            class="bureau-score serif"
+                            id="score-tu"
+                        >
+                            738
+                        </span>
+
+                        <span
+                            class="score-change score-up"
+                            id="change-tu"
+                        >
+                            +5 pts
+                        </span>
+
+                    </div>
+
+
+                    <div class="bureau-card">
+
+                        <span class="bureau-name">
+                            Equifax
+                        </span>
+
+                        <span
+                            class="bureau-score serif"
+                            id="score-eq"
+                        >
+                            745
+                        </span>
+
+                        <span
+                            class="score-change score-up"
+                            id="change-eq"
+                        >
+                            +8 pts
+                        </span>
+
+                    </div>
+
+                </div>
+
+
+                <div class="form-group">
+
+                    <label class="form-label">
+                        Update Score
+                    </label>
+
+                    <select
+                        class="form-input"
+                        id="bureau-select"
+                    >
+
+                        <option value="exp">
+                            Experian
+                        </option>
+
+                        <option value="tu">
+                            TransUnion
+                        </option>
+
+                        <option value="eq">
+                            Equifax
+                        </option>
+
+                    </select>
+
+                </div>
+
+
+                <div class="credit-input-row">
+
+                    <input
+                        type="number"
+                        class="form-input"
+                        id="new-score-input"
+                        placeholder="New Score (e.g. 750)"
+                    >
+
+                    <button
+                        class="action-btn-primary"
+                        style="width:auto; padding:0 18px;"
+                        onclick="updateCreditScore()"
+                    >
+                        Update
+                    </button>
+
+                </div>
+
+
+                <div class="chart-container">
+
+                    <div
+                        class="card-tag"
+                        style="margin-bottom:4px; font-size:9px;"
+                    >
+                        SCORE GROWTH TREND
+                    </div>
+
+                    <svg
+                        viewBox="0 0 300 50"
+                        style="width:100%; height:45px;"
+                    >
+
+                        <path
+                            d="M 0 40 Q 75 35, 150 20 T 300 10"
+                            fill="none"
+                            stroke="var(--accent-purple)"
+                            stroke-width="3"
+                            stroke-linecap="round"
+                        />
+
+                        <circle
+                            cx="300"
+                            cy="10"
+                            r="4"
+                            fill="var(--accent-purple)"
+                        />
+
+                    </svg>
+
+                </div>
+
+            </div>
+
+        </div>
+
+
+        <!-- ======================================
+             SETTINGS
+             ====================================== -->
+
+        <div id="view-settings" class="view-section">
+
+            <div class="card">
+
+                <div class="card-tag">
+                    APPEARANCE
+                </div>
+
+                <div class="card-desc">
+                    Choose your preferred workspace theme.
+                </div>
+
+                <div class="toggle-group">
+
+                    <button
+                        class="toggle-btn active"
+                        id="btn-light"
+                        onclick="setTheme('light')"
+                    >
+                        White / Light
+                    </button>
+
+                    <button
+                        class="toggle-btn"
+                        id="btn-dark"
+                        onclick="setTheme('dark')"
+                    >
+                        Midnight Dark
+                    </button>
+
+                </div>
+
+            </div>
+
+
+            <div class="card">
+
+                <div class="card-tag">
+                    YOUR MONEY
+                </div>
+
+                <div class="form-group">
+
+                    <label class="form-label">
+                        Already set aside
+                    </label>
+
+                    <input
+                        type="number"
+                        class="form-input"
+                        value="1054.00"
+                    >
+
+                </div>
 
             </div>
 
@@ -1554,256 +1263,592 @@ body {
 
     </div>
 
-</div>
+
+    <!-- ==========================================
+         BOTTOM NAVIGATION
+         ========================================== -->
+
+    <nav class="bottom-nav">
+
+        <button
+            class="nav-item active"
+            id="nav-today"
+            onclick="switchView('today', this)"
+        >
+            <span class="icon">☼</span>
+            Today
+        </button>
 
 
-<script>
+        <button
+            class="nav-item"
+            id="nav-planner"
+            onclick="switchView('planner', this)"
+        >
+            <span class="icon">📅</span>
+            Planner
+        </button>
 
 
-/* =====================================================
-   DATE
-===================================================== */
-
-window.onload = function() {
-
-    var today = new Date();
-
-    var days = [
-        'SUNDAY',
-        'MONDAY',
-        'TUESDAY',
-        'WEDNESDAY',
-        'THURSDAY',
-        'FRIDAY',
-        'SATURDAY'
-    ];
-
-    var months = [
-        'January',
-        'February',
-        'March',
-        'April',
-        'May',
-        'June',
-        'July',
-        'August',
-        'September',
-        'October',
-        'November',
-        'December'
-    ];
-
-    var shortMonths = [
-        'JAN',
-        'FEB',
-        'MAR',
-        'APR',
-        'MAY',
-        'JUN',
-        'JUL',
-        'AUG',
-        'SEP',
-        'OCT',
-        'NOV',
-        'DEC'
-    ];
+        <button
+            class="nav-item"
+            id="nav-bills"
+            onclick="switchView('bills', this)"
+        >
+            <span class="icon">📋</span>
+            Bills
+        </button>
 
 
-    var dayName =
-        days[today.getDay()];
+        <button
+            class="nav-item"
+            id="nav-goals"
+            onclick="switchView('goals', this)"
+        >
+            <span class="icon">🎯</span>
+            Goals
+        </button>
 
 
-    document.getElementById(
-        'month-name'
-    ).innerText =
-        months[today.getMonth()];
+        <button
+            class="nav-item"
+            id="nav-more"
+            onclick="openMoreModal()"
+        >
+            <span class="icon">•••</span>
+            More
+        </button>
+
+    </nav>
 
 
-    document.getElementById(
-        'month-year'
-    ).innerText =
-        today.getFullYear();
+    <!-- ==========================================
+         MORE MODAL
+         ========================================== -->
+
+    <div
+        class="more-modal"
+        id="moreModal"
+        onclick="closeMoreModal()"
+    >
+
+        <div
+            class="more-content"
+            onclick="event.stopPropagation()"
+        >
+
+            <div
+                style="display:flex; justify-content:space-between; align-items:center;"
+            >
+
+                <div
+                    class="card-title serif"
+                    style="font-size:22px;"
+                >
+                    Menu
+                </div>
+
+                <button
+                    class="action-btn-primary"
+                    style="width:auto; padding:6px 14px;"
+                    onclick="closeMoreModal()"
+                >
+                    Close
+                </button>
+
+            </div>
 
 
-    document.getElementById(
-        'current-date'
-    ).innerText =
-        dayName +
-        ', ' +
-        today.getDate() +
-        ' ' +
-        shortMonths[today.getMonth()];
+            <div class="menu-list">
+
+                <div
+                    class="menu-card"
+                    onclick="switchView('settings', null); closeMoreModal();"
+                >
+
+                    <div>
+
+                        <div style="font-weight:600;">
+                            Settings & Themes
+                        </div>
+
+                        <div
+                            style="font-size:12px; color:var(--text-muted);"
+                        >
+                            Adjust colors & preferences
+                        </div>
+
+                    </div>
+
+                    <span>›</span>
+
+                </div>
+
+            </div>
+
+        </div>
+
+    </div>
 
 
-    /*
-       Simple greeting.
-       No motivational quote.
-    */
+    <!-- ==========================================
+         JAVASCRIPT
+         ========================================== -->
 
-    document.getElementById(
-        'dynamic-greeting'
-    ).innerText =
-        'Welcome back, Vicky!';
+    <script>
 
+        /* ==========================================
+           PAGE LOAD
+           ========================================== */
 
-    loadStickers();
+        window.onload = function() {
 
-};
+            var today = new Date();
 
+            var days = [
+                'SUNDAY',
+                'MONDAY',
+                'TUESDAY',
+                'WEDNESDAY',
+                'THURSDAY',
+                'FRIDAY',
+                'SATURDAY'
+            ];
 
+            var months = [
+                'JANUARY',
+                'FEBRUARY',
+                'MARCH',
+                'APRIL',
+                'MAY',
+                'JUNE',
+                'JULY',
+                'AUGUST',
+                'SEPTEMBER',
+                'OCTOBER',
+                'NOVEMBER',
+                'DECEMBER'
+            ];
 
-/* =====================================================
-   STICKER PASTE
-===================================================== */
+            var shortMonths = [
+                'JAN',
+                'FEB',
+                'MAR',
+                'APR',
+                'MAY',
+                'JUN',
+                'JUL',
+                'AUG',
+                'SEP',
+                'OCT',
+                'NOV',
+                'DEC'
+            ];
 
-
-/*
-   When the user taps the little sticker area,
-   focus the actual editable paste target.
-*/
-
-function activatePaste() {
-
-    var target =
-        document.getElementById(
-            'pasteTarget'
-        );
-
-    if (!target) return;
-
-    target.focus();
-
-}
-
-
-/*
-   Clipboard event.
-
-   This handles pasted images when the browser
-   exposes them through the clipboard event.
-*/
-
-document.addEventListener(
-    'paste',
-    function(event) {
-
-        var clipboard =
-            event.clipboardData ||
-            window.clipboardData;
-
-        if (!clipboard) return;
-
-
-        var items =
-            clipboard.items;
-
-        if (!items) return;
+            var dayName =
+                days[today.getDay()];
 
 
-        for (
-            var i = 0;
-            i < items.length;
-            i++
-        ) {
+            /* MONTH */
 
-            var item = items[i];
+            var monthEl =
+                document.getElementById(
+                    'current-month'
+                );
+
+            if (monthEl) {
+
+                monthEl.innerText =
+                    months[today.getMonth()];
+
+            }
 
 
-            /*
-               Image copied from Photos.
-            */
+            /* DATE */
 
-            if (
-                item.kind === 'file' &&
-                item.type.indexOf('image') !== -1
+            var dateEl =
+                document.getElementById(
+                    'current-date'
+                );
+
+            if (dateEl) {
+
+                dateEl.innerText =
+                    dayName +
+                    ', ' +
+                    today.getDate() +
+                    ' ' +
+                    shortMonths[today.getMonth()];
+
+            }
+
+
+            /* GREETING */
+
+            var greetings = [
+
+                'Welcome back, Vicky',
+
+                'Good day, Vicky',
+
+                'Hey Vicky, welcome back',
+
+                'Welcome back, Vicky!',
+
+                'Good to see you, Vicky'
+
+            ];
+
+            var greetEl =
+                document.getElementById(
+                    'dynamic-greeting'
+                );
+
+            if (greetEl) {
+
+                greetEl.innerText =
+                    greetings[
+                        Math.floor(
+                            Math.random() *
+                            greetings.length
+                        )
+                    ];
+
+            }
+
+
+            /* LOAD STICKERS */
+
+            loadStickers();
+
+        };
+
+
+        /* ==========================================
+           VIEW SWITCHING
+           ========================================== */
+
+        function switchView(viewId, el) {
+
+            var sections =
+                document.querySelectorAll(
+                    '.view-section'
+                );
+
+            for (
+                var i = 0;
+                i < sections.length;
+                i++
             ) {
 
-                var file =
-                    item.getAsFile();
+                sections[i]
+                    .classList
+                    .remove('active-view');
 
-                if (file) {
-
-                    var reader =
-                        new FileReader();
+            }
 
 
-                    reader.onload =
-                        function(e) {
+            var target =
+                document.getElementById(
+                    'view-' + viewId
+                );
 
-                            addSticker(
-                                e.target.result
-                            );
+            if (target) {
 
-                        };
+                target.classList.add(
+                    'active-view'
+                );
+
+            }
 
 
-                    reader.readAsDataURL(
-                        file
+            if (el) {
+
+                var navItems =
+                    document.querySelectorAll(
+                        '.nav-item'
                     );
+
+                for (
+                    var j = 0;
+                    j < navItems.length;
+                    j++
+                ) {
+
+                    navItems[j]
+                        .classList
+                        .remove('active');
 
                 }
 
+                el.classList.add('active');
 
-                event.preventDefault();
+            }
+
+        }
+
+
+        /* ==========================================
+           MORE MENU
+           ========================================== */
+
+        function openMoreModal() {
+
+            var modal =
+                document.getElementById(
+                    'moreModal'
+                );
+
+            if (modal) {
+
+                modal.classList.add('open');
+
+            }
+
+        }
+
+
+        function closeMoreModal() {
+
+            var modal =
+                document.getElementById(
+                    'moreModal'
+                );
+
+            if (modal) {
+
+                modal.classList.remove('open');
+
+            }
+
+        }
+
+
+        /* ==========================================
+           LIGHT / DARK MODE
+           ========================================== */
+
+        function setTheme(theme) {
+
+            document.body.setAttribute(
+                'data-theme',
+                theme
+            );
+
+            var btnLight =
+                document.getElementById(
+                    'btn-light'
+                );
+
+            var btnDark =
+                document.getElementById(
+                    'btn-dark'
+                );
+
+            if (btnLight) {
+
+                btnLight.classList.toggle(
+                    'active',
+                    theme === 'light'
+                );
+
+            }
+
+            if (btnDark) {
+
+                btnDark.classList.toggle(
+                    'active',
+                    theme === 'dark'
+                );
+
+            }
+
+        }
+
+
+        /* ==========================================
+           CREDIT SCORE
+           ========================================== */
+
+        var previousScores = {
+
+            exp: 730,
+            tu: 733,
+            eq: 737
+
+        };
+
+
+        function updateCreditScore() {
+
+            var bureauSelect =
+                document.getElementById(
+                    'bureau-select'
+                );
+
+            var scoreInput =
+                document.getElementById(
+                    'new-score-input'
+                );
+
+            if (
+                !bureauSelect ||
+                !scoreInput
+            ) {
 
                 return;
 
             }
 
+
+            var bureau =
+                bureauSelect.value;
+
+            var newScoreVal =
+                parseInt(
+                    scoreInput.value,
+                    10
+                );
+
+
+            if (
+                !newScoreVal ||
+                isNaN(newScoreVal)
+            ) {
+
+                return;
+
+            }
+
+
+            var scoreEl =
+                document.getElementById(
+                    'score-' + bureau
+                );
+
+            var changeEl =
+                document.getElementById(
+                    'change-' + bureau
+                );
+
+
+            var diff =
+                newScoreVal -
+                previousScores[bureau];
+
+
+            if (scoreEl) {
+
+                scoreEl.innerText =
+                    newScoreVal;
+
+            }
+
+
+            if (changeEl) {
+
+                if (diff >= 0) {
+
+                    changeEl.innerText =
+                        '+' + diff + ' pts';
+
+                    changeEl.className =
+                        'score-change score-up';
+
+                } else {
+
+                    changeEl.innerText =
+                        diff + ' pts';
+
+                    changeEl.className =
+                        'score-change score-down';
+
+                }
+
+            }
+
+
+            previousScores[bureau] =
+                newScoreVal;
+
+            scoreInput.value = '';
+
         }
 
-    }
-);
+
+        /* ==========================================
+           STICKER SYSTEM
+           ========================================== */
 
 
-/*
-   Also try the modern Clipboard API.
+        var activeSticker = null;
 
-   This can work in browsers that expose
-   clipboard.read().
-*/
+        var stickerStartDistance = 0;
 
-async function tryClipboardRead() {
+        var stickerStartSize = 55;
 
-    try {
+        var stickerStartX = 0;
 
-        if (
-            !navigator.clipboard ||
-            !navigator.clipboard.read
-        ) {
-            return false;
-        }
+        var stickerStartY = 0;
+
+        var stickerStartLeft = 0;
+
+        var stickerStartTop = 0;
 
 
-        var items =
-            await navigator.clipboard.read();
+        /* ==========================================
+           PASTE STICKER
+           ========================================== */
+
+        function pasteSticker(event, zone) {
+
+            event.preventDefault();
+
+            var clipboard =
+                event.clipboardData ||
+                window.clipboardData;
+
+            if (!clipboard) {
+
+                return;
+
+            }
 
 
-        for (
-            var i = 0;
-            i < items.length;
-            i++
-        ) {
+            var items =
+                clipboard.items;
 
-            var item = items[i];
+            if (!items) {
+
+                return;
+
+            }
 
 
             for (
-                var j = 0;
-                j < item.types.length;
-                j++
+                var i = 0;
+                i < items.length;
+                i++
             ) {
 
-                var type =
-                    item.types[j];
+                var item =
+                    items[i];
 
 
                 if (
-                    type.indexOf('image/') === 0
+                    item.type &&
+                    item.type.indexOf('image') !== -1
                 ) {
 
-                    var blob =
-                        await item.getType(type);
+                    var file =
+                        item.getAsFile();
+
+
+                    if (!file) {
+
+                        return;
+
+                    }
 
 
                     var reader =
@@ -1813,19 +1858,18 @@ async function tryClipboardRead() {
                     reader.onload =
                         function(e) {
 
-                            addSticker(
+                            createSticker(
+                                zone,
                                 e.target.result
                             );
 
                         };
 
 
-                    reader.readAsDataURL(
-                        blob
-                    );
+                    reader.readAsDataURL(file);
 
 
-                    return true;
+                    return;
 
                 }
 
@@ -1833,768 +1877,567 @@ async function tryClipboardRead() {
 
         }
 
-    } catch(error) {
 
-        /*
-           iOS may deny clipboard access unless
-           triggered by a user gesture.
-        */
+        /* ==========================================
+           CREATE STICKER
+           ========================================== */
 
-        console.log(
-            'Clipboard access unavailable'
-        );
-
-    }
-
-    return false;
-}
-
-
-/*
-   Tapping the sticker area first tries to read
-   the clipboard, while also focusing the paste
-   target for the native iOS Paste menu.
-*/
-
-document.getElementById(
-    'stickerCanvas'
-).addEventListener(
-    'click',
-    function() {
-
-        activatePaste();
-
-        tryClipboardRead();
-
-    }
-);
-
-
-
-/* =====================================================
-   ADD STICKER
-===================================================== */
-
-function addSticker(imageData) {
-
-    var canvas =
-        document.getElementById(
-            'stickerCanvas'
-        );
-
-    if (!canvas) return;
-
-
-    var sticker =
-        document.createElement('img');
-
-
-    sticker.className =
-        'sticker';
-
-
-    sticker.src =
-        imageData;
-
-
-    /*
-       Random starting location.
-
-       This means every sticker doesn't
-       land directly on top of the last one.
-    */
-
-    var canvasWidth =
-        canvas.clientWidth;
-
-    var canvasHeight =
-        canvas.clientHeight;
-
-
-    var x =
-        Math.max(
-            0,
-            Math.random() *
-            (canvasWidth - 58)
-        );
-
-
-    var y =
-        Math.max(
-            0,
-            Math.random() *
-            (canvasHeight - 58)
-        );
-
-
-    sticker.style.left =
-        x + 'px';
-
-    sticker.style.top =
-        y + 'px';
-
-
-    canvas.appendChild(
-        sticker
-    );
-
-
-    document.getElementById(
-        'stickerAdd'
-    ).style.display =
-        'none';
-
-
-    makeStickerDraggable(
-        sticker
-    );
-
-
-    saveStickers();
-
-}
-
-
-/* =====================================================
-   DRAG STICKERS
-===================================================== */
-
-function makeStickerDraggable(
-    sticker
-) {
-
-    var startX = 0;
-    var startY = 0;
-
-    var originalX = 0;
-    var originalY = 0;
-
-
-    function pointerDown(e) {
-
-        e.preventDefault();
-
-        sticker.classList.add(
-            'dragging'
-        );
-
-
-        var point =
-            e.touches ?
-            e.touches[0] :
-            e;
-
-
-        startX =
-            point.clientX;
-
-        startY =
-            point.clientY;
-
-
-        originalX =
-            parseFloat(
-                sticker.style.left
-            ) || 0;
-
-
-        originalY =
-            parseFloat(
-                sticker.style.top
-            ) || 0;
-
-
-        document.addEventListener(
-            'mousemove',
-            pointerMove
-        );
-
-        document.addEventListener(
-            'mouseup',
-            pointerUp
-        );
-
-        document.addEventListener(
-            'touchmove',
-            pointerMove,
-            {
-                passive:false
-            }
-        );
-
-        document.addEventListener(
-            'touchend',
-            pointerUp
-        );
-
-    }
-
-
-    function pointerMove(e) {
-
-        e.preventDefault();
-
-
-        var point =
-            e.touches ?
-            e.touches[0] :
-            e;
-
-
-        var dx =
-            point.clientX -
-            startX;
-
-
-        var dy =
-            point.clientY -
-            startY;
-
-
-        var canvas =
-            document.getElementById(
-                'stickerCanvas'
-            );
-
-
-        var maxX =
-            canvas.clientWidth -
-            sticker.offsetWidth;
-
-
-        var maxY =
-            canvas.clientHeight -
-            sticker.offsetHeight;
-
-
-        var newX =
-            Math.max(
-                0,
-                Math.min(
-                    maxX,
-                    originalX + dx
-                )
-            );
-
-
-        var newY =
-            Math.max(
-                0,
-                Math.min(
-                    maxY,
-                    originalY + dy
-                )
-            );
-
-
-        sticker.style.left =
-            newX + 'px';
-
-        sticker.style.top =
-            newY + 'px';
-
-    }
-
-
-    function pointerUp() {
-
-        sticker.classList.remove(
-            'dragging'
-        );
-
-
-        document.removeEventListener(
-            'mousemove',
-            pointerMove
-        );
-
-        document.removeEventListener(
-            'mouseup',
-            pointerUp
-        );
-
-        document.removeEventListener(
-            'touchmove',
-            pointerMove
-        );
-
-        document.removeEventListener(
-            'touchend',
-            pointerUp
-        );
-
-
-        saveStickers();
-
-    }
-
-
-    sticker.addEventListener(
-        'mousedown',
-        pointerDown
-    );
-
-    sticker.addEventListener(
-        'touchstart',
-        pointerDown,
-        {
-            passive:false
-        }
-    );
-
-
-    /*
-       Double tap / double click deletes.
-    */
-
-    sticker.addEventListener(
-        'dblclick',
-        function(e) {
-
-            e.preventDefault();
-
-            sticker.remove();
-
-            saveStickers();
-
-            checkStickerCanvas();
-
-        }
-    );
-
-}
-
-
-/* =====================================================
-   SAVE STICKERS
-===================================================== */
-
-function saveStickers() {
-
-    var canvas =
-        document.getElementById(
-            'stickerCanvas'
-        );
-
-
-    if (!canvas) return;
-
-
-    var stickers =
-        canvas.querySelectorAll(
-            '.sticker'
-        );
-
-
-    var data = [];
-
-
-    for (
-        var i = 0;
-        i < stickers.length;
-        i++
-    ) {
-
-        data.push({
-
-            src:
-                stickers[i].src,
-
-            left:
-                stickers[i].style.left,
-
-            top:
-                stickers[i].style.top
-
-        });
-
-    }
-
-
-    localStorage.setItem(
-        'vickyStickers',
-        JSON.stringify(data)
-    );
-
-}
-
-
-/* =====================================================
-   LOAD STICKERS
-===================================================== */
-
-function loadStickers() {
-
-    var saved =
-        localStorage.getItem(
-            'vickyStickers'
-        );
-
-
-    if (!saved) return;
-
-
-    try {
-
-        var stickers =
-            JSON.parse(saved);
-
-
-        for (
-            var i = 0;
-            i < stickers.length;
-            i++
+        function createSticker(
+            zone,
+            imageSource
         ) {
 
             var sticker =
-                document.createElement(
-                    'img'
-                );
-
-
-            sticker.className =
-                'sticker';
+                document.createElement('img');
 
 
             sticker.src =
-                stickers[i].src;
+                imageSource;
+
+
+            sticker.className =
+                'sticker-item';
+
+
+            sticker.draggable =
+                false;
+
+
+            sticker.style.width =
+                '55px';
+
+            sticker.style.height =
+                '55px';
+
+
+            var left =
+                Math.max(
+                    0,
+                    (zone.clientWidth - 55) / 2
+                );
+
+
+            var top =
+                Math.max(
+                    0,
+                    (zone.clientHeight - 55) / 2
+                );
 
 
             sticker.style.left =
-                stickers[i].left;
+                left + 'px';
 
 
             sticker.style.top =
-                stickers[i].top;
+                top + 'px';
 
 
-            document.getElementById(
-                'stickerCanvas'
-            ).appendChild(
+            zone.appendChild(
                 sticker
             );
 
 
-            makeStickerDraggable(
+            enableStickerTouch(
                 sticker
             );
+
+
+            saveStickers();
 
         }
 
 
-        checkStickerCanvas();
+        /* ==========================================
+           STICKER TOUCH CONTROLS
+           ========================================== */
 
-    } catch(error) {
-
-        console.log(
-            'Could not load stickers'
-        );
-
-    }
-
-}
-
-
-/* =====================================================
-   EMPTY STICKER CANVAS
-===================================================== */
-
-function checkStickerCanvas() {
-
-    var canvas =
-        document.getElementById(
-            'stickerCanvas'
-        );
-
-
-    var stickers =
-        canvas.querySelectorAll(
-            '.sticker'
-        );
-
-
-    document.getElementById(
-        'stickerAdd'
-    ).style.display =
-        stickers.length === 0 ?
-        'flex' :
-        'none';
-
-}
-
-
-/* =====================================================
-   VIEW SWITCHING
-===================================================== */
-
-function switchView(
-    viewId,
-    el
-) {
-
-    var sections =
-        document.querySelectorAll(
-            '.view-section'
-        );
-
-
-    for (
-        var i = 0;
-        i < sections.length;
-        i++
-    ) {
-
-        sections[i]
-            .classList
-            .remove(
-                'active-view'
-            );
-
-    }
-
-
-    var target =
-        document.getElementById(
-            'view-' + viewId
-        );
-
-
-    if (target) {
-
-        target.classList.add(
-            'active-view'
-        );
-
-    }
-
-
-    if (el) {
-
-        var navItems =
-            document.querySelectorAll(
-                '.nav-item'
-            );
-
-
-        for (
-            var j = 0;
-            j < navItems.length;
-            j++
+        function enableStickerTouch(
+            sticker
         ) {
 
-            navItems[j]
-                .classList
-                .remove(
-                    'active'
+            sticker.addEventListener(
+                'touchstart',
+                function(event) {
+
+                    event.preventDefault();
+
+                    activeSticker =
+                        sticker;
+
+
+                    if (
+                        event.touches.length === 1
+                    ) {
+
+                        stickerStartX =
+                            event.touches[0].clientX;
+
+                        stickerStartY =
+                            event.touches[0].clientY;
+
+
+                        stickerStartLeft =
+                            parseFloat(
+                                sticker.style.left
+                            ) || 0;
+
+
+                        stickerStartTop =
+                            parseFloat(
+                                sticker.style.top
+                            ) || 0;
+
+                    }
+
+
+                    if (
+                        event.touches.length === 2
+                    ) {
+
+                        stickerStartDistance =
+                            getTouchDistance(
+                                event
+                            );
+
+
+                        stickerStartSize =
+                            parseFloat(
+                                sticker.style.width
+                            ) || 55;
+
+                    }
+
+                },
+                {
+                    passive: false
+                }
+            );
+
+
+            sticker.addEventListener(
+                'touchmove',
+                function(event) {
+
+                    event.preventDefault();
+
+
+                    /* DRAG */
+
+                    if (
+                        event.touches.length === 1 &&
+                        activeSticker === sticker
+                    ) {
+
+                        var touch =
+                            event.touches[0];
+
+
+                        var dx =
+                            touch.clientX -
+                            stickerStartX;
+
+
+                        var dy =
+                            touch.clientY -
+                            stickerStartY;
+
+
+                        var zone =
+                            sticker.parentElement;
+
+
+                        var newLeft =
+                            stickerStartLeft +
+                            dx;
+
+
+                        var newTop =
+                            stickerStartTop +
+                            dy;
+
+
+                        var maxLeft =
+                            zone.clientWidth -
+                            sticker.offsetWidth;
+
+
+                        var maxTop =
+                            zone.clientHeight -
+                            sticker.offsetHeight;
+
+
+                        newLeft =
+                            Math.max(
+                                0,
+                                Math.min(
+                                    newLeft,
+                                    maxLeft
+                                )
+                            );
+
+
+                        newTop =
+                            Math.max(
+                                0,
+                                Math.min(
+                                    newTop,
+                                    maxTop
+                                )
+                            );
+
+
+                        sticker.style.left =
+                            newLeft + 'px';
+
+
+                        sticker.style.top =
+                            newTop + 'px';
+
+                    }
+
+
+                    /* PINCH TO RESIZE */
+
+                    if (
+                        event.touches.length === 2 &&
+                        activeSticker === sticker
+                    ) {
+
+                        var currentDistance =
+                            getTouchDistance(
+                                event
+                            );
+
+
+                        if (
+                            stickerStartDistance > 0
+                        ) {
+
+                            var scale =
+                                currentDistance /
+                                stickerStartDistance;
+
+
+                            var newSize =
+                                stickerStartSize *
+                                scale;
+
+
+                            newSize =
+                                Math.max(
+                                    25,
+                                    Math.min(
+                                        newSize,
+                                        140
+                                    )
+                                );
+
+
+                            sticker.style.width =
+                                newSize + 'px';
+
+
+                            sticker.style.height =
+                                newSize + 'px';
+
+                        }
+
+                    }
+
+                },
+                {
+                    passive: false
+                }
+            );
+
+
+            sticker.addEventListener(
+                'touchend',
+                function(event) {
+
+                    if (
+                        event.touches.length === 0
+                    ) {
+
+                        activeSticker =
+                            null;
+
+                        saveStickers();
+
+                    }
+
+
+                    if (
+                        event.touches.length === 1
+                    ) {
+
+                        stickerStartX =
+                            event.touches[0].clientX;
+
+
+                        stickerStartY =
+                            event.touches[0].clientY;
+
+
+                        stickerStartLeft =
+                            parseFloat(
+                                sticker.style.left
+                            ) || 0;
+
+
+                        stickerStartTop =
+                            parseFloat(
+                                sticker.style.top
+                            ) || 0;
+
+                    }
+
+                }
+            );
+
+        }
+
+
+        /* ==========================================
+           PINCH DISTANCE
+           ========================================== */
+
+        function getTouchDistance(
+            event
+        ) {
+
+            var touch1 =
+                event.touches[0];
+
+            var touch2 =
+                event.touches[1];
+
+
+            var dx =
+                touch2.clientX -
+                touch1.clientX;
+
+
+            var dy =
+                touch2.clientY -
+                touch1.clientY;
+
+
+            return Math.sqrt(
+                dx * dx +
+                dy * dy
+            );
+
+        }
+
+
+        /* ==========================================
+           SAVE STICKERS
+           ========================================== */
+
+        function saveStickers() {
+
+            var data = {
+
+                left: [],
+
+                right: []
+
+            };
+
+
+            var zones = [
+
+                {
+                    id: 'left-stickers',
+                    array: data.left
+                },
+
+                {
+                    id: 'right-stickers',
+                    array: data.right
+                }
+
+            ];
+
+
+            zones.forEach(
+                function(item) {
+
+                    var zone =
+                        document.getElementById(
+                            item.id
+                        );
+
+
+                    if (!zone) {
+
+                        return;
+
+                    }
+
+
+                    var stickers =
+                        zone.querySelectorAll(
+                            '.sticker-item'
+                        );
+
+
+                    stickers.forEach(
+                        function(sticker) {
+
+                            item.array.push({
+
+                                src:
+                                    sticker.src,
+
+                                left:
+                                    sticker.style.left,
+
+                                top:
+                                    sticker.style.top,
+
+                                width:
+                                    sticker.style.width,
+
+                                height:
+                                    sticker.style.height
+
+                            });
+
+                        }
+                    );
+
+                }
+            );
+
+
+            localStorage.setItem(
+                'plannerStickers',
+                JSON.stringify(data)
+            );
+
+        }
+
+
+        /* ==========================================
+           LOAD STICKERS
+           ========================================== */
+
+        function loadStickers() {
+
+            var saved =
+                localStorage.getItem(
+                    'plannerStickers'
                 );
 
+
+            if (!saved) {
+
+                return;
+
+            }
+
+
+            try {
+
+                var data =
+                    JSON.parse(saved);
+
+
+                loadStickerZone(
+                    'left-stickers',
+                    data.left || []
+                );
+
+
+                loadStickerZone(
+                    'right-stickers',
+                    data.right || []
+                );
+
+
+            } catch (error) {
+
+                console.log(
+                    'Could not load stickers.'
+                );
+
+            }
+
         }
 
 
-        el.classList.add(
-            'active'
-        );
+        function loadStickerZone(
+            zoneId,
+            stickers
+        ) {
 
-    }
+            var zone =
+                document.getElementById(
+                    zoneId
+                );
 
-}
 
+            if (!zone) {
 
-/* =====================================================
-   MORE MENU
-===================================================== */
+                return;
 
-function openMoreModal() {
+            }
 
-    var modal =
-        document.getElementById(
-            'moreModal'
-        );
 
+            stickers.forEach(
+                function(data) {
 
-    if (modal) {
+                    var sticker =
+                        document.createElement(
+                            'img'
+                        );
 
-        modal.classList.add(
-            'open'
-        );
 
-    }
+                    sticker.src =
+                        data.src;
 
-}
 
+                    sticker.className =
+                        'sticker-item';
 
-function closeMoreModal() {
 
-    var modal =
-        document.getElementById(
-            'moreModal'
-        );
+                    sticker.draggable =
+                        false;
 
 
-    if (modal) {
+                    sticker.style.left =
+                        data.left;
 
-        modal.classList.remove(
-            'open'
-        );
 
-    }
+                    sticker.style.top =
+                        data.top;
 
-}
 
+                    sticker.style.width =
+                        data.width;
 
-/* =====================================================
-   THEME
-===================================================== */
 
-function setTheme(theme) {
+                    sticker.style.height =
+                        data.height;
 
-    document.body.setAttribute(
-        'data-theme',
-        theme
-    );
 
+                    zone.appendChild(
+                        sticker
+                    );
 
-    var btnLight =
-        document.getElementById(
-            'btn-light'
-        );
 
+                    enableStickerTouch(
+                        sticker
+                    );
 
-    var btnDark =
-        document.getElementById(
-            'btn-dark'
-        );
-
-
-    if (btnLight) {
-
-        btnLight.classList.toggle(
-            'active',
-            theme === 'light'
-        );
-
-    }
-
-
-    if (btnDark) {
-
-        btnDark.classList.toggle(
-            'active',
-            theme === 'dark'
-        );
-
-    }
-
-}
-
-
-/* =====================================================
-   CREDIT SCORES
-===================================================== */
-
-var previousScores = {
-
-    exp: 730,
-    tu: 733,
-    eq: 737
-
-};
-
-
-function updateCreditScore() {
-
-    var bureauSelect =
-        document.getElementById(
-            'bureau-select'
-        );
-
-
-    var scoreInput =
-        document.getElementById(
-            'new-score-input'
-        );
-
-
-    if (
-        !bureauSelect ||
-        !scoreInput
-    ) return;
-
-
-    var bureau =
-        bureauSelect.value;
-
-
-    var newScoreVal =
-        parseInt(
-            scoreInput.value,
-            10
-        );
-
-
-    if (
-        !newScoreVal ||
-        isNaN(newScoreVal)
-    ) return;
-
-
-    var scoreEl =
-        document.getElementById(
-            'score-' + bureau
-        );
-
-
-    var changeEl =
-        document.getElementById(
-            'change-' + bureau
-        );
-
-
-    var diff =
-        newScoreVal -
-        previousScores[bureau];
-
-
-    if (scoreEl) {
-
-        scoreEl.innerText =
-            newScoreVal;
-
-    }
-
-
-    if (changeEl) {
-
-        if (diff >= 0) {
-
-            changeEl.innerText =
-                '+' + diff + ' pts';
-
-            changeEl.className =
-                'score-change score-up';
-
-        } else {
-
-            changeEl.innerText =
-                diff + ' pts';
-
-            changeEl.className =
-                'score-change score-down';
+                }
+            );
 
         }
 
-    }
-
-
-    previousScores[bureau] =
-        newScoreVal;
-
-
-    scoreInput.value = '';
-
-}
-
-</script>
+    </script>
 
 </body>
 </html>
