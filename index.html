@@ -3,11 +3,15 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
-    <title>Budget and Planner</title>
+
+    <title>Vicky's Planner</title>
+
     <link rel="preconnect" href="https://fonts.googleapis.com">
     <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
     <link href="https://fonts.googleapis.com/css2?family=Instrument+Serif:ital@0;1&family=Inter:wght@300;400;500;600;700&display=swap" rel="stylesheet">
+
     <style>
+
         :root {
             --bg-main: #f8f9fc;
             --bg-card: #ffffff;
@@ -49,19 +53,28 @@
             padding: 0;
         }
 
-        html, body {
+        html,
+        body {
             width: 100%;
             overflow-x: hidden;
             background-color: var(--bg-main);
             color: var(--text-primary);
-            font-family: 'Inter', -apple-system, sans-serif;
+            font-family: 'Inter', -apple-system, BlinkMacSystemFont, sans-serif;
             min-height: 100vh;
             padding-bottom: 90px;
+        }
+
+        body {
+            transition: background 0.2s ease;
         }
 
         .serif {
             font-family: 'Instrument Serif', Georgia, serif;
         }
+
+        /* =========================
+           HEADER
+        ========================= */
 
         .header {
             padding: 24px 20px 12px 20px;
@@ -97,6 +110,29 @@
             text-transform: uppercase;
         }
 
+        /* MONTH HEADER */
+
+        .month-header {
+            text-align: center;
+            margin: 4px 0 14px 0;
+        }
+
+        .month-name {
+            font-family: 'Instrument Serif', Georgia, serif;
+            font-size: 34px;
+            line-height: 1;
+            font-weight: 400;
+            text-transform: uppercase;
+        }
+
+        .month-year {
+            font-size: 10px;
+            color: var(--text-muted);
+            letter-spacing: 2px;
+            margin-top: 5px;
+            text-transform: uppercase;
+        }
+
         .date-subtitle {
             font-size: 11px;
             text-transform: uppercase;
@@ -124,6 +160,96 @@
             cursor: pointer;
             text-align: center;
         }
+
+        /* =========================
+           SMALL STICKER AREA
+        ========================= */
+
+        .sticker-strip {
+            width: 100%;
+            min-height: 76px;
+            margin: 8px 0 16px 0;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            gap: 10px;
+            padding: 8px 4px;
+        }
+
+        .sticker-slot {
+            width: 31%;
+            height: 70px;
+            border-radius: 14px;
+            position: relative;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            overflow: hidden;
+            cursor: pointer;
+            border: 1px dashed var(--input-border);
+            background: transparent;
+        }
+
+        .sticker-slot:focus {
+            outline: 2px solid var(--accent-purple);
+            outline-offset: 2px;
+        }
+
+        .sticker-placeholder {
+            color: var(--text-muted);
+            font-size: 10px;
+            text-align: center;
+            line-height: 1.3;
+            opacity: 0.75;
+            pointer-events: none;
+        }
+
+        .sticker-placeholder span {
+            display: block;
+            font-size: 20px;
+            margin-bottom: 2px;
+        }
+
+        .sticker-image {
+            max-width: 100%;
+            max-height: 100%;
+            object-fit: contain;
+            pointer-events: none;
+            user-select: none;
+        }
+
+        .sticker-delete {
+            position: absolute;
+            top: 3px;
+            right: 3px;
+            width: 20px;
+            height: 20px;
+            border-radius: 50%;
+            border: none;
+            background: rgba(0,0,0,0.55);
+            color: white;
+            font-size: 12px;
+            line-height: 20px;
+            padding: 0;
+            z-index: 5;
+            display: none;
+        }
+
+        .sticker-slot.has-sticker .sticker-delete {
+            display: block;
+        }
+
+        .sticker-hint {
+            text-align: center;
+            font-size: 9px;
+            color: var(--text-muted);
+            margin-top: -8px;
+            margin-bottom: 12px;
+        }
+
+        /* =========================
+           MAIN CONTENT
+        ========================= */
 
         .container {
             max-width: 500px;
@@ -216,6 +342,10 @@
             color: var(--text-muted);
         }
 
+        /* =========================
+           CREDIT SCORES
+        ========================= */
+
         .bureau-grid {
             display: grid;
             grid-template-columns: repeat(3, 1fr);
@@ -285,6 +415,10 @@
             justify-content: flex-end;
         }
 
+        /* =========================
+           BUTTONS / FORMS
+        ========================= */
+
         .quick-pills {
             display: flex;
             flex-direction: column;
@@ -352,6 +486,10 @@
             font-weight: 600;
         }
 
+        /* =========================
+           STATS
+        ========================= */
+
         .stats-grid {
             display: grid;
             grid-template-columns: 1fr 1fr;
@@ -366,13 +504,35 @@
             gap: 4px;
         }
 
-        .stat-box.green { background: rgba(5, 150, 105, 0.08); }
-        .stat-box.red { background: rgba(220, 38, 38, 0.08); }
-        .stat-box.purple { background: rgba(124, 58, 237, 0.08); }
-        .stat-box.blue { background: rgba(37, 99, 235, 0.08); }
+        .stat-box.green {
+            background: rgba(5, 150, 105, 0.08);
+        }
 
-        .stat-label { font-size: 12px; color: var(--text-muted); }
-        .stat-val { font-size: 24px; font-weight: 400; }
+        .stat-box.red {
+            background: rgba(220, 38, 38, 0.08);
+        }
+
+        .stat-box.purple {
+            background: rgba(124, 58, 237, 0.08);
+        }
+
+        .stat-box.blue {
+            background: rgba(37, 99, 235, 0.08);
+        }
+
+        .stat-label {
+            font-size: 12px;
+            color: var(--text-muted);
+        }
+
+        .stat-val {
+            font-size: 24px;
+            font-weight: 400;
+        }
+
+        /* =========================
+           BOTTOM NAV
+        ========================= */
 
         .bottom-nav {
             position: fixed;
@@ -405,7 +565,13 @@
             font-weight: 600;
         }
 
-        .nav-item .icon { font-size: 18px; }
+        .nav-item .icon {
+            font-size: 18px;
+        }
+
+        /* =========================
+           MORE MENU
+        ========================= */
 
         .more-modal {
             position: fixed;
@@ -417,7 +583,9 @@
             align-items: flex-end;
         }
 
-        .more-modal.open { display: flex; }
+        .more-modal.open {
+            display: flex;
+        }
 
         .more-content {
             background: var(--bg-main);
@@ -446,302 +614,1397 @@
             align-items: center;
             cursor: pointer;
         }
+
     </style>
 </head>
+
 <body data-theme="light">
 
+    <!-- =========================
+         HEADER
+    ========================= -->
+
     <div class="header">
+
         <div class="brand-pill">
             <div class="brand-avatar">V</div>
             <div class="brand-text">Vicky's Planner</div>
         </div>
-        <div class="date-subtitle" id="current-date">TODAY</div>
-        <h1 class="page-title serif" id="dynamic-greeting">Good day, Vicky</h1>
-        
-        <button class="action-btn-primary" onclick="switchView('today', null)">Log a spend</button>
+
+        <!-- MONTH -->
+        <div class="month-header">
+            <div class="month-name" id="month-name">August</div>
+            <div class="month-year" id="month-year">2026</div>
+        </div>
+
+        <!-- TODAY -->
+        <div class="date-subtitle" id="current-date">
+            TODAY
+        </div>
+
+        <h1 class="page-title serif" id="dynamic-greeting">
+            Happy Friday, Vicky! ✨
+        </h1>
+
+        <!-- SMALL STICKER AREA -->
+        <div
+            class="sticker-strip"
+            id="sticker-strip"
+            aria-label="Sticker area"
+        >
+
+            <div
+                class="sticker-slot"
+                id="sticker-slot-0"
+                tabindex="0"
+                onclick="focusSticker(0)"
+            >
+                <div class="sticker-placeholder">
+                    <span>＋</span>
+                    Paste
+                </div>
+            </div>
+
+            <div
+                class="sticker-slot"
+                id="sticker-slot-1"
+                tabindex="0"
+                onclick="focusSticker(1)"
+            >
+                <div class="sticker-placeholder">
+                    <span>＋</span>
+                    Paste
+                </div>
+            </div>
+
+            <div
+                class="sticker-slot"
+                id="sticker-slot-2"
+                tabindex="0"
+                onclick="focusSticker(2)"
+            >
+                <div class="sticker-placeholder">
+                    <span>＋</span>
+                    Paste
+                </div>
+            </div>
+
+        </div>
+
+        <div class="sticker-hint">
+            Copy a sticker from Photos, then tap here and paste
+        </div>
+
+        <button
+            class="action-btn-primary"
+            onclick="switchView('today', null)"
+        >
+            Log a spend
+        </button>
+
     </div>
+
+
+    <!-- =========================
+         MAIN CONTAINER
+    ========================= -->
 
     <div class="container">
 
+
+        <!-- =========================
+             TODAY
+        ========================= -->
+
         <div id="view-today" class="view-section active-view">
+
             <div class="card card-large">
-                <div class="card-tag">COMING UP NEXT...</div>
-                <div class="card-title serif" style="font-size: 28px;">Priority Actions</div>
-                <div class="card-desc">Quick items to keep everything on track</div>
+
+                <div class="card-tag">
+                    COMING UP NEXT...
+                </div>
+
+                <div
+                    class="card-title serif"
+                    style="font-size: 28px;"
+                >
+                    Priority Actions
+                </div>
+
+                <div class="card-desc">
+                    Quick items to keep everything on track
+                </div>
 
                 <div class="upcoming-list">
-                    <div class="upcoming-item">
-                        <div class="upcoming-info">
-                            <h4>Mark Internet paid</h4>
-                            <span>Due today • $79.99</span>
-                        </div>
-                        <button class="action-btn-primary" style="width: auto; padding: 8px 14px; font-size: 13px;" onclick="this.closest('.upcoming-item').style.display='none'">Done</button>
-                    </div>
 
                     <div class="upcoming-item">
+
                         <div class="upcoming-info">
-                            <h4>Log weekly groceries</h4>
-                            <span>Pending update</span>
+
+                            <h4>
+                                Mark Internet paid
+                            </h4>
+
+                            <span>
+                                Due today • $79.99
+                            </span>
+
                         </div>
-                        <button class="action-btn-primary" style="width: auto; padding: 8px 14px; font-size: 13px;" onclick="this.closest('.upcoming-item').style.display='none'">Done</button>
+
+                        <button
+                            class="action-btn-primary"
+                            style="width:auto; padding:8px 14px; font-size:13px;"
+                            onclick="this.closest('.upcoming-item').style.display='none'"
+                        >
+                            Done
+                        </button>
+
                     </div>
+
+
+                    <div class="upcoming-item">
+
+                        <div class="upcoming-info">
+
+                            <h4>
+                                Log weekly groceries
+                            </h4>
+
+                            <span>
+                                Pending update
+                            </span>
+
+                        </div>
+
+                        <button
+                            class="action-btn-primary"
+                            style="width:auto; padding:8px 14px; font-size:13px;"
+                            onclick="this.closest('.upcoming-item').style.display='none'"
+                        >
+                            Done
+                        </button>
+
+                    </div>
+
                 </div>
+
             </div>
+
+
+            <!-- SAFE TO SPEND -->
 
             <div class="card">
-                <div class="card-tag">SAFE TO SPEND TODAY</div>
-                <div class="card-title serif" style="font-size: 42px; margin-top: 4px;">$1,107.31</div>
-                <div class="card-desc">of today's starting balance</div>
-                
-                <div class="quick-pills">
-                    <button class="pill-btn">+ Coffee ($5)</button>
-                    <button class="pill-btn">+ Lunch ($15)</button>
-                    <button class="pill-btn">+ Bus ($2.50)</button>
+
+                <div class="card-tag">
+                    SAFE TO SPEND TODAY
                 </div>
+
+                <div
+                    class="card-title serif"
+                    style="font-size:42px; margin-top:4px;"
+                >
+                    $1,107.31
+                </div>
+
+                <div class="card-desc">
+                    of today's starting balance
+                </div>
+
+                <div class="quick-pills">
+
+                    <button class="pill-btn">
+                        + Coffee ($5)
+                    </button>
+
+                    <button class="pill-btn">
+                        + Lunch ($15)
+                    </button>
+
+                    <button class="pill-btn">
+                        + Bus ($2.50)
+                    </button>
+
+                </div>
+
             </div>
+
         </div>
+
+
+        <!-- =========================
+             PLANNER
+        ========================= -->
 
         <div id="view-planner" class="view-section">
+
             <div class="card">
-                <div class="card-tag">THIS MONTH AT A GLANCE</div>
-                <div class="card-desc">$10 kept</div>
-                
-                <div class="stats-grid">
-                    <div class="stat-box green">
-                        <span class="stat-label">Came in</span>
-                        <span class="stat-val serif">$600</span>
-                    </div>
-                    <div class="stat-box red">
-                        <span class="stat-label">Went out</span>
-                        <span class="stat-val serif">$590</span>
-                    </div>
-                    <div class="stat-box purple">
-                        <span class="stat-label">Kept</span>
-                        <span class="stat-val serif">$10</span>
-                    </div>
-                    <div class="stat-box blue">
-                        <span class="stat-label">Still yours</span>
-                        <span class="stat-val serif">$0</span>
-                    </div>
+
+                <div class="card-tag">
+                    THIS MONTH AT A GLANCE
                 </div>
+
+                <div class="card-desc">
+                    $10 kept
+                </div>
+
+                <div class="stats-grid">
+
+                    <div class="stat-box green">
+                        <span class="stat-label">
+                            Came in
+                        </span>
+
+                        <span class="stat-val serif">
+                            $600
+                        </span>
+                    </div>
+
+                    <div class="stat-box red">
+                        <span class="stat-label">
+                            Went out
+                        </span>
+
+                        <span class="stat-val serif">
+                            $590
+                        </span>
+                    </div>
+
+                    <div class="stat-box purple">
+                        <span class="stat-label">
+                            Kept
+                        </span>
+
+                        <span class="stat-val serif">
+                            $10
+                        </span>
+                    </div>
+
+                    <div class="stat-box blue">
+                        <span class="stat-label">
+                            Still yours
+                        </span>
+
+                        <span class="stat-val serif">
+                            $0
+                        </span>
+                    </div>
+
+                </div>
+
             </div>
+
         </div>
+
+
+        <!-- =========================
+             BILLS
+        ========================= -->
 
         <div id="view-bills" class="view-section">
+
             <div class="card">
-                <div class="card-tag">STILL TO GO OUT</div>
-                <div class="card-title serif" style="font-size: 36px; color: var(--accent-purple);">$2,000.00</div>
-                <div class="card-desc">all clear for now</div>
+
+                <div class="card-tag">
+                    STILL TO GO OUT
+                </div>
+
+                <div
+                    class="card-title serif"
+                    style="font-size:36px; color:var(--accent-purple);"
+                >
+                    $2,000.00
+                </div>
+
+                <div class="card-desc">
+                    all clear for now
+                </div>
+
             </div>
+
         </div>
+
+
+        <!-- =========================
+             GOALS
+        ========================= -->
 
         <div id="view-goals" class="view-section">
+
             <div class="card">
-                <div class="card-title serif" style="font-size: 26px;">Add a goal</div>
-                <div class="card-desc">name, amount, pace</div>
 
-                <div class="form-group">
-                    <label class="form-label">What it is for</label>
-                    <input type="text" class="form-input" placeholder="Japan, next spring">
+                <div
+                    class="card-title serif"
+                    style="font-size:26px;"
+                >
+                    Add a goal
+                </div>
+
+                <div class="card-desc">
+                    name, amount, pace
                 </div>
 
                 <div class="form-group">
-                    <label class="form-label">How much you need</label>
-                    <input type="number" class="form-input" placeholder="0.00">
+
+                    <label class="form-label">
+                        What it is for
+                    </label>
+
+                    <input
+                        type="text"
+                        class="form-input"
+                        placeholder="Japan, next spring"
+                    >
+
                 </div>
 
-                <div style="display: flex; gap: 10px; margin-top: 10px;">
-                    <button class="action-btn-primary" style="flex:1;">Add goal</button>
+                <div class="form-group">
+
+                    <label class="form-label">
+                        How much you need
+                    </label>
+
+                    <input
+                        type="number"
+                        class="form-input"
+                        placeholder="0.00"
+                    >
+
                 </div>
+
+                <div style="display:flex; gap:10px; margin-top:10px;">
+
+                    <button
+                        class="action-btn-primary"
+                        style="flex:1;"
+                    >
+                        Add goal
+                    </button>
+
+                </div>
+
             </div>
 
+
+            <!-- CREDIT SCORES -->
+
             <div class="card">
-                <div class="card-tag">CREDIT SCORES & BUREAUS</div>
-                <div class="card-title serif" style="font-size: 24px;">Monthly Bureau Updates</div>
-                <div class="card-desc">Track scores & trend growth for Experian, TransUnion, and Equifax.</div>
+
+                <div class="card-tag">
+                    CREDIT SCORES & BUREAUS
+                </div>
+
+                <div
+                    class="card-title serif"
+                    style="font-size:24px;"
+                >
+                    Monthly Bureau Updates
+                </div>
+
+                <div class="card-desc">
+                    Track scores & trend growth for Experian,
+                    TransUnion, and Equifax.
+                </div>
 
                 <div class="bureau-grid">
+
                     <div class="bureau-card">
-                        <span class="bureau-name">Experian</span>
-                        <span class="bureau-score serif" id="score-exp">742</span>
-                        <span class="score-change score-up" id="change-exp">+12 pts</span>
+
+                        <span class="bureau-name">
+                            Experian
+                        </span>
+
+                        <span
+                            class="bureau-score serif"
+                            id="score-exp"
+                        >
+                            742
+                        </span>
+
+                        <span
+                            class="score-change score-up"
+                            id="change-exp"
+                        >
+                            +12 pts
+                        </span>
+
                     </div>
+
+
                     <div class="bureau-card">
-                        <span class="bureau-name">TransUnion</span>
-                        <span class="bureau-score serif" id="score-tu">738</span>
-                        <span class="score-change score-up" id="change-tu">+5 pts</span>
+
+                        <span class="bureau-name">
+                            TransUnion
+                        </span>
+
+                        <span
+                            class="bureau-score serif"
+                            id="score-tu"
+                        >
+                            738
+                        </span>
+
+                        <span
+                            class="score-change score-up"
+                            id="change-tu"
+                        >
+                            +5 pts
+                        </span>
+
                     </div>
+
+
                     <div class="bureau-card">
-                        <span class="bureau-name">Equifax</span>
-                        <span class="bureau-score serif" id="score-eq">745</span>
-                        <span class="score-change score-up" id="change-eq">+8 pts</span>
+
+                        <span class="bureau-name">
+                            Equifax
+                        </span>
+
+                        <span
+                            class="bureau-score serif"
+                            id="score-eq"
+                        >
+                            745
+                        </span>
+
+                        <span
+                            class="score-change score-up"
+                            id="change-eq"
+                        >
+                            +8 pts
+                        </span>
+
                     </div>
+
                 </div>
 
+
                 <div class="form-group">
-                    <label class="form-label">Update Score</label>
-                    <select class="form-input" id="bureau-select">
-                        <option value="exp">Experian</option>
-                        <option value="tu">TransUnion</option>
-                        <option value="eq">Equifax</option>
+
+                    <label class="form-label">
+                        Update Score
+                    </label>
+
+                    <select
+                        class="form-input"
+                        id="bureau-select"
+                    >
+                        <option value="exp">
+                            Experian
+                        </option>
+
+                        <option value="tu">
+                            TransUnion
+                        </option>
+
+                        <option value="eq">
+                            Equifax
+                        </option>
                     </select>
+
                 </div>
+
 
                 <div class="credit-input-row">
-                    <input type="number" class="form-input" id="new-score-input" placeholder="New Score (e.g. 750)">
-                    <button class="action-btn-primary" style="width: auto; padding: 0 18px;" onclick="updateCreditScore()">Update</button>
+
+                    <input
+                        type="number"
+                        class="form-input"
+                        id="new-score-input"
+                        placeholder="New Score (e.g. 750)"
+                    >
+
+                    <button
+                        class="action-btn-primary"
+                        style="width:auto; padding:0 18px;"
+                        onclick="updateCreditScore()"
+                    >
+                        Update
+                    </button>
+
                 </div>
+
 
                 <div class="chart-container">
-                    <div class="card-tag" style="margin-bottom: 4px; font-size: 9px;">SCORE GROWTH TREND</div>
-                    <svg viewBox="0 0 300 50" style="width: 100%; height: 45px;">
-                        <path d="M 0 40 Q 75 35, 150 20 T 300 10" fill="none" stroke="var(--accent-purple)" stroke-width="3" stroke-linecap="round"/>
-                        <circle cx="300" cy="10" r="4" fill="var(--accent-purple)"/>
+
+                    <div
+                        class="card-tag"
+                        style="margin-bottom:4px; font-size:9px;"
+                    >
+                        SCORE GROWTH TREND
+                    </div>
+
+                    <svg
+                        viewBox="0 0 300 50"
+                        style="width:100%; height:45px;"
+                    >
+
+                        <path
+                            d="M 0 40 Q 75 35, 150 20 T 300 10"
+                            fill="none"
+                            stroke="var(--accent-purple)"
+                            stroke-width="3"
+                            stroke-linecap="round"
+                        />
+
+                        <circle
+                            cx="300"
+                            cy="10"
+                            r="4"
+                            fill="var(--accent-purple)"
+                        />
+
                     </svg>
+
                 </div>
+
             </div>
+
         </div>
+
+
+        <!-- =========================
+             SETTINGS
+        ========================= -->
 
         <div id="view-settings" class="view-section">
+
             <div class="card">
-                <div class="card-tag">APPEARANCE</div>
-                <div class="card-desc">Choose your preferred workspace theme.</div>
+
+                <div class="card-tag">
+                    APPEARANCE
+                </div>
+
+                <div class="card-desc">
+                    Choose your preferred workspace theme.
+                </div>
 
                 <div class="toggle-group">
-                    <button class="toggle-btn active" id="btn-light" onclick="setTheme('light')">White / Light</button>
-                    <button class="toggle-btn" id="btn-dark" onclick="setTheme('dark')">Midnight Dark</button>
+
+                    <button
+                        class="toggle-btn active"
+                        id="btn-light"
+                        onclick="setTheme('light')"
+                    >
+                        White / Light
+                    </button>
+
+                    <button
+                        class="toggle-btn"
+                        id="btn-dark"
+                        onclick="setTheme('dark')"
+                    >
+                        Midnight Dark
+                    </button>
+
                 </div>
+
             </div>
+
 
             <div class="card">
-                <div class="card-tag">YOUR MONEY</div>
-                <div class="form-group">
-                    <label class="form-label">Already set aside</label>
-                    <input type="number" class="form-input" value="1054.00">
+
+                <div class="card-tag">
+                    YOUR MONEY
                 </div>
+
+                <div class="form-group">
+
+                    <label class="form-label">
+                        Already set aside
+                    </label>
+
+                    <input
+                        type="number"
+                        class="form-input"
+                        value="1054.00"
+                    >
+
+                </div>
+
             </div>
+
         </div>
 
     </div>
+
+
+    <!-- =========================
+         BOTTOM NAVIGATION
+    ========================= -->
 
     <nav class="bottom-nav">
-        <button class="nav-item active" id="nav-today" onclick="switchView('today', this)"><span class="icon">☼</span>Today</button>
-        <button class="nav-item" id="nav-planner" onclick="switchView('planner', this)"><span class="icon">📅</span>Planner</button>
-        <button class="nav-item" id="nav-bills" onclick="switchView('bills', this)"><span class="icon">📋</span>Bills</button>
-        <button class="nav-item" id="nav-goals" onclick="switchView('goals', this)"><span class="icon">🎯</span>Goals</button>
-        <button class="nav-item" id="nav-more" onclick="openMoreModal()"><span class="icon">•••</span>More</button>
+
+        <button
+            class="nav-item active"
+            id="nav-today"
+            onclick="switchView('today', this)"
+        >
+            <span class="icon">☼</span>
+            Today
+        </button>
+
+
+        <button
+            class="nav-item"
+            id="nav-planner"
+            onclick="switchView('planner', this)"
+        >
+            <span class="icon">📅</span>
+            Planner
+        </button>
+
+
+        <button
+            class="nav-item"
+            id="nav-bills"
+            onclick="switchView('bills', this)"
+        >
+            <span class="icon">📋</span>
+            Bills
+        </button>
+
+
+        <button
+            class="nav-item"
+            id="nav-goals"
+            onclick="switchView('goals', this)"
+        >
+            <span class="icon">🎯</span>
+            Goals
+        </button>
+
+
+        <button
+            class="nav-item"
+            id="nav-more"
+            onclick="openMoreModal()"
+        >
+            <span class="icon">•••</span>
+            More
+        </button>
+
     </nav>
 
-    <div class="more-modal" id="moreModal" onclick="closeMoreModal()">
-        <div class="more-content" onclick="event.stopPropagation()">
-            <div style="display:flex; justify-content:space-between; align-items:center;">
-                <div class="card-title serif" style="font-size: 22px;">Menu</div>
-                <button class="action-btn-primary" style="width: auto; padding: 6px 14px;" onclick="closeMoreModal()">Close</button>
-            </div>
-            <div class="menu-list">
-                <div class="menu-card" onclick="switchView('settings', null); closeMoreModal();">
-                    <div>
-                        <div style="font-weight:600;">Settings & Themes</div>
-                        <div style="font-size:12px; color:var(--text-muted);">Adjust colors & preferences</div>
-                    </div>
-                    <span>›</span>
+
+    <!-- =========================
+         MORE MENU
+    ========================= -->
+
+    <div
+        class="more-modal"
+        id="moreModal"
+        onclick="closeMoreModal()"
+    >
+
+        <div
+            class="more-content"
+            onclick="event.stopPropagation()"
+        >
+
+            <div
+                style="
+                    display:flex;
+                    justify-content:space-between;
+                    align-items:center;
+                "
+            >
+
+                <div
+                    class="card-title serif"
+                    style="font-size:22px;"
+                >
+                    Menu
                 </div>
+
+                <button
+                    class="action-btn-primary"
+                    style="width:auto; padding:6px 14px;"
+                    onclick="closeMoreModal()"
+                >
+                    Close
+                </button>
+
             </div>
+
+
+            <div class="menu-list">
+
+                <div
+                    class="menu-card"
+                    onclick="
+                        switchView('settings', null);
+                        closeMoreModal();
+                    "
+                >
+
+                    <div>
+
+                        <div style="font-weight:600;">
+                            Settings & Themes
+                        </div>
+
+                        <div
+                            style="
+                                font-size:12px;
+                                color:var(--text-muted);
+                            "
+                        >
+                            Adjust colors & preferences
+                        </div>
+
+                    </div>
+
+                    <span>›</span>
+
+                </div>
+
+            </div>
+
         </div>
+
     </div>
 
+
+    <!-- =========================
+         JAVASCRIPT
+    ========================= -->
+
     <script>
+
+        /* =========================
+           DATE / MONTH
+        ========================= */
+
         window.onload = function() {
+
             var today = new Date();
-            var days = ['SUNDAY', 'MONDAY', 'TUESDAY', 'WEDNESDAY', 'THURSDAY', 'FRIDAY', 'SATURDAY'];
-            var months = ['JAN', 'FEB', 'MAR', 'APR', 'MAY', 'JUN', 'JUL', 'AUG', 'SEP', 'OCT', 'NOV', 'DEC'];
+
+            var days = [
+                'SUNDAY',
+                'MONDAY',
+                'TUESDAY',
+                'WEDNESDAY',
+                'THURSDAY',
+                'FRIDAY',
+                'SATURDAY'
+            ];
+
+            var months = [
+                'January',
+                'February',
+                'March',
+                'April',
+                'May',
+                'June',
+                'July',
+                'August',
+                'September',
+                'October',
+                'November',
+                'December'
+            ];
+
+            var shortMonths = [
+                'JAN',
+                'FEB',
+                'MAR',
+                'APR',
+                'MAY',
+                'JUN',
+                'JUL',
+                'AUG',
+                'SEP',
+                'OCT',
+                'NOV',
+                'DEC'
+            ];
+
             var dayName = days[today.getDay()];
-            
-            var dateEl = document.getElementById('current-date');
-            if (dateEl) {
-                dateEl.innerText = dayName + ', ' + today.getDate() + ' ' + months[today.getMonth()];
+
+            /* Month header */
+
+            var monthName =
+                document.getElementById('month-name');
+
+            if (monthName) {
+                monthName.innerText =
+                    months[today.getMonth()];
             }
+
+            var monthYear =
+                document.getElementById('month-year');
+
+            if (monthYear) {
+                monthYear.innerText =
+                    today.getFullYear();
+            }
+
+            /* Today's date */
+
+            var dateEl =
+                document.getElementById('current-date');
+
+            if (dateEl) {
+
+                dateEl.innerText =
+                    dayName +
+                    ', ' +
+                    today.getDate() +
+                    ' ' +
+                    shortMonths[today.getMonth()];
+
+            }
+
+            /* Greeting */
 
             var greetings = [
-                'Happy ' + dayName.charAt(0) + dayName.slice(1).toLowerCase() + ', Vicky! ✨',
+
+                'Happy ' +
+                dayName.charAt(0) +
+                dayName.slice(1).toLowerCase() +
+                ', Vicky! ✨',
+
                 'Good day, Vicky! Let\'s make that money make sense. 💸',
+
                 'Hey Vicky, look at you checking your finances! 💅',
-                'Happy ' + dayName.charAt(0) + dayName.slice(1).toLowerCase() + ', Vicky! Safe-to-spend is looking fine.',
+
+                'Happy ' +
+                dayName.charAt(0) +
+                dayName.slice(1).toLowerCase() +
+                ', Vicky! Safe-to-spend is looking fine.',
+
                 'You got this today, Vicky! 💫',
+
                 'Welcome back, Vicky! Another day, another dollar saved. ☕'
+
             ];
-            
-            var greetEl = document.getElementById('dynamic-greeting');
+
+            var greetEl =
+                document.getElementById('dynamic-greeting');
+
             if (greetEl) {
-                greetEl.innerText = greetings[Math.floor(Math.random() * greetings.length)];
+
+                greetEl.innerText =
+                    greetings[
+                        Math.floor(
+                            Math.random() *
+                            greetings.length
+                        )
+                    ];
+
             }
+
+            /* Load saved stickers */
+
+            loadStickers();
+
         };
 
-        function switchView(viewId, el) {
-            var sections = document.querySelectorAll('.view-section');
-            for (var i = 0; i < sections.length; i++) {
-                sections[i].classList.remove('active-view');
+
+        /* =========================
+           STICKER SYSTEM
+        ========================= */
+
+        var activeStickerSlot = 0;
+
+        /*
+         * Tap a sticker box first.
+         * Then paste the sticker copied from Photos.
+         */
+
+        function focusSticker(slotNumber) {
+
+            activeStickerSlot = slotNumber;
+
+            var slot =
+                document.getElementById(
+                    'sticker-slot-' + slotNumber
+                );
+
+            if (slot) {
+                slot.focus();
             }
-            var target = document.getElementById('view-' + viewId);
-            if (target) target.classList.add('active-view');
+
+        }
+
+
+        /*
+         * Listen for pasted images.
+         *
+         * This is what allows:
+         *
+         * Photos → Copy Subject
+         * → return here
+         * → tap sticker box
+         * → Paste
+         */
+
+        document.addEventListener(
+            'paste',
+            function(event) {
+
+                var clipboardData =
+                    event.clipboardData ||
+                    window.clipboardData;
+
+                if (!clipboardData) return;
+
+                var items =
+                    clipboardData.items;
+
+                if (!items) return;
+
+                for (
+                    var i = 0;
+                    i < items.length;
+                    i++
+                ) {
+
+                    var item = items[i];
+
+                    /*
+                     * We only want images.
+                     */
+
+                    if (
+                        item.kind === 'file' &&
+                        item.type.indexOf('image') !== -1
+                    ) {
+
+                        var file =
+                            item.getAsFile();
+
+                        if (file) {
+
+                            var reader =
+                                new FileReader();
+
+                            reader.onload =
+                                function(e) {
+
+                                    saveSticker(
+                                        activeStickerSlot,
+                                        e.target.result
+                                    );
+
+                                };
+
+                            reader.readAsDataURL(file);
+
+                        }
+
+                        /*
+                         * Prevent the browser from
+                         * trying to paste text.
+                         */
+
+                        event.preventDefault();
+
+                        return;
+                    }
+
+                }
+
+            }
+        );
+
+
+        /*
+         * Save sticker.
+         */
+
+        function saveSticker(slotNumber, imageData) {
+
+            localStorage.setItem(
+                'vickySticker_' + slotNumber,
+                imageData
+            );
+
+            displaySticker(
+                slotNumber,
+                imageData
+            );
+
+        }
+
+
+        /*
+         * Display sticker.
+         */
+
+        function displaySticker(
+            slotNumber,
+            imageData
+        ) {
+
+            var slot =
+                document.getElementById(
+                    'sticker-slot-' + slotNumber
+                );
+
+            if (!slot) return;
+
+            slot.innerHTML = '';
+
+            var image =
+                document.createElement('img');
+
+            image.src = imageData;
+
+            image.className =
+                'sticker-image';
+
+            slot.appendChild(image);
+
+
+            /*
+             * Delete button
+             */
+
+            var deleteButton =
+                document.createElement('button');
+
+            deleteButton.className =
+                'sticker-delete';
+
+            deleteButton.innerText = '×';
+
+            deleteButton.onclick =
+                function(event) {
+
+                    event.stopPropagation();
+
+                    deleteSticker(
+                        slotNumber
+                    );
+
+                };
+
+            slot.appendChild(deleteButton);
+
+            slot.classList.add(
+                'has-sticker'
+            );
+
+        }
+
+
+        /*
+         * Delete sticker.
+         */
+
+        function deleteSticker(slotNumber) {
+
+            localStorage.removeItem(
+                'vickySticker_' + slotNumber
+            );
+
+            var slot =
+                document.getElementById(
+                    'sticker-slot-' + slotNumber
+                );
+
+            if (!slot) return;
+
+            slot.classList.remove(
+                'has-sticker'
+            );
+
+            slot.innerHTML = `
+                <div class="sticker-placeholder">
+                    <span>＋</span>
+                    Paste
+                </div>
+            `;
+
+        }
+
+
+        /*
+         * Load stickers saved previously.
+         */
+
+        function loadStickers() {
+
+            for (
+                var i = 0;
+                i < 3;
+                i++
+            ) {
+
+                var savedSticker =
+                    localStorage.getItem(
+                        'vickySticker_' + i
+                    );
+
+                if (savedSticker) {
+
+                    displaySticker(
+                        i,
+                        savedSticker
+                    );
+
+                }
+
+            }
+
+        }
+
+
+        /* =========================
+           VIEW SWITCHING
+        ========================= */
+
+        function switchView(
+            viewId,
+            el
+        ) {
+
+            var sections =
+                document.querySelectorAll(
+                    '.view-section'
+                );
+
+            for (
+                var i = 0;
+                i < sections.length;
+                i++
+            ) {
+
+                sections[i]
+                    .classList
+                    .remove(
+                        'active-view'
+                    );
+
+            }
+
+            var target =
+                document.getElementById(
+                    'view-' + viewId
+                );
+
+            if (target) {
+
+                target
+                    .classList
+                    .add(
+                        'active-view'
+                    );
+
+            }
+
 
             if (el) {
-                var navItems = document.querySelectorAll('.nav-item');
-                for (var j = 0; j < navItems.length; j++) {
-                    navItems[j].classList.remove('active');
+
+                var navItems =
+                    document.querySelectorAll(
+                        '.nav-item'
+                    );
+
+                for (
+                    var j = 0;
+                    j < navItems.length;
+                    j++
+                ) {
+
+                    navItems[j]
+                        .classList
+                        .remove(
+                            'active'
+                        );
+
                 }
-                el.classList.add('active');
+
+                el.classList.add(
+                    'active'
+                );
+
             }
+
         }
+
+
+        /* =========================
+           MORE MENU
+        ========================= */
 
         function openMoreModal() {
-            var modal = document.getElementById('moreModal');
-            if (modal) modal.classList.add('open');
-        }
 
-        function closeMoreModal() {
-            var modal = document.getElementById('moreModal');
-            if (modal) modal.classList.remove('open');
-        }
+            var modal =
+                document.getElementById(
+                    'moreModal'
+                );
 
-        function setTheme(theme) {
-            document.body.setAttribute('data-theme', theme);
-            var btnLight = document.getElementById('btn-light');
-            var btnDark = document.getElementById('btn-dark');
-            if (btnLight) btnLight.classList.toggle('active', theme === 'light');
-            if (btnDark) btnDark.classList.toggle('active', theme === 'dark');
-        }
+            if (modal) {
 
-        var previousScores = { exp: 730, tu: 733, eq: 737 };
+                modal.classList.add(
+                    'open'
+                );
 
-        function updateCreditScore() {
-            var bureauSelect = document.getElementById('bureau-select');
-            var scoreInput = document.getElementById('new-score-input');
-            if (!bureauSelect || !scoreInput) return;
-
-            var bureau = bureauSelect.value;
-            var newScoreVal = parseInt(scoreInput.value, 10);
-
-            if (!newScoreVal || isNaN(newScoreVal)) return;
-
-            var scoreEl = document.getElementById('score-' + bureau);
-            var changeEl = document.getElementById('change-' + bureau);
-
-            var diff = newScoreVal - previousScores[bureau];
-            if (scoreEl) scoreEl.innerText = newScoreVal;
-
-            if (changeEl) {
-                if (diff >= 0) {
-                    changeEl.innerText = '+' + diff + ' pts';
-                    changeEl.className = 'score-change score-up';
-                } else {
-                    changeEl.innerText = diff + ' pts';
-                    changeEl.className = 'score-change score-down';
-                }
             }
 
-            scoreInput.value = '';
         }
+
+
+        function closeMoreModal() {
+
+            var modal =
+                document.getElementById(
+                    'moreModal'
+                );
+
+            if (modal) {
+
+                modal.classList.remove(
+                    'open'
+                );
+
+            }
+
+        }
+
+
+        /* =========================
+           DARK / LIGHT MODE
+        ========================= */
+
+        function setTheme(theme) {
+
+            document.body.setAttribute(
+                'data-theme',
+                theme
+            );
+
+            var btnLight =
+                document.getElementById(
+                    'btn-light'
+                );
+
+            var btnDark =
+                document.getElementById(
+                    'btn-dark'
+                );
+
+            if (btnLight) {
+
+                btnLight.classList.toggle(
+                    'active',
+                    theme === 'light'
+                );
+
+            }
+
+            if (btnDark) {
+
+                btnDark.classList.toggle(
+                    'active',
+                    theme === 'dark'
+                );
+
+            }
+
+        }
+
+
+        /* =========================
+           CREDIT SCORES
+        ========================= */
+
+        var previousScores = {
+            exp: 730,
+            tu: 733,
+            eq: 737
+        };
+
+
+        function updateCreditScore() {
+
+            var bureauSelect =
+                document.getElementById(
+                    'bureau-select'
+                );
+
+            var scoreInput =
+                document.getElementById(
+                    'new-score-input'
+                );
+
+            if (
+                !bureauSelect ||
+                !scoreInput
+            ) return;
+
+            var bureau =
+                bureauSelect.value;
+
+            var newScoreVal =
+                parseInt(
+                    scoreInput.value,
+                    10
+                );
+
+            if (
+                !newScoreVal ||
+                isNaN(newScoreVal)
+            ) return;
+
+            var scoreEl =
+                document.getElementById(
+                    'score-' + bureau
+                );
+
+            var changeEl =
+                document.getElementById(
+                    'change-' + bureau
+                );
+
+            var diff =
+                newScoreVal -
+                previousScores[bureau];
+
+            if (scoreEl) {
+
+                scoreEl.innerText =
+                    newScoreVal;
+
+            }
+
+            if (changeEl) {
+
+                if (diff >= 0) {
+
+                    changeEl.innerText =
+                        '+' + diff + ' pts';
+
+                    changeEl.className =
+                        'score-change score-up';
+
+                } else {
+
+                    changeEl.innerText =
+                        diff + ' pts';
+
+                    changeEl.className =
+                        'score-change score-down';
+
+                }
+
+            }
+
+            /*
+             * Make the new score the
+             * comparison point.
+             */
+
+            previousScores[bureau] =
+                newScoreVal;
+
+            scoreInput.value = '';
+
+        }
+
     </script>
+
 </body>
 </html>
