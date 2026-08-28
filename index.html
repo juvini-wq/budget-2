@@ -1,8 +1,747 @@
 <!DOCTYPE html>
-<html>
-<head><title>Test</title></head>
-<body style="background: #7c3aed; color: white; padding: 40px; font-family: sans-serif;">
-  <h1>Budget App is Online!</h1>
-  <p>If you see this purple screen, GitHub Pages is working perfectly.</p>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
+    <title>Budget and Planner</title>
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Instrument+Serif:ital@0;1&family=Inter:wght@300;400;500;600;700&display=swap" rel="stylesheet">
+    <style>
+        :root {
+            --bg-main: #f8f9fc;
+            --bg-card: #ffffff;
+            --bg-card-border: rgba(0, 0, 0, 0.08);
+            --text-primary: #111827;
+            --text-muted: #6b7280;
+            --accent-purple: #7c3aed;
+            --accent-purple-light: rgba(124, 58, 237, 0.08);
+            --accent-green: #059669;
+            --accent-green-bg: rgba(5, 150, 105, 0.1);
+            --accent-red: #dc2626;
+            --accent-red-bg: rgba(220, 38, 38, 0.1);
+            --input-bg: #f3f4f6;
+            --input-border: #e5e7eb;
+            --nav-bg: #ffffff;
+        }
+
+        [data-theme="dark"] {
+            --bg-main: #131722;
+            --bg-card: #1c2230;
+            --bg-card-border: rgba(255, 255, 255, 0.08);
+            --text-primary: #f0f3f8;
+            --text-muted: #8e9bb0;
+            --accent-purple: #8b72de;
+            --accent-purple-light: rgba(139, 114, 222, 0.15);
+            --accent-green: #71b898;
+            --accent-green-bg: rgba(113, 184, 152, 0.15);
+            --accent-red: #d97d75;
+            --accent-red-bg: rgba(217, 125, 117, 0.15);
+            --input-bg: #151a26;
+            --input-border: rgba(255, 255, 255, 0.15);
+            --nav-bg: #131722;
+        }
+
+        * {
+            box-sizing: border-box;
+            -webkit-tap-highlight-color: transparent;
+            margin: 0;
+            padding: 0;
+        }
+
+        html, body {
+            width: 100%;
+            overflow-x: hidden;
+            background-color: var(--bg-main);
+            color: var(--text-primary);
+            font-family: 'Inter', -apple-system, sans-serif;
+            min-height: 100vh;
+            padding-bottom: 90px;
+        }
+
+        .serif {
+            font-family: 'Instrument Serif', Georgia, serif;
+        }
+
+        .header {
+            padding: 24px 20px 12px 20px;
+            max-width: 500px;
+            margin: 0 auto;
+            width: 100%;
+        }
+
+        .brand-pill {
+            display: inline-flex;
+            align-items: center;
+            gap: 8px;
+            margin-bottom: 12px;
+        }
+
+        .brand-avatar {
+            width: 28px;
+            height: 28px;
+            border-radius: 8px;
+            background: var(--accent-purple);
+            color: #fff;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-weight: 700;
+            font-size: 14px;
+        }
+
+        .brand-text {
+            font-size: 11px;
+            font-weight: 700;
+            letter-spacing: 1.5px;
+            text-transform: uppercase;
+        }
+
+        .date-subtitle {
+            font-size: 11px;
+            text-transform: uppercase;
+            letter-spacing: 1.2px;
+            color: var(--text-muted);
+            margin-bottom: 4px;
+        }
+
+        .page-title {
+            font-size: 32px;
+            font-weight: 400;
+            margin-bottom: 16px;
+            line-height: 1.2;
+        }
+
+        .action-btn-primary {
+            width: 100%;
+            background: var(--accent-purple);
+            color: #ffffff;
+            border: none;
+            padding: 14px;
+            border-radius: 16px;
+            font-size: 15px;
+            font-weight: 600;
+            cursor: pointer;
+            text-align: center;
+        }
+
+        .container {
+            max-width: 500px;
+            margin: 0 auto;
+            padding: 0 16px;
+            width: 100%;
+            display: flex;
+            flex-direction: column;
+            gap: 16px;
+        }
+
+        .view-section {
+            display: none;
+            flex-direction: column;
+            gap: 16px;
+            width: 100%;
+        }
+
+        .view-section.active-view {
+            display: flex;
+        }
+
+        .card {
+            background: var(--bg-card);
+            border: 1px solid var(--bg-card-border);
+            border-radius: 20px;
+            padding: 22px;
+            box-shadow: 0 2px 12px rgba(0,0,0,0.03);
+            width: 100%;
+        }
+
+        .card-large {
+            padding: 26px;
+        }
+
+        .card-tag {
+            font-size: 10px;
+            font-weight: 700;
+            letter-spacing: 1.5px;
+            text-transform: uppercase;
+            color: var(--accent-purple);
+            margin-bottom: 8px;
+            display: flex;
+            align-items: center;
+            gap: 6px;
+        }
+
+        .card-tag::before {
+            content: "•";
+            font-size: 14px;
+        }
+
+        .card-title {
+            font-size: 24px;
+            font-weight: 400;
+            margin-bottom: 6px;
+        }
+
+        .card-desc {
+            font-size: 13px;
+            color: var(--text-muted);
+            line-height: 1.4;
+            margin-bottom: 16px;
+        }
+
+        .upcoming-list {
+            display: flex;
+            flex-direction: column;
+            gap: 12px;
+            margin-top: 14px;
+        }
+
+        .upcoming-item {
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+            padding: 12px 14px;
+            background: var(--input-bg);
+            border-radius: 14px;
+            border: 1px solid var(--input-border);
+        }
+
+        .upcoming-info h4 {
+            font-size: 14px;
+            font-weight: 600;
+        }
+
+        .upcoming-info span {
+            font-size: 12px;
+            color: var(--text-muted);
+        }
+
+        .bureau-grid {
+            display: grid;
+            grid-template-columns: repeat(3, 1fr);
+            gap: 8px;
+            margin-top: 12px;
+            margin-bottom: 16px;
+        }
+
+        .bureau-card {
+            background: var(--input-bg);
+            border: 1px solid var(--input-border);
+            border-radius: 14px;
+            padding: 12px 8px;
+            text-align: center;
+            display: flex;
+            flex-direction: column;
+            gap: 4px;
+        }
+
+        .bureau-name {
+            font-size: 10px;
+            font-weight: 700;
+            text-transform: uppercase;
+            letter-spacing: 0.5px;
+            color: var(--text-muted);
+        }
+
+        .bureau-score {
+            font-size: 22px;
+            font-weight: 400;
+        }
+
+        .score-change {
+            font-size: 10px;
+            font-weight: 700;
+            padding: 2px 6px;
+            border-radius: 10px;
+            display: inline-block;
+            margin: 0 auto;
+        }
+
+        .score-up {
+            color: var(--accent-green);
+            background: var(--accent-green-bg);
+        }
+
+        .score-down {
+            color: var(--accent-red);
+            background: var(--accent-red-bg);
+        }
+
+        .credit-input-row {
+            display: flex;
+            gap: 8px;
+            margin-top: 10px;
+        }
+
+        .chart-container {
+            width: 100%;
+            height: 100px;
+            margin-top: 14px;
+            background: var(--input-bg);
+            border-radius: 14px;
+            padding: 10px;
+            display: flex;
+            flex-direction: column;
+            justify-content: flex-end;
+        }
+
+        .quick-pills {
+            display: flex;
+            flex-direction: column;
+            gap: 8px;
+            margin-top: 14px;
+        }
+
+        .pill-btn {
+            background: var(--input-bg);
+            border: 1px solid var(--input-border);
+            color: var(--text-primary);
+            padding: 12px;
+            border-radius: 12px;
+            font-size: 14px;
+            font-weight: 500;
+            text-align: center;
+            cursor: pointer;
+        }
+
+        .form-group {
+            display: flex;
+            flex-direction: column;
+            gap: 6px;
+            margin-bottom: 14px;
+        }
+
+        .form-label {
+            font-size: 13px;
+            font-weight: 500;
+        }
+
+        .form-input {
+            width: 100%;
+            background: var(--input-bg);
+            border: 1px solid var(--input-border);
+            color: var(--text-primary);
+            padding: 12px 14px;
+            border-radius: 12px;
+            font-size: 15px;
+            outline: none;
+        }
+
+        .toggle-group {
+            display: flex;
+            gap: 8px;
+            margin-bottom: 16px;
+        }
+
+        .toggle-btn {
+            flex: 1;
+            padding: 10px;
+            border-radius: 14px;
+            border: 1px solid var(--input-border);
+            background: transparent;
+            color: var(--text-primary);
+            font-size: 13px;
+            font-weight: 500;
+            cursor: pointer;
+        }
+
+        .toggle-btn.active {
+            border-color: var(--accent-purple);
+            background: var(--accent-purple-light);
+            color: var(--accent-purple);
+            font-weight: 600;
+        }
+
+        .stats-grid {
+            display: grid;
+            grid-template-columns: 1fr 1fr;
+            gap: 10px;
+        }
+
+        .stat-box {
+            padding: 14px;
+            border-radius: 14px;
+            display: flex;
+            flex-direction: column;
+            gap: 4px;
+        }
+
+        .stat-box.green { background: rgba(5, 150, 105, 0.08); }
+        .stat-box.red { background: rgba(220, 38, 38, 0.08); }
+        .stat-box.purple { background: rgba(124, 58, 237, 0.08); }
+        .stat-box.blue { background: rgba(37, 99, 235, 0.08); }
+
+        .stat-label { font-size: 12px; color: var(--text-muted); }
+        .stat-val { font-size: 24px; font-weight: 400; }
+
+        .bottom-nav {
+            position: fixed;
+            bottom: 0;
+            left: 0;
+            right: 0;
+            background: var(--nav-bg);
+            border-top: 1px solid var(--bg-card-border);
+            display: flex;
+            justify-content: space-around;
+            padding: 10px 0 20px 0;
+            z-index: 200;
+        }
+
+        .nav-item {
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            gap: 4px;
+            color: var(--text-muted);
+            font-size: 11px;
+            background: none;
+            border: none;
+            cursor: pointer;
+            width: 20%;
+        }
+
+        .nav-item.active {
+            color: var(--accent-purple);
+            font-weight: 600;
+        }
+
+        .nav-item .icon { font-size: 18px; }
+
+        .more-modal {
+            position: fixed;
+            inset: 0;
+            background: rgba(0, 0, 0, 0.4);
+            backdrop-filter: blur(4px);
+            z-index: 300;
+            display: none;
+            align-items: flex-end;
+        }
+
+        .more-modal.open { display: flex; }
+
+        .more-content {
+            background: var(--bg-main);
+            width: 100%;
+            border-top-left-radius: 24px;
+            border-top-right-radius: 24px;
+            padding: 24px 20px 40px 20px;
+            max-height: 80vh;
+            overflow-y: auto;
+        }
+
+        .menu-list {
+            display: flex;
+            flex-direction: column;
+            gap: 10px;
+            margin-top: 16px;
+        }
+
+        .menu-card {
+            background: var(--bg-card);
+            border: 1px solid var(--bg-card-border);
+            padding: 16px;
+            border-radius: 16px;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            cursor: pointer;
+        }
+    </style>
+</head>
+<body data-theme="light">
+
+    <div class="header">
+        <div class="brand-pill">
+            <div class="brand-avatar">V</div>
+            <div class="brand-text">Vicky's Planner</div>
+        </div>
+        <div class="date-subtitle" id="current-date">TODAY</div>
+        <h1 class="page-title serif" id="dynamic-greeting">Good day, Vicky</h1>
+        
+        <button class="action-btn-primary" onclick="switchView('today', null)">Log a spend</button>
+    </div>
+
+    <div class="container">
+
+        <div id="view-today" class="view-section active-view">
+            <div class="card card-large">
+                <div class="card-tag">COMING UP NEXT...</div>
+                <div class="card-title serif" style="font-size: 28px;">Priority Actions</div>
+                <div class="card-desc">Quick items to keep everything on track</div>
+
+                <div class="upcoming-list">
+                    <div class="upcoming-item">
+                        <div class="upcoming-info">
+                            <h4>Mark Internet paid</h4>
+                            <span>Due today • $79.99</span>
+                        </div>
+                        <button class="action-btn-primary" style="width: auto; padding: 8px 14px; font-size: 13px;" onclick="this.closest('.upcoming-item').style.display='none'">Done</button>
+                    </div>
+
+                    <div class="upcoming-item">
+                        <div class="upcoming-info">
+                            <h4>Log weekly groceries</h4>
+                            <span>Pending update</span>
+                        </div>
+                        <button class="action-btn-primary" style="width: auto; padding: 8px 14px; font-size: 13px;" onclick="this.closest('.upcoming-item').style.display='none'">Done</button>
+                    </div>
+                </div>
+            </div>
+
+            <div class="card">
+                <div class="card-tag">SAFE TO SPEND TODAY</div>
+                <div class="card-title serif" style="font-size: 42px; margin-top: 4px;">$1,107.31</div>
+                <div class="card-desc">of today's starting balance</div>
+                
+                <div class="quick-pills">
+                    <button class="pill-btn">+ Coffee ($5)</button>
+                    <button class="pill-btn">+ Lunch ($15)</button>
+                    <button class="pill-btn">+ Bus ($2.50)</button>
+                </div>
+            </div>
+        </div>
+
+        <div id="view-planner" class="view-section">
+            <div class="card">
+                <div class="card-tag">THIS MONTH AT A GLANCE</div>
+                <div class="card-desc">$10 kept</div>
+                
+                <div class="stats-grid">
+                    <div class="stat-box green">
+                        <span class="stat-label">Came in</span>
+                        <span class="stat-val serif">$600</span>
+                    </div>
+                    <div class="stat-box red">
+                        <span class="stat-label">Went out</span>
+                        <span class="stat-val serif">$590</span>
+                    </div>
+                    <div class="stat-box purple">
+                        <span class="stat-label">Kept</span>
+                        <span class="stat-val serif">$10</span>
+                    </div>
+                    <div class="stat-box blue">
+                        <span class="stat-label">Still yours</span>
+                        <span class="stat-val serif">$0</span>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <div id="view-bills" class="view-section">
+            <div class="card">
+                <div class="card-tag">STILL TO GO OUT</div>
+                <div class="card-title serif" style="font-size: 36px; color: var(--accent-purple);">$2,000.00</div>
+                <div class="card-desc">all clear for now</div>
+            </div>
+        </div>
+
+        <div id="view-goals" class="view-section">
+            <div class="card">
+                <div class="card-title serif" style="font-size: 26px;">Add a goal</div>
+                <div class="card-desc">name, amount, pace</div>
+
+                <div class="form-group">
+                    <label class="form-label">What it is for</label>
+                    <input type="text" class="form-input" placeholder="Japan, next spring">
+                </div>
+
+                <div class="form-group">
+                    <label class="form-label">How much you need</label>
+                    <input type="number" class="form-input" placeholder="0.00">
+                </div>
+
+                <div style="display: flex; gap: 10px; margin-top: 10px;">
+                    <button class="action-btn-primary" style="flex:1;">Add goal</button>
+                </div>
+            </div>
+
+            <div class="card">
+                <div class="card-tag">CREDIT SCORES & BUREAUS</div>
+                <div class="card-title serif" style="font-size: 24px;">Monthly Bureau Updates</div>
+                <div class="card-desc">Track scores & trend growth for Experian, TransUnion, and Equifax.</div>
+
+                <div class="bureau-grid">
+                    <div class="bureau-card">
+                        <span class="bureau-name">Experian</span>
+                        <span class="bureau-score serif" id="score-exp">742</span>
+                        <span class="score-change score-up" id="change-exp">+12 pts</span>
+                    </div>
+                    <div class="bureau-card">
+                        <span class="bureau-name">TransUnion</span>
+                        <span class="bureau-score serif" id="score-tu">738</span>
+                        <span class="score-change score-up" id="change-tu">+5 pts</span>
+                    </div>
+                    <div class="bureau-card">
+                        <span class="bureau-name">Equifax</span>
+                        <span class="bureau-score serif" id="score-eq">745</span>
+                        <span class="score-change score-up" id="change-eq">+8 pts</span>
+                    </div>
+                </div>
+
+                <div class="form-group">
+                    <label class="form-label">Update Score</label>
+                    <select class="form-input" id="bureau-select">
+                        <option value="exp">Experian</option>
+                        <option value="tu">TransUnion</option>
+                        <option value="eq">Equifax</option>
+                    </select>
+                </div>
+
+                <div class="credit-input-row">
+                    <input type="number" class="form-input" id="new-score-input" placeholder="New Score (e.g. 750)">
+                    <button class="action-btn-primary" style="width: auto; padding: 0 18px;" onclick="updateCreditScore()">Update</button>
+                </div>
+
+                <div class="chart-container">
+                    <div class="card-tag" style="margin-bottom: 4px; font-size: 9px;">SCORE GROWTH TREND</div>
+                    <svg viewBox="0 0 300 50" style="width: 100%; height: 45px;">
+                        <path d="M 0 40 Q 75 35, 150 20 T 300 10" fill="none" stroke="var(--accent-purple)" stroke-width="3" stroke-linecap="round"/>
+                        <circle cx="300" cy="10" r="4" fill="var(--accent-purple)"/>
+                    </svg>
+                </div>
+            </div>
+        </div>
+
+        <div id="view-settings" class="view-section">
+            <div class="card">
+                <div class="card-tag">APPEARANCE</div>
+                <div class="card-desc">Choose your preferred workspace theme.</div>
+
+                <div class="toggle-group">
+                    <button class="toggle-btn active" id="btn-light" onclick="setTheme('light')">White / Light</button>
+                    <button class="toggle-btn" id="btn-dark" onclick="setTheme('dark')">Midnight Dark</button>
+                </div>
+            </div>
+
+            <div class="card">
+                <div class="card-tag">YOUR MONEY</div>
+                <div class="form-group">
+                    <label class="form-label">Already set aside</label>
+                    <input type="number" class="form-input" value="1054.00">
+                </div>
+            </div>
+        </div>
+
+    </div>
+
+    <nav class="bottom-nav">
+        <button class="nav-item active" id="nav-today" onclick="switchView('today', this)"><span class="icon">☼</span>Today</button>
+        <button class="nav-item" id="nav-planner" onclick="switchView('planner', this)"><span class="icon">📅</span>Planner</button>
+        <button class="nav-item" id="nav-bills" onclick="switchView('bills', this)"><span class="icon">📋</span>Bills</button>
+        <button class="nav-item" id="nav-goals" onclick="switchView('goals', this)"><span class="icon">🎯</span>Goals</button>
+        <button class="nav-item" id="nav-more" onclick="openMoreModal()"><span class="icon">•••</span>More</button>
+    </nav>
+
+    <div class="more-modal" id="moreModal" onclick="closeMoreModal()">
+        <div class="more-content" onclick="event.stopPropagation()">
+            <div style="display:flex; justify-content:space-between; align-items:center;">
+                <div class="card-title serif" style="font-size: 22px;">Menu</div>
+                <button class="action-btn-primary" style="width: auto; padding: 6px 14px;" onclick="closeMoreModal()">Close</button>
+            </div>
+            <div class="menu-list">
+                <div class="menu-card" onclick="switchView('settings', null); closeMoreModal();">
+                    <div>
+                        <div style="font-weight:600;">Settings & Themes</div>
+                        <div style="font-size:12px; color:var(--text-muted);">Adjust colors & preferences</div>
+                    </div>
+                    <span>›</span>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <script>
+        window.onload = function() {
+            var today = new Date();
+            var days = ['SUNDAY', 'MONDAY', 'TUESDAY', 'WEDNESDAY', 'THURSDAY', 'FRIDAY', 'SATURDAY'];
+            var months = ['JAN', 'FEB', 'MAR', 'APR', 'MAY', 'JUN', 'JUL', 'AUG', 'SEP', 'OCT', 'NOV', 'DEC'];
+            var dayName = days[today.getDay()];
+            
+            var dateEl = document.getElementById('current-date');
+            if (dateEl) {
+                dateEl.innerText = dayName + ', ' + today.getDate() + ' ' + months[today.getMonth()];
+            }
+
+            var greetings = [
+                'Happy ' + dayName.charAt(0) + dayName.slice(1).toLowerCase() + ', Vicky! ✨',
+                'Good day, Vicky! Let\'s make that money make sense. 💸',
+                'Hey Vicky, look at you checking your finances! 💅',
+                'Happy ' + dayName.charAt(0) + dayName.slice(1).toLowerCase() + ', Vicky! Safe-to-spend is looking fine.',
+                'You got this today, Vicky! 💫',
+                'Welcome back, Vicky! Another day, another dollar saved. ☕'
+            ];
+            
+            var greetEl = document.getElementById('dynamic-greeting');
+            if (greetEl) {
+                greetEl.innerText = greetings[Math.floor(Math.random() * greetings.length)];
+            }
+        };
+
+        function switchView(viewId, el) {
+            var sections = document.querySelectorAll('.view-section');
+            for (var i = 0; i < sections.length; i++) {
+                sections[i].classList.remove('active-view');
+            }
+            var target = document.getElementById('view-' + viewId);
+            if (target) target.classList.add('active-view');
+
+            if (el) {
+                var navItems = document.querySelectorAll('.nav-item');
+                for (var j = 0; j < navItems.length; j++) {
+                    navItems[j].classList.remove('active');
+                }
+                el.classList.add('active');
+            }
+        }
+
+        function openMoreModal() {
+            var modal = document.getElementById('moreModal');
+            if (modal) modal.classList.add('open');
+        }
+
+        function closeMoreModal() {
+            var modal = document.getElementById('moreModal');
+            if (modal) modal.classList.remove('open');
+        }
+
+        function setTheme(theme) {
+            document.body.setAttribute('data-theme', theme);
+            var btnLight = document.getElementById('btn-light');
+            var btnDark = document.getElementById('btn-dark');
+            if (btnLight) btnLight.classList.toggle('active', theme === 'light');
+            if (btnDark) btnDark.classList.toggle('active', theme === 'dark');
+        }
+
+        var previousScores = { exp: 730, tu: 733, eq: 737 };
+
+        function updateCreditScore() {
+            var bureauSelect = document.getElementById('bureau-select');
+            var scoreInput = document.getElementById('new-score-input');
+            if (!bureauSelect || !scoreInput) return;
+
+            var bureau = bureauSelect.value;
+            var newScoreVal = parseInt(scoreInput.value, 10);
+
+            if (!newScoreVal || isNaN(newScoreVal)) return;
+
+            var scoreEl = document.getElementById('score-' + bureau);
+            var changeEl = document.getElementById('change-' + bureau);
+
+            var diff = newScoreVal - previousScores[bureau];
+            if (scoreEl) scoreEl.innerText = newScoreVal;
+
+            if (changeEl) {
+                if (diff >= 0) {
+                    changeEl.innerText = '+' + diff + ' pts';
+                    changeEl.className = 'score-change score-up';
+                } else {
+                    changeEl.innerText = diff + ' pts';
+                    changeEl.className = 'score-change score-down';
+                }
+            }
+
+            scoreInput.value = '';
+        }
+    </script>
 </body>
 </html>
