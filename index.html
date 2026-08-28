@@ -19,7 +19,9 @@
             --accent-purple: #7c3aed;
             --accent-purple-light: rgba(124, 58, 237, 0.08);
             --accent-green: #059669;
+            --accent-green-bg: rgba(5, 150, 105, 0.1);
             --accent-red: #dc2626;
+            --accent-red-bg: rgba(220, 38, 38, 0.1);
             --input-bg: #f3f4f6;
             --input-border: #e5e7eb;
             --nav-bg: #ffffff;
@@ -35,7 +37,9 @@
             --accent-purple: #8b72de;
             --accent-purple-light: rgba(139, 114, 222, 0.15);
             --accent-green: #71b898;
+            --accent-green-bg: rgba(113, 184, 152, 0.15);
             --accent-red: #d97d75;
+            --accent-red-bg: rgba(217, 125, 117, 0.15);
             --input-bg: #151a26;
             --input-border: rgba(255, 255, 255, 0.15);
             --nav-bg: #131722;
@@ -148,14 +152,19 @@
             display: flex;
         }
 
-        /* Responsive Clean Cards */
+        /* Cards */
         .card {
             background: var(--bg-card);
             border: 1px solid var(--bg-card-border);
             border-radius: 20px;
-            padding: 20px;
+            padding: 22px;
             box-shadow: 0 2px 12px rgba(0,0,0,0.03);
             width: 100%;
+        }
+
+        /* Bigger Coming Up Next Card */
+        .card-large {
+            padding: 26px;
         }
 
         .card-tag {
@@ -186,6 +195,106 @@
             color: var(--text-muted);
             line-height: 1.4;
             margin-bottom: 16px;
+        }
+
+        /* List Items inside Coming Up Next */
+        .upcoming-list {
+            display: flex;
+            flex-direction: column;
+            gap: 12px;
+            margin-top: 14px;
+        }
+
+        .upcoming-item {
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+            padding: 12px 14px;
+            background: var(--input-bg);
+            border-radius: 14px;
+            border: 1px solid var(--input-border);
+        }
+
+        .upcoming-info h4 {
+            font-size: 14px;
+            font-weight: 600;
+        }
+
+        .upcoming-info span {
+            font-size: 12px;
+            color: var(--text-muted);
+        }
+
+        /* Credit Bureau Cards */
+        .bureau-grid {
+            display: grid;
+            grid-template-columns: repeat(3, 1fr);
+            gap: 8px;
+            margin-top: 12px;
+            margin-bottom: 16px;
+        }
+
+        .bureau-card {
+            background: var(--input-bg);
+            border: 1px solid var(--input-border);
+            border-radius: 14px;
+            padding: 12px 8px;
+            text-align: center;
+            display: flex;
+            flex-direction: column;
+            gap: 4px;
+        }
+
+        .bureau-name {
+            font-size: 10px;
+            font-weight: 700;
+            text-transform: uppercase;
+            letter-spacing: 0.5px;
+            color: var(--text-muted);
+        }
+
+        .bureau-score {
+            font-size: 22px;
+            font-weight: 400;
+        }
+
+        .score-change {
+            font-size: 10px;
+            font-weight: 700;
+            padding: 2px 6px;
+            border-radius: 10px;
+            display: inline-block;
+            margin: 0 auto;
+        }
+
+        .score-up {
+            color: var(--accent-green);
+            background: var(--accent-green-bg);
+        }
+
+        .score-down {
+            color: var(--accent-red);
+            background: var(--accent-red-bg);
+        }
+
+        /* Credit Score Input Row */
+        .credit-input-row {
+            display: flex;
+            gap: 8px;
+            margin-top: 10px;
+        }
+
+        /* SVG Trend Chart */
+        .chart-container {
+            width: 100%;
+            height: 100px;
+            margin-top: 14px;
+            background: var(--input-bg);
+            border-radius: 14px;
+            padding: 10px;
+            display: flex;
+            flex-direction: column;
+            justify-content: flex-end;
         }
 
         /* Quick Spend Pills */
@@ -266,287 +375,3 @@
 
         .stat-box {
             padding: 14px;
-            border-radius: 14px;
-            display: flex;
-            flex-direction: column;
-            gap: 4px;
-        }
-
-        .stat-box.green { background: rgba(5, 150, 105, 0.08); }
-        .stat-box.red { background: rgba(220, 38, 38, 0.08); }
-        .stat-box.purple { background: rgba(124, 58, 237, 0.08); }
-        .stat-box.blue { background: rgba(37, 99, 235, 0.08); }
-
-        .stat-label { font-size: 12px; color: var(--text-muted); }
-        .stat-val { font-size: 24px; font-weight: 400; }
-
-        /* Bottom Fixed Navigation */
-        .bottom-nav {
-            position: fixed;
-            bottom: 0;
-            left: 0;
-            right: 0;
-            background: var(--nav-bg);
-            border-top: 1px solid var(--bg-card-border);
-            display: flex;
-            justify-content: space-around;
-            padding: 10px 0 20px 0;
-            z-index: 200;
-        }
-
-        .nav-item {
-            display: flex;
-            flex-direction: column;
-            align-items: center;
-            gap: 4px;
-            color: var(--text-muted);
-            font-size: 11px;
-            background: none;
-            border: none;
-            cursor: pointer;
-            width: 20%;
-        }
-
-        .nav-item.active {
-            color: var(--accent-purple);
-            font-weight: 600;
-        }
-
-        .nav-item .icon { font-size: 18px; }
-
-        /* Drawer Overlay */
-        .more-modal {
-            position: fixed;
-            inset: 0;
-            background: rgba(0, 0, 0, 0.4);
-            backdrop-filter: blur(4px);
-            z-index: 300;
-            display: none;
-            align-items: flex-end;
-        }
-
-        .more-modal.open { display: flex; }
-
-        .more-content {
-            background: var(--bg-main);
-            width: 100%;
-            border-top-left-radius: 24px;
-            border-top-right-radius: 24px;
-            padding: 24px 20px 40px 20px;
-            max-height: 80vh;
-            overflow-y: auto;
-        }
-
-        .menu-list {
-            display: flex;
-            flex-direction: column;
-            gap: 10px;
-            margin-top: 16px;
-        }
-
-        .menu-card {
-            background: var(--bg-card);
-            border: 1px solid var(--bg-card-border);
-            padding: 16px;
-            border-radius: 16px;
-            display: flex;
-            justify-content: space-between;
-            align-items: center;
-            cursor: pointer;
-        }
-    </style>
-</head>
-<body data-theme="light">
-
-    <div class="header">
-        <div class="brand-pill">
-            <div class="brand-avatar">V</div>
-            <div class="brand-text">Vicky's Planner</div>
-        </div>
-        <div class="date-subtitle" id="current-date">TODAY</div>
-        <h1 class="page-title serif" id="dynamic-greeting">Good day, Vicky</h1>
-        
-        <button class="action-btn-primary" onclick="switchView('today')">Log a spend</button>
-    </div>
-
-    <div class="container">
-
-        <div id="view-today" class="view-section active-view">
-            <div class="card">
-                <div class="card-tag">RIGHT NOW • ONE THING ONLY</div>
-                <div style="display: flex; justify-content: space-between; align-items: center;">
-                    <div>
-                        <div class="card-title serif">Mark Internet paid</div>
-                        <div class="card-desc" style="margin: 0;">10 sec</div>
-                    </div>
-                    <button class="action-btn-primary" style="width: auto; padding: 10px 16px;" onclick="this.closest('.card').style.display='none'">Done — next</button>
-                </div>
-            </div>
-
-            <div class="card">
-                <div class="card-tag">SAFE TO SPEND TODAY</div>
-                <div class="card-title serif" style="font-size: 42px; margin-top: 4px;">$1,107.31</div>
-                <div class="card-desc">of today's starting balance</div>
-                
-                <div class="quick-pills">
-                    <button class="pill-btn">+ Coffee ($5)</button>
-                    <button class="pill-btn">+ Lunch ($15)</button>
-                    <button class="pill-btn">+ Bus ($2.50)</button>
-                </div>
-            </div>
-        </div>
-
-        <div id="view-planner" class="view-section">
-            <div class="card">
-                <div class="card-tag">THIS MONTH AT A GLANCE</div>
-                <div class="card-desc">$10 kept</div>
-                
-                <div class="stats-grid">
-                    <div class="stat-box green">
-                        <span class="stat-label">Came in</span>
-                        <span class="stat-val serif">$600</span>
-                    </div>
-                    <div class="stat-box red">
-                        <span class="stat-label">Went out</span>
-                        <span class="stat-val serif">$590</span>
-                    </div>
-                    <div class="stat-box purple">
-                        <span class="stat-label">Kept</span>
-                        <span class="stat-val serif">$10</span>
-                    </div>
-                    <div class="stat-box blue">
-                        <span class="stat-label">Still yours</span>
-                        <span class="stat-val serif">$0</span>
-                    </div>
-                </div>
-            </div>
-        </div>
-
-        <div id="view-bills" class="view-section">
-            <div class="card">
-                <div class="card-tag">STILL TO GO OUT</div>
-                <div class="card-title serif" style="font-size: 36px; color: var(--accent-purple);">$2,000.00</div>
-                <div class="card-desc">all clear for now</div>
-            </div>
-        </div>
-
-        <div id="view-goals" class="view-section">
-            <div class="card">
-                <div class="card-title serif" style="font-size: 26px;">Add a goal</div>
-                <div class="card-desc">name, amount, pace</div>
-
-                <div class="form-group">
-                    <label class="form-label">What it is for</label>
-                    <input type="text" class="form-input" placeholder="Japan, next spring">
-                </div>
-
-                <div class="form-group">
-                    <label class="form-label">How much you need</label>
-                    <input type="number" class="form-input" placeholder="0.00">
-                </div>
-
-                <div style="display: flex; gap: 10px; margin-top: 10px;">
-                    <button class="action-btn-primary" style="flex:1;">Add goal</button>
-                </div>
-            </div>
-        </div>
-
-        <div id="view-settings" class="view-section">
-            <div class="card">
-                <div class="card-tag">APPEARANCE</div>
-                <div class="card-desc">Choose your preferred workspace theme.</div>
-
-                <div class="toggle-group">
-                    <button class="toggle-btn active" id="btn-light" onclick="setTheme('light')">White / Light</button>
-                    <button class="toggle-btn" id="btn-dark" onclick="setTheme('dark')">Midnight Dark</button>
-                </div>
-            </div>
-
-            <div class="card">
-                <div class="card-tag">YOUR MONEY</div>
-                <div class="form-group">
-                    <label class="form-label">Already set aside</label>
-                    <input type="number" class="form-input" value="1054.00">
-                </div>
-            </div>
-        </div>
-
-    </div>
-
-    <nav class="bottom-nav">
-        <button class="nav-item active" onclick="switchView('today', this)"><span class="icon">☼</span>Today</button>
-        <button class="nav-item" onclick="switchView('planner', this)"><span class="icon">📅</span>Planner</button>
-        <button class="nav-item" onclick="switchView('bills', this)"><span class="icon">📋</span>Bills</button>
-        <button class="nav-item" onclick="switchView('goals', this)"><span class="icon">🎯</span>Goals</button>
-        <button class="nav-item" onclick="openMoreModal()"><span class="icon">•••</span>More</button>
-    </nav>
-
-    <div class="more-modal" id="moreModal" onclick="closeMoreModal()">
-        <div class="more-content" onclick="event.stopPropagation()">
-            <div style="display:flex; justify-content:space-between; align-items:center;">
-                <div class="card-title serif" style="font-size: 22px;">Menu</div>
-                <button class="action-btn-primary" style="width: auto; padding: 6px 14px;" onclick="closeMoreModal()">Close</button>
-            </div>
-            <div class="menu-list">
-                <div class="menu-card" onclick="switchView('settings'); closeMoreModal();">
-                    <div>
-                        <div style="font-weight:600;">Settings & Themes</div>
-                        <div style="font-size:12px; color:var(--text-muted);">Adjust colors & preferences</div>
-                    </div>
-                    <span>›</span>
-                </div>
-            </div>
-        </div>
-    </div>
-
-    <script>
-        // Set Today's Date Text
-        const today = new Date();
-        const days = ['SUNDAY', 'MONDAY', 'TUESDAY', 'WEDNESDAY', 'THURSDAY', 'FRIDAY', 'SATURDAY'];
-        const months = ['JAN', 'FEB', 'MAR', 'APR', 'MAY', 'JUN', 'JUL', 'AUG', 'SEP', 'OCT', 'NOV', 'DEC'];
-        const dayName = days[today.getDay()];
-        document.getElementById('current-date').innerText = `${dayName}, ${today.getDate()} ${months[today.getMonth()]}`;
-
-        // Cute & Funny Daily Greetings for Vicky
-        const greetings = [
-            `Happy ${dayName.toLowerCase().replace(/^\w/, c => c.toUpperCase())}, Vicky! ✨`,
-            `Good day, Vicky! Let's make that money make sense. 💸`,
-            `Hey Vicky, look at you checking your finances! 💅`,
-            `Happy ${dayName.toLowerCase().replace(/^\w/, c => c.toUpperCase())}, Vicky! Safe-to-spend is looking fine.`,
-            `You got this today, Vicky! 💫`,
-            `Welcome back, Vicky! Another day, another dollar saved. ☕`,
-            `Hey Vicky, taking care of business today? 🌸`,
-            `Good day Vicky! Time to stack those savings. 💖`
-        ];
-
-        // Pick a greeting randomly each session
-        const randomGreeting = greetings[Math.floor(Math.random() * greetings.length)];
-        document.getElementById('dynamic-greeting').innerText = randomGreeting;
-
-        function switchView(viewId, el) {
-            document.querySelectorAll('.view-section').forEach(sec => sec.classList.remove('active-view'));
-            const target = document.getElementById('view-' + viewId);
-            if(target) target.classList.add('active-view');
-
-            if(el) {
-                document.querySelectorAll('.nav-item').forEach(item => item.classList.remove('active'));
-                el.classList.add('active');
-            }
-        }
-
-        function openMoreModal() {
-            document.getElementById('moreModal').classList.add('open');
-        }
-
-        function closeMoreModal() {
-            document.getElementById('moreModal').classList.remove('open');
-        }
-
-        function setTheme(theme) {
-            document.body.setAttribute('data-theme', theme);
-            document.getElementById('btn-light').classList.toggle('active', theme === 'light');
-            document.getElementById('btn-dark').classList.toggle('active', theme === 'dark');
-        }
-    </script>
-</body>
-</html>
