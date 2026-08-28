@@ -1,1388 +1,1048 @@
 <!DOCTYPE html>
 <html lang="en">
 <head>
-    <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
-    <title>Budget and Planner</title>
-
-    <link rel="preconnect" href="https://fonts.googleapis.com">
-    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
-    <link href="https://fonts.googleapis.com/css2?family=Instrument+Serif:ital@0;1&family=Inter:wght@300;400;500;600;700&display=swap" rel="stylesheet">
-
-    <style>
-        :root {
-            --bg-main: #f8f9fc;
-            --bg-card: #ffffff;
-            --bg-card-border: rgba(0, 0, 0, 0.08);
-            --text-primary: #111827;
-            --text-muted: #6b7280;
-            --accent-purple: #7c3aed;
-            --accent-purple-light: rgba(124, 58, 237, 0.08);
-            --accent-green: #059669;
-            --accent-green-bg: rgba(5, 150, 105, 0.1);
-            --accent-red: #dc2626;
-            --accent-red-bg: rgba(220, 38, 38, 0.1);
-            --input-bg: #f3f4f6;
-            --input-border: #e5e7eb;
-            --nav-bg: #ffffff;
-        }
-
-        [data-theme="dark"] {
-            --bg-main: #131722;
-            --bg-card: #1c2230;
-            --bg-card-border: rgba(255, 255, 255, 0.08);
-            --text-primary: #f0f3f8;
-            --text-muted: #8e9bb0;
-            --accent-purple: #8b72de;
-            --accent-purple-light: rgba(139, 114, 222, 0.15);
-            --accent-green: #71b898;
-            --accent-green-bg: rgba(113, 184, 152, 0.15);
-            --accent-red: #d97d75;
-            --accent-red-bg: rgba(217, 125, 117, 0.15);
-            --input-bg: #151a26;
-            --input-border: rgba(255, 255, 255, 0.15);
-            --nav-bg: #131722;
-        }
-
-        * {
-            box-sizing: border-box;
-            -webkit-tap-highlight-color: transparent;
-            margin: 0;
-            padding: 0;
-        }
-
-        html,
-        body {
-            width: 100%;
-            overflow-x: hidden;
-            background-color: var(--bg-main);
-            color: var(--text-primary);
-            font-family: 'Inter', -apple-system, sans-serif;
-            min-height: 100vh;
-            padding-bottom: 90px;
-        }
-
-        body {
-            -webkit-touch-callout: none;
-        }
-
-        .serif {
-            font-family: 'Instrument Serif', Georgia, serif;
-        }
-
-        /* ==========================================
-           HEADER
-           ========================================== */
-
-        .header {
-            padding: 20px 20px 12px 20px;
-            max-width: 500px;
-            margin: 0 auto;
-            width: 100%;
-        }
-
-        /*
-           MONTH HEADER
-
-           Sticker area | AUGUST | Sticker area
-        */
-
-        .month-sticker-header {
-            width: 100%;
-            min-height: 86px;
-
-            display: grid;
-            grid-template-columns: 1fr auto 1fr;
-            align-items: center;
-
-            gap: 5px;
-            margin-bottom: 5px;
-        }
-
-        .month-title {
-            text-align: center;
-            padding: 0 4px;
-        }
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
+
+<title>Vicky's Planner</title>
+
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Instrument+Serif:ital@0;1&family=Inter:wght@300;400;500;600;700&display=swap" rel="stylesheet">
+
+<style>
+
+:root {
+    --bg-main: #f8f9fc;
+    --bg-card: #ffffff;
+    --bg-card-border: rgba(0,0,0,0.08);
+    --text-primary: #111827;
+    --text-muted: #6b7280;
+
+    --accent-purple: #7c3aed;
+    --accent-purple-light: rgba(124,58,237,0.08);
+
+    --accent-green: #059669;
+    --accent-green-bg: rgba(5,150,105,0.1);
+
+    --accent-red: #dc2626;
+    --accent-red-bg: rgba(220,38,38,0.1);
+
+    --input-bg: #f3f4f6;
+    --input-border: #e5e7eb;
+
+    --nav-bg: #ffffff;
+}
+
+[data-theme="dark"] {
+    --bg-main: #131722;
+    --bg-card: #1c2230;
+    --bg-card-border: rgba(255,255,255,0.08);
+    --text-primary: #f0f3f8;
+    --text-muted: #8e9bb0;
+
+    --accent-purple: #8b72de;
+    --accent-purple-light: rgba(139,114,222,0.15);
+
+    --accent-green: #71b898;
+    --accent-green-bg: rgba(113,184,152,0.15);
+
+    --accent-red: #d97d75;
+    --accent-red-bg: rgba(217,125,117,0.15);
+
+    --input-bg: #151a26;
+    --input-border: rgba(255,255,255,0.15);
+
+    --nav-bg: #131722;
+}
+
+* {
+    box-sizing: border-box;
+    -webkit-tap-highlight-color: transparent;
+    margin: 0;
+    padding: 0;
+}
+
+html,
+body {
+    width: 100%;
+    overflow-x: hidden;
+    background-color: var(--bg-main);
+    color: var(--text-primary);
+    font-family: 'Inter', -apple-system, sans-serif;
+    min-height: 100vh;
+    padding-bottom: 90px;
+}
+
+.serif {
+    font-family: 'Instrument Serif', Georgia, serif;
+}
+
+/* =========================
+   HEADER
+========================= */
+
+.header {
+    padding: 24px 20px 12px;
+    max-width: 500px;
+    margin: 0 auto;
+    width: 100%;
+}
+
+.brand-pill {
+    display: inline-flex;
+    align-items: center;
+    gap: 8px;
+    margin-bottom: 12px;
+}
+
+.brand-avatar {
+    width: 28px;
+    height: 28px;
+    border-radius: 8px;
+    background: var(--accent-purple);
+    color: white;
 
-        .month-title span {
-            font-family: 'Instrument Serif', Georgia, serif;
-            font-size: 44px;
-            font-weight: 400;
-            line-height: 1;
-            white-space: nowrap;
-        }
-
-        /*
-           These are intentionally NOT boxes.
-           They are just little invisible
-           sticker canvases.
-        */
-
-        .sticker-zone {
-            position: relative;
-
-            width: 100%;
-            height: 86px;
-
-            overflow: hidden;
-
-            background: transparent;
-            border: none;
-            outline: none;
-
-            touch-action: none;
-            user-select: none;
-            -webkit-user-select: none;
-        }
-
-        /*
-           Tiny + sign only appears when empty.
-        */
-
-        .sticker-zone:empty::after {
-            content: "+";
-
-            position: absolute;
-            left: 50%;
-            top: 50%;
-
-            transform: translate(-50%, -50%);
-
-            font-size: 18px;
-            font-weight: 300;
-
-            color: var(--text-muted);
-            opacity: 0.28;
-
-            pointer-events: none;
-        }
-
-        /*
-           STICKER
-        */
-
-        .sticker-item {
-            position: absolute;
-
-            width: 55px;
-            height: 55px;
-
-            object-fit: contain;
-
-            user-select: none;
-            -webkit-user-select: none;
-            -webkit-user-drag: none;
-
-            cursor: grab;
-
-            touch-action: none;
-
-            transform-origin: center center;
-
-            z-index: 5;
-        }
-
-        .sticker-item:active {
-            cursor: grabbing;
-        }
-
-        .date-subtitle {
-            font-size: 11px;
-            text-transform: uppercase;
-            letter-spacing: 1.2px;
-            color: var(--text-muted);
-            margin-bottom: 4px;
-        }
-
-        .page-title {
-            font-size: 30px;
-            font-weight: 400;
-            margin-bottom: 16px;
-            line-height: 1.2;
-        }
-
-        .action-btn-primary {
-            width: 100%;
-            background: var(--accent-purple);
-            color: #ffffff;
-            border: none;
-            padding: 14px;
-            border-radius: 16px;
-            font-size: 15px;
-            font-weight: 600;
-            cursor: pointer;
-            text-align: center;
-        }
-
-        /* ==========================================
-           MAIN CONTAINER
-           ========================================== */
-
-        .container {
-            max-width: 500px;
-            margin: 0 auto;
-            padding: 0 16px;
-            width: 100%;
-
-            display: flex;
-            flex-direction: column;
-            gap: 16px;
-        }
-
-        .view-section {
-            display: none;
-            flex-direction: column;
-            gap: 16px;
-            width: 100%;
-        }
-
-        .view-section.active-view {
-            display: flex;
-        }
-
-        /* ==========================================
-           CARDS
-           ========================================== */
-
-        .card {
-            background: var(--bg-card);
-            border: 1px solid var(--bg-card-border);
-            border-radius: 20px;
-            padding: 22px;
-            box-shadow: 0 2px 12px rgba(0,0,0,0.03);
-            width: 100%;
-        }
-
-        .card-large {
-            padding: 26px;
-        }
-
-        .card-tag {
-            font-size: 10px;
-            font-weight: 700;
-            letter-spacing: 1.5px;
-            text-transform: uppercase;
-            color: var(--accent-purple);
-            margin-bottom: 8px;
-
-            display: flex;
-            align-items: center;
-            gap: 6px;
-        }
-
-        .card-tag::before {
-            content: "•";
-            font-size: 14px;
-        }
-
-        .card-title {
-            font-size: 24px;
-            font-weight: 400;
-            margin-bottom: 6px;
-        }
-
-        .card-desc {
-            font-size: 13px;
-            color: var(--text-muted);
-            line-height: 1.4;
-            margin-bottom: 16px;
-        }
-
-        /* ==========================================
-           UPCOMING
-           ========================================== */
-
-        .upcoming-list {
-            display: flex;
-            flex-direction: column;
-            gap: 12px;
-            margin-top: 14px;
-        }
-
-        .upcoming-item {
-            display: flex;
-            align-items: center;
-            justify-content: space-between;
-
-            padding: 12px 14px;
-
-            background: var(--input-bg);
-            border-radius: 14px;
-
-            border: 1px solid var(--input-border);
-        }
-
-        .upcoming-info h4 {
-            font-size: 14px;
-            font-weight: 600;
-        }
-
-        .upcoming-info span {
-            font-size: 12px;
-            color: var(--text-muted);
-        }
-
-        /* ==========================================
-           CREDIT
-           ========================================== */
-
-        .bureau-grid {
-            display: grid;
-            grid-template-columns: repeat(3, 1fr);
-            gap: 8px;
-
-            margin-top: 12px;
-            margin-bottom: 16px;
-        }
-
-        .bureau-card {
-            background: var(--input-bg);
-            border: 1px solid var(--input-border);
-
-            border-radius: 14px;
-            padding: 12px 8px;
-
-            text-align: center;
-
-            display: flex;
-            flex-direction: column;
-            gap: 4px;
-        }
-
-        .bureau-name {
-            font-size: 10px;
-            font-weight: 700;
-            text-transform: uppercase;
-            letter-spacing: 0.5px;
-            color: var(--text-muted);
-        }
-
-        .bureau-score {
-            font-size: 22px;
-            font-weight: 400;
-        }
-
-        .score-change {
-            font-size: 10px;
-            font-weight: 700;
-
-            padding: 2px 6px;
-            border-radius: 10px;
-
-            display: inline-block;
-            margin: 0 auto;
-        }
-
-        .score-up {
-            color: var(--accent-green);
-            background: var(--accent-green-bg);
-        }
-
-        .score-down {
-            color: var(--accent-red);
-            background: var(--accent-red-bg);
-        }
-
-        .credit-input-row {
-            display: flex;
-            gap: 8px;
-            margin-top: 10px;
-        }
-
-        .chart-container {
-            width: 100%;
-            height: 100px;
-
-            margin-top: 14px;
-
-            background: var(--input-bg);
-            border-radius: 14px;
-            padding: 10px;
-
-            display: flex;
-            flex-direction: column;
-            justify-content: flex-end;
-        }
-
-        /* ==========================================
-           QUICK PILLS
-           ========================================== */
-
-        .quick-pills {
-            display: flex;
-            flex-direction: column;
-            gap: 8px;
-            margin-top: 14px;
-        }
-
-        .pill-btn {
-            background: var(--input-bg);
-            border: 1px solid var(--input-border);
-
-            color: var(--text-primary);
-
-            padding: 12px;
-            border-radius: 12px;
-
-            font-size: 14px;
-            font-weight: 500;
-
-            text-align: center;
-            cursor: pointer;
-        }
-
-        /* ==========================================
-           FORMS
-           ========================================== */
-
-        .form-group {
-            display: flex;
-            flex-direction: column;
-            gap: 6px;
-
-            margin-bottom: 14px;
-        }
-
-        .form-label {
-            font-size: 13px;
-            font-weight: 500;
-        }
-
-        .form-input {
-            width: 100%;
-
-            background: var(--input-bg);
-            border: 1px solid var(--input-border);
-
-            color: var(--text-primary);
-
-            padding: 12px 14px;
-            border-radius: 12px;
-
-            font-size: 15px;
-            outline: none;
-        }
-
-        .toggle-group {
-            display: flex;
-            gap: 8px;
-            margin-bottom: 16px;
-        }
-
-        .toggle-btn {
-            flex: 1;
-
-            padding: 10px;
-            border-radius: 14px;
-
-            border: 1px solid var(--input-border);
-
-            background: transparent;
-            color: var(--text-primary);
-
-            font-size: 13px;
-            font-weight: 500;
-
-            cursor: pointer;
-        }
-
-        .toggle-btn.active {
-            border-color: var(--accent-purple);
-            background: var(--accent-purple-light);
-            color: var(--accent-purple);
-            font-weight: 600;
-        }
-
-        /* ==========================================
-           STATS
-           ========================================== */
-
-        .stats-grid {
-            display: grid;
-            grid-template-columns: 1fr 1fr;
-            gap: 10px;
-        }
-
-        .stat-box {
-            padding: 14px;
-            border-radius: 14px;
-
-            display: flex;
-            flex-direction: column;
-            gap: 4px;
-        }
-
-        .stat-box.green {
-            background: rgba(5, 150, 105, 0.08);
-        }
-
-        .stat-box.red {
-            background: rgba(220, 38, 38, 0.08);
-        }
-
-        .stat-box.purple {
-            background: rgba(124, 58, 237, 0.08);
-        }
-
-        .stat-box.blue {
-            background: rgba(37, 99, 235, 0.08);
-        }
-
-        .stat-label {
-            font-size: 12px;
-            color: var(--text-muted);
-        }
-
-        .stat-val {
-            font-size: 24px;
-            font-weight: 400;
-        }
+    display: flex;
+    align-items: center;
+    justify-content: center;
 
-        /* ==========================================
-           BOTTOM NAV
-           ========================================== */
+    font-weight: 700;
+    font-size: 14px;
+}
 
-        .bottom-nav {
-            position: fixed;
+.brand-text {
+    font-size: 11px;
+    font-weight: 700;
+    letter-spacing: 1.5px;
+    text-transform: uppercase;
+}
 
-            bottom: 0;
-            left: 0;
-            right: 0;
+.date-subtitle {
+    font-size: 11px;
+    text-transform: uppercase;
+    letter-spacing: 1.2px;
+    color: var(--text-muted);
+    margin-bottom: 4px;
+}
 
-            background: var(--nav-bg);
+/* =========================
+   MONTH + STICKERS
+========================= */
 
-            border-top: 1px solid var(--bg-card-border);
+.month-row {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    gap: 8px;
 
-            display: flex;
-            justify-content: space-around;
+    margin-top: 2px;
+    margin-bottom: 4px;
+}
 
-            padding: 10px 0 20px 0;
+.month-title {
+    font-size: 38px;
+    font-weight: 400;
+    line-height: 1;
+    text-align: center;
 
-            z-index: 200;
-        }
+    flex: 0 0 auto;
+}
 
-        .nav-item {
-            display: flex;
-            flex-direction: column;
-            align-items: center;
-            gap: 4px;
+.sticker-mini-area {
+    width: 72px;
+    height: 48px;
 
-            color: var(--text-muted);
+    position: relative;
 
-            font-size: 11px;
+    border: 1px dashed var(--input-border);
+    border-radius: 12px;
 
-            background: none;
-            border: none;
+    background: transparent;
 
-            cursor: pointer;
+    overflow: visible;
 
-            width: 20%;
-        }
+    cursor: text;
+}
 
-        .nav-item.active {
-            color: var(--accent-purple);
-            font-weight: 600;
-        }
+.sticker-mini-area:focus {
+    outline: 2px solid var(--accent-purple-light);
+}
 
-        .nav-item .icon {
-            font-size: 18px;
-        }
+.sticker-hint {
+    position: absolute;
+    inset: 0;
 
-        /* ==========================================
-           MORE MODAL
-           ========================================== */
+    display: flex;
+    align-items: center;
+    justify-content: center;
 
-        .more-modal {
-            position: fixed;
-            inset: 0;
+    font-size: 9px;
+    color: var(--text-muted);
+    text-transform: uppercase;
+    letter-spacing: 0.5px;
 
-            background: rgba(0, 0, 0, 0.4);
+    pointer-events: none;
+}
 
-            backdrop-filter: blur(4px);
+/* =========================
+   STICKER BOARD
+========================= */
 
-            z-index: 300;
+.sticker-board {
+    position: relative;
 
-            display: none;
-            align-items: flex-end;
-        }
+    width: 100%;
+    min-height: 100px;
 
-        .more-modal.open {
-            display: flex;
-        }
+    margin: 8px 0 14px;
 
-        .more-content {
-            background: var(--bg-main);
+    border-radius: 18px;
 
-            width: 100%;
+    border: 1px dashed transparent;
 
-            border-top-left-radius: 24px;
-            border-top-right-radius: 24px;
+    transition: 0.2s ease;
+}
 
-            padding: 24px 20px 40px 20px;
+.sticker-board.active-paste {
+    border-color: var(--accent-purple);
+    background: var(--accent-purple-light);
+}
 
-            max-height: 80vh;
-            overflow-y: auto;
-        }
+.sticker-board-hint {
+    position: absolute;
 
-        .menu-list {
-            display: flex;
-            flex-direction: column;
+    left: 50%;
+    top: 50%;
 
-            gap: 10px;
+    transform: translate(-50%, -50%);
 
-            margin-top: 16px;
-        }
+    font-size: 11px;
+    color: var(--text-muted);
 
-        .menu-card {
-            background: var(--bg-card);
+    text-align: center;
 
-            border: 1px solid var(--bg-card-border);
+    pointer-events: none;
 
-            padding: 16px;
+    opacity: 0.7;
+}
 
-            border-radius: 16px;
+/* =========================
+   STICKERS
+========================= */
 
-            display: flex;
-            justify-content: space-between;
-            align-items: center;
+.sticker {
+    position: absolute;
 
-            cursor: pointer;
-        }
+    width: 80px;
 
-        /* ==========================================
-           SMALL PHONES
-           ========================================== */
+    min-width: 40px;
 
-        @media (max-width: 380px) {
+    user-select: none;
+    -webkit-user-select: none;
 
-            .month-sticker-header {
-                min-height: 72px;
-            }
+    touch-action: none;
 
-            .sticker-zone {
-                height: 72px;
-            }
+    cursor: grab;
 
-            .month-title span {
-                font-size: 36px;
-            }
+    z-index: 20;
+}
 
-            .sticker-item {
-                width: 48px;
-                height: 48px;
-            }
-        }
+.sticker:active {
+    cursor: grabbing;
+}
 
-    </style>
+.sticker img {
+    display: block;
+
+    width: 100%;
+    height: auto;
+
+    pointer-events: none;
+
+    user-select: none;
+    -webkit-user-drag: none;
+}
+
+.sticker.selected {
+    outline: 2px dashed var(--accent-purple);
+    outline-offset: 4px;
+}
+
+/* resize handle */
+
+.sticker-resize {
+    position: absolute;
+
+    right: -9px;
+    bottom: -9px;
+
+    width: 20px;
+    height: 20px;
+
+    border-radius: 50%;
+
+    background: var(--accent-purple);
+
+    border: 3px solid var(--bg-main);
+
+    cursor: nwse-resize;
+
+    touch-action: none;
+}
+
+/* =========================
+   TITLE
+========================= */
+
+.page-title {
+    font-size: 28px;
+    font-weight: 400;
+
+    margin-top: 8px;
+    margin-bottom: 16px;
+
+    line-height: 1.2;
+}
+
+/* =========================
+   BUTTONS
+========================= */
+
+.action-btn-primary {
+    width: 100%;
+
+    background: var(--accent-purple);
+    color: white;
+
+    border: none;
+
+    padding: 14px;
+
+    border-radius: 16px;
+
+    font-size: 15px;
+    font-weight: 600;
+
+    cursor: pointer;
+
+    text-align: center;
+}
+
+/* =========================
+   CONTAINER
+========================= */
+
+.container {
+    max-width: 500px;
+
+    margin: 0 auto;
+
+    padding: 0 16px;
+
+    width: 100%;
+
+    display: flex;
+    flex-direction: column;
+
+    gap: 16px;
+}
+
+.view-section {
+    display: none;
+
+    flex-direction: column;
+
+    gap: 16px;
+
+    width: 100%;
+}
+
+.view-section.active-view {
+    display: flex;
+}
+
+/* =========================
+   CARDS
+========================= */
+
+.card {
+    background: var(--bg-card);
+
+    border: 1px solid var(--bg-card-border);
+
+    border-radius: 20px;
+
+    padding: 22px;
+
+    box-shadow: 0 2px 12px rgba(0,0,0,0.03);
+
+    width: 100%;
+}
+
+.card-large {
+    padding: 26px;
+}
+
+.card-tag {
+    font-size: 10px;
+
+    font-weight: 700;
+
+    letter-spacing: 1.5px;
+
+    text-transform: uppercase;
+
+    color: var(--accent-purple);
+
+    margin-bottom: 8px;
+
+    display: flex;
+    align-items: center;
+
+    gap: 6px;
+}
+
+.card-tag::before {
+    content: "•";
+
+    font-size: 14px;
+}
+
+.card-title {
+    font-size: 24px;
+
+    font-weight: 400;
+
+    margin-bottom: 6px;
+}
+
+.card-desc {
+    font-size: 13px;
+
+    color: var(--text-muted);
+
+    line-height: 1.4;
+
+    margin-bottom: 16px;
+}
+
+/* =========================
+   UPCOMING
+========================= */
+
+.upcoming-list {
+    display: flex;
+    flex-direction: column;
+
+    gap: 12px;
+
+    margin-top: 14px;
+}
+
+.upcoming-item {
+    display: flex;
+
+    align-items: center;
+
+    justify-content: space-between;
+
+    padding: 12px 14px;
+
+    background: var(--input-bg);
+
+    border-radius: 14px;
+
+    border: 1px solid var(--input-border);
+
+    gap: 10px;
+}
+
+.upcoming-info h4 {
+    font-size: 14px;
+
+    font-weight: 600;
+}
+
+.upcoming-info span {
+    font-size: 12px;
+
+    color: var(--text-muted);
+}
+
+/* =========================
+   QUICK PILLS
+========================= */
+
+.quick-pills {
+    display: flex;
+
+    flex-direction: column;
+
+    gap: 8px;
+
+    margin-top: 14px;
+}
+
+.pill-btn {
+    background: var(--input-bg);
+
+    border: 1px solid var(--input-border);
+
+    color: var(--text-primary);
+
+    padding: 12px;
+
+    border-radius: 12px;
+
+    font-size: 14px;
+
+    font-weight: 500;
+
+    text-align: center;
+
+    cursor: pointer;
+}
+
+/* =========================
+   FORMS
+========================= */
+
+.form-group {
+    display: flex;
+
+    flex-direction: column;
+
+    gap: 6px;
+
+    margin-bottom: 14px;
+}
+
+.form-label {
+    font-size: 13px;
+
+    font-weight: 500;
+}
+
+.form-input {
+    width: 100%;
+
+    background: var(--input-bg);
+
+    border: 1px solid var(--input-border);
+
+    color: var(--text-primary);
+
+    padding: 12px 14px;
+
+    border-radius: 12px;
+
+    font-size: 15px;
+
+    outline: none;
+}
+
+/* =========================
+   TOGGLE
+========================= */
+
+.toggle-group {
+    display: flex;
+
+    gap: 8px;
+
+    margin-bottom: 16px;
+}
+
+.toggle-btn {
+    flex: 1;
+
+    padding: 10px;
+
+    border-radius: 14px;
+
+    border: 1px solid var(--input-border);
+
+    background: transparent;
+
+    color: var(--text-primary);
+
+    font-size: 13px;
+
+    font-weight: 500;
+
+    cursor: pointer;
+}
+
+.toggle-btn.active {
+    border-color: var(--accent-purple);
+
+    background: var(--accent-purple-light);
+
+    color: var(--accent-purple);
+
+    font-weight: 600;
+}
+
+/* =========================
+   STATS
+========================= */
+
+.stats-grid {
+    display: grid;
+
+    grid-template-columns: 1fr 1fr;
+
+    gap: 10px;
+}
+
+.stat-box {
+    padding: 14px;
+
+    border-radius: 14px;
+
+    display: flex;
+
+    flex-direction: column;
+
+    gap: 4px;
+}
+
+.stat-box.green {
+    background: rgba(5,150,105,0.08);
+}
+
+.stat-box.red {
+    background: rgba(220,38,38,0.08);
+}
+
+.stat-box.purple {
+    background: rgba(124,58,237,0.08);
+}
+
+.stat-box.blue {
+    background: rgba(37,99,235,0.08);
+}
+
+.stat-label {
+    font-size: 12px;
+
+    color: var(--text-muted);
+}
+
+.stat-val {
+    font-size: 24px;
+
+    font-weight: 400;
+}
+
+/* =========================
+   CREDIT
+========================= */
+
+.bureau-grid {
+    display: grid;
+
+    grid-template-columns: repeat(3,1fr);
+
+    gap: 8px;
+
+    margin-top: 12px;
+
+    margin-bottom: 16px;
+}
+
+.bureau-card {
+    background: var(--input-bg);
+
+    border: 1px solid var(--input-border);
+
+    border-radius: 14px;
+
+    padding: 12px 8px;
+
+    text-align: center;
+
+    display: flex;
+
+    flex-direction: column;
+
+    gap: 4px;
+}
+
+.bureau-name {
+    font-size: 10px;
+
+    font-weight: 700;
+
+    text-transform: uppercase;
+
+    letter-spacing: 0.5px;
+
+    color: var(--text-muted);
+}
+
+.bureau-score {
+    font-size: 22px;
+}
+
+.score-change {
+    font-size: 10px;
+
+    font-weight: 700;
+
+    padding: 2px 6px;
+
+    border-radius: 10px;
+
+    display: inline-block;
+
+    margin: 0 auto;
+}
+
+.score-up {
+    color: var(--accent-green);
+
+    background: var(--accent-green-bg);
+}
+
+.score-down {
+    color: var(--accent-red);
+
+    background: var(--accent-red-bg);
+}
+
+.credit-input-row {
+    display: flex;
+
+    gap: 8px;
+
+    margin-top: 10px;
+}
+
+.chart-container {
+    width: 100%;
+
+    height: 100px;
+
+    margin-top: 14px;
+
+    background: var(--input-bg);
+
+    border-radius: 14px;
+
+    padding: 10px;
+
+    display: flex;
+
+    flex-direction: column;
+
+    justify-content: flex-end;
+}
+
+/* =========================
+   BOTTOM NAV
+========================= */
+
+.bottom-nav {
+    position: fixed;
+
+    bottom: 0;
+
+    left: 0;
+
+    right: 0;
+
+    background: var(--nav-bg);
+
+    border-top: 1px solid var(--bg-card-border);
+
+    display: flex;
+
+    justify-content: space-around;
+
+    padding: 10px 0 20px;
+
+    z-index: 200;
+}
+
+.nav-item {
+    display: flex;
+
+    flex-direction: column;
+
+    align-items: center;
+
+    gap: 4px;
+
+    color: var(--text-muted);
+
+    font-size: 11px;
+
+    background: none;
+
+    border: none;
+
+    cursor: pointer;
+
+    width: 20%;
+}
+
+.nav-item.active {
+    color: var(--accent-purple);
+
+    font-weight: 600;
+}
+
+.nav-item .icon {
+    font-size: 18px;
+}
+
+/* =========================
+   MORE MENU
+========================= */
+
+.more-modal {
+    position: fixed;
+
+    inset: 0;
+
+    background: rgba(0,0,0,0.4);
+
+    backdrop-filter: blur(4px);
+
+    z-index: 300;
+
+    display: none;
+
+    align-items: flex-end;
+}
+
+.more-modal.open {
+    display: flex;
+}
+
+.more-content {
+    background: var(--bg-main);
+
+    width: 100%;
+
+    border-top-left-radius: 24px;
+
+    border-top-right-radius: 24px;
+
+    padding: 24px 20px 40px;
+
+    max-height: 80vh;
+
+    overflow-y: auto;
+}
+
+.menu-list {
+    display: flex;
+
+    flex-direction: column;
+
+    gap: 10px;
+
+    margin-top: 16px;
+}
+
+.menu-card {
+    background: var(--bg-card);
+
+    border: 1px solid var(--bg-card-border);
+
+    padding: 16px;
+
+    border-radius: 16px;
+
+    display: flex;
+
+    justify-content: space-between;
+
+    align-items: center;
+
+    cursor: pointer;
+}
+
+</style>
 </head>
 
 <body data-theme="light">
 
-    <!-- ==========================================
-         HEADER
-         ========================================== -->
+<!-- =========================
+     HEADER
+========================= -->
 
-    <div class="header">
+<div class="header">
 
-        <div class="month-sticker-header">
+    <div class="brand-pill">
 
-            <!-- LEFT STICKER AREA -->
-            <div
-                class="sticker-zone"
-                id="left-stickers"
-                tabindex="0"
-                onpaste="pasteSticker(event, this)"
-            ></div>
+        <div class="brand-avatar">V</div>
 
-            <!-- MONTH -->
-            <div class="month-title">
-                <span id="current-month">AUGUST</span>
-            </div>
-
-            <!-- RIGHT STICKER AREA -->
-            <div
-                class="sticker-zone"
-                id="right-stickers"
-                tabindex="0"
-                onpaste="pasteSticker(event, this)"
-            ></div>
-
+        <div class="brand-text">
+            Vicky's Planner
         </div>
 
-        <div class="date-subtitle" id="current-date">
-            TODAY
+    </div>
+
+
+    <!-- MONTH WITH SMALL STICKER AREAS -->
+
+    <div class="month-row">
+
+        <div
+            class="sticker-mini-area"
+            id="leftMiniStickerArea"
+            tabindex="0"
+            aria-label="Paste sticker here"
+        >
+            <span class="sticker-hint">Sticker</span>
         </div>
 
-        <h1 class="page-title serif" id="dynamic-greeting">
-            Welcome back, Vicky
+
+        <h1 class="month-title serif" id="month-title">
+            August
         </h1>
 
-        <button
-            class="action-btn-primary"
-            onclick="switchView('today', null)"
+
+        <div
+            class="sticker-mini-area"
+            id="rightMiniStickerArea"
+            tabindex="0"
+            aria-label="Paste sticker here"
         >
-            Log a spend
-        </button>
-
-    </div>
-
-
-    <!-- ==========================================
-         MAIN CONTAINER
-         ========================================== -->
-
-    <div class="container">
-
-
-        <!-- ======================================
-             TODAY
-             ====================================== -->
-
-        <div id="view-today" class="view-section active-view">
-
-            <div class="card card-large">
-
-                <div class="card-tag">
-                    COMING UP NEXT...
-                </div>
-
-                <div
-                    class="card-title serif"
-                    style="font-size: 28px;"
-                >
-                    Priority Actions
-                </div>
-
-                <div class="card-desc">
-                    Quick items to keep everything on track
-                </div>
-
-                <div class="upcoming-list">
-
-                    <div class="upcoming-item">
-
-                        <div class="upcoming-info">
-
-                            <h4>
-                                Mark Internet paid
-                            </h4>
-
-                            <span>
-                                Due today • $79.99
-                            </span>
-
-                        </div>
-
-                        <button
-                            class="action-btn-primary"
-                            style="width:auto; padding:8px 14px; font-size:13px;"
-                            onclick="this.closest('.upcoming-item').style.display='none'"
-                        >
-                            Done
-                        </button>
-
-                    </div>
-
-
-                    <div class="upcoming-item">
-
-                        <div class="upcoming-info">
-
-                            <h4>
-                                Log weekly groceries
-                            </h4>
-
-                            <span>
-                                Pending update
-                            </span>
-
-                        </div>
-
-                        <button
-                            class="action-btn-primary"
-                            style="width:auto; padding:8px 14px; font-size:13px;"
-                            onclick="this.closest('.upcoming-item').style.display='none'"
-                        >
-                            Done
-                        </button>
-
-                    </div>
-
-                </div>
-
-            </div>
-
-
-            <div class="card">
-
-                <div class="card-tag">
-                    SAFE TO SPEND TODAY
-                </div>
-
-                <div
-                    class="card-title serif"
-                    style="font-size:42px; margin-top:4px;"
-                >
-                    $1,107.31
-                </div>
-
-                <div class="card-desc">
-                    of today's starting balance
-                </div>
-
-                <div class="quick-pills">
-
-                    <button class="pill-btn">
-                        + Coffee ($5)
-                    </button>
-
-                    <button class="pill-btn">
-                        + Lunch ($15)
-                    </button>
-
-                    <button class="pill-btn">
-                        + Bus ($2.50)
-                    </button>
-
-                </div>
-
-            </div>
-
-        </div>
-
-
-        <!-- ======================================
-             PLANNER
-             ====================================== -->
-
-        <div id="view-planner" class="view-section">
-
-            <div class="card">
-
-                <div class="card-tag">
-                    THIS MONTH AT A GLANCE
-                </div>
-
-                <div class="card-desc">
-                    $10 kept
-                </div>
-
-                <div class="stats-grid">
-
-                    <div class="stat-box green">
-
-                        <span class="stat-label">
-                            Came in
-                        </span>
-
-                        <span class="stat-val serif">
-                            $600
-                        </span>
-
-                    </div>
-
-
-                    <div class="stat-box red">
-
-                        <span class="stat-label">
-                            Went out
-                        </span>
-
-                        <span class="stat-val serif">
-                            $590
-                        </span>
-
-                    </div>
-
-
-                    <div class="stat-box purple">
-
-                        <span class="stat-label">
-                            Kept
-                        </span>
-
-                        <span class="stat-val serif">
-                            $10
-                        </span>
-
-                    </div>
-
-
-                    <div class="stat-box blue">
-
-                        <span class="stat-label">
-                            Still yours
-                        </span>
-
-                        <span class="stat-val serif">
-                            $0
-                        </span>
-
-                    </div>
-
-                </div>
-
-            </div>
-
-        </div>
-
-
-        <!-- ======================================
-             BILLS
-             ====================================== -->
-
-        <div id="view-bills" class="view-section">
-
-            <div class="card">
-
-                <div class="card-tag">
-                    STILL TO GO OUT
-                </div>
-
-                <div
-                    class="card-title serif"
-                    style="font-size:36px; color:var(--accent-purple);"
-                >
-                    $2,000.00
-                </div>
-
-                <div class="card-desc">
-                    all clear for now
-                </div>
-
-            </div>
-
-        </div>
-
-
-        <!-- ======================================
-             GOALS
-             ====================================== -->
-
-        <div id="view-goals" class="view-section">
-
-            <div class="card">
-
-                <div
-                    class="card-title serif"
-                    style="font-size:26px;"
-                >
-                    Add a goal
-                </div>
-
-                <div class="card-desc">
-                    name, amount, pace
-                </div>
-
-                <div class="form-group">
-
-                    <label class="form-label">
-                        What it is for
-                    </label>
-
-                    <input
-                        type="text"
-                        class="form-input"
-                        placeholder="Japan, next spring"
-                    >
-
-                </div>
-
-
-                <div class="form-group">
-
-                    <label class="form-label">
-                        How much you need
-                    </label>
-
-                    <input
-                        type="number"
-                        class="form-input"
-                        placeholder="0.00"
-                    >
-
-                </div>
-
-
-                <div
-                    style="display:flex; gap:10px; margin-top:10px;"
-                >
-
-                    <button
-                        class="action-btn-primary"
-                        style="flex:1;"
-                    >
-                        Add goal
-                    </button>
-
-                </div>
-
-            </div>
-
-
-            <div class="card">
-
-                <div class="card-tag">
-                    CREDIT SCORES & BUREAUS
-                </div>
-
-                <div
-                    class="card-title serif"
-                    style="font-size:24px;"
-                >
-                    Monthly Bureau Updates
-                </div>
-
-                <div class="card-desc">
-                    Track scores & trend growth for Experian,
-                    TransUnion, and Equifax.
-                </div>
-
-
-                <div class="bureau-grid">
-
-                    <div class="bureau-card">
-
-                        <span class="bureau-name">
-                            Experian
-                        </span>
-
-                        <span
-                            class="bureau-score serif"
-                            id="score-exp"
-                        >
-                            742
-                        </span>
-
-                        <span
-                            class="score-change score-up"
-                            id="change-exp"
-                        >
-                            +12 pts
-                        </span>
-
-                    </div>
-
-
-                    <div class="bureau-card">
-
-                        <span class="bureau-name">
-                            TransUnion
-                        </span>
-
-                        <span
-                            class="bureau-score serif"
-                            id="score-tu"
-                        >
-                            738
-                        </span>
-
-                        <span
-                            class="score-change score-up"
-                            id="change-tu"
-                        >
-                            +5 pts
-                        </span>
-
-                    </div>
-
-
-                    <div class="bureau-card">
-
-                        <span class="bureau-name">
-                            Equifax
-                        </span>
-
-                        <span
-                            class="bureau-score serif"
-                            id="score-eq"
-                        >
-                            745
-                        </span>
-
-                        <span
-                            class="score-change score-up"
-                            id="change-eq"
-                        >
-                            +8 pts
-                        </span>
-
-                    </div>
-
-                </div>
-
-
-                <div class="form-group">
-
-                    <label class="form-label">
-                        Update Score
-                    </label>
-
-                    <select
-                        class="form-input"
-                        id="bureau-select"
-                    >
-
-                        <option value="exp">
-                            Experian
-                        </option>
-
-                        <option value="tu">
-                            TransUnion
-                        </option>
-
-                        <option value="eq">
-                            Equifax
-                        </option>
-
-                    </select>
-
-                </div>
-
-
-                <div class="credit-input-row">
-
-                    <input
-                        type="number"
-                        class="form-input"
-                        id="new-score-input"
-                        placeholder="New Score (e.g. 750)"
-                    >
-
-                    <button
-                        class="action-btn-primary"
-                        style="width:auto; padding:0 18px;"
-                        onclick="updateCreditScore()"
-                    >
-                        Update
-                    </button>
-
-                </div>
-
-
-                <div class="chart-container">
-
-                    <div
-                        class="card-tag"
-                        style="margin-bottom:4px; font-size:9px;"
-                    >
-                        SCORE GROWTH TREND
-                    </div>
-
-                    <svg
-                        viewBox="0 0 300 50"
-                        style="width:100%; height:45px;"
-                    >
-
-                        <path
-                            d="M 0 40 Q 75 35, 150 20 T 300 10"
-                            fill="none"
-                            stroke="var(--accent-purple)"
-                            stroke-width="3"
-                            stroke-linecap="round"
-                        />
-
-                        <circle
-                            cx="300"
-                            cy="10"
-                            r="4"
-                            fill="var(--accent-purple)"
-                        />
-
-                    </svg>
-
-                </div>
-
-            </div>
-
-        </div>
-
-
-        <!-- ======================================
-             SETTINGS
-             ====================================== -->
-
-        <div id="view-settings" class="view-section">
-
-            <div class="card">
-
-                <div class="card-tag">
-                    APPEARANCE
-                </div>
-
-                <div class="card-desc">
-                    Choose your preferred workspace theme.
-                </div>
-
-                <div class="toggle-group">
-
-                    <button
-                        class="toggle-btn active"
-                        id="btn-light"
-                        onclick="setTheme('light')"
-                    >
-                        White / Light
-                    </button>
-
-                    <button
-                        class="toggle-btn"
-                        id="btn-dark"
-                        onclick="setTheme('dark')"
-                    >
-                        Midnight Dark
-                    </button>
-
-                </div>
-
-            </div>
-
-
-            <div class="card">
-
-                <div class="card-tag">
-                    YOUR MONEY
-                </div>
-
-                <div class="form-group">
-
-                    <label class="form-label">
-                        Already set aside
-                    </label>
-
-                    <input
-                        type="number"
-                        class="form-input"
-                        value="1054.00"
-                    >
-
-                </div>
-
-            </div>
-
+            <span class="sticker-hint">Sticker</span>
         </div>
 
     </div>
 
-
-    <!-- ==========================================
-         BOTTOM NAVIGATION
-         ========================================== -->
-
-    <nav class="bottom-nav">
-
-        <button
-            class="nav-item active"
-            id="nav-today"
-            onclick="switchView('today', this)"
-        >
-            <span class="icon">☼</span>
-            Today
-        </button>
-
-
-        <button
-            class="nav-item"
-            id="nav-planner"
-            onclick="switchView('planner', this)"
-        >
-            <span class="icon">📅</span>
-            Planner
-        </button>
-
-
-        <button
-            class="nav-item"
-            id="nav-bills"
-            onclick="switchView('bills', this)"
-        >
-            <span class="icon">📋</span>
-            Bills
-        </button>
-
-
-        <button
-            class="nav-item"
-            id="nav-goals"
-            onclick="switchView('goals', this)"
-        >
-            <span class="icon">🎯</span>
-            Goals
-        </button>
-
-
-        <button
-            class="nav-item"
-            id="nav-more"
-            onclick="openMoreModal()"
-        >
-            <span class="icon">•••</span>
-            More
-        </button>
-
-    </nav>
-
-
-    <!-- ==========================================
-         MORE MODAL
-         ========================================== -->
 
     <div
-        class="more-modal"
-        id="moreModal"
-        onclick="closeMoreModal()"
+        class="date-subtitle"
+        id="current-date"
+    >
+        TODAY
+    </div>
+
+
+    <h2
+        class="page-title serif"
+        id="dynamic-greeting"
+    >
+        Welcome back, Vicky!
+    </h2>
+
+
+    <!-- STICKER BOARD -->
+
+    <div
+        class="sticker-board"
+        id="stickerBoard"
+        tabindex="0"
     >
 
         <div
-            class="more-content"
-            onclick="event.stopPropagation()"
+            class="sticker-board-hint"
+            id="stickerBoardHint"
         >
+            Paste a sticker here ✨
+        </div>
 
-            <div
-                style="display:flex; justify-content:space-between; align-items:center;"
-            >
+    </div>
 
-                <div
-                    class="card-title serif"
-                    style="font-size:22px;"
-                >
-                    Menu
+
+    <button
+        class="action-btn-primary"
+        onclick="switchView('today', null)"
+    >
+        Log a spend
+    </button>
+
+</div>
+
+
+<!-- =========================
+     MAIN CONTENT
+========================= -->
+
+<div class="container">
+
+
+<!-- TODAY -->
+
+<div
+    id="view-today"
+    class="view-section active-view"
+>
+
+    <div class="card card-large">
+
+        <div class="card-tag">
+            COMING UP NEXT...
+        </div>
+
+        <div
+            class="card-title serif"
+            style="font-size:28px;"
+        >
+            Priority Actions
+        </div>
+
+        <div class="card-desc">
+            Quick items to keep everything on track
+        </div>
+
+
+        <div class="upcoming-list">
+
+            <div class="upcoming-item">
+
+                <div class="upcoming-info">
+
+                    <h4>
+                        Mark Internet paid
+                    </h4>
+
+                    <span>
+                        Due today • $79.99
+                    </span>
+
                 </div>
 
                 <button
                     class="action-btn-primary"
-                    style="width:auto; padding:6px 14px;"
-                    onclick="closeMoreModal()"
+                    style="width:auto;padding:8px 14px;font-size:13px;"
+                    onclick="this.closest('.upcoming-item').style.display='none'"
                 >
-                    Close
+                    Done
                 </button>
 
             </div>
 
 
-            <div class="menu-list">
+            <div class="upcoming-item">
 
-                <div
-                    class="menu-card"
-                    onclick="switchView('settings', null); closeMoreModal();"
-                >
+                <div class="upcoming-info">
 
-                    <div>
+                    <h4>
+                        Log weekly groceries
+                    </h4>
 
-                        <div style="font-weight:600;">
-                            Settings & Themes
-                        </div>
-
-                        <div
-                            style="font-size:12px; color:var(--text-muted);"
-                        >
-                            Adjust colors & preferences
-                        </div>
-
-                    </div>
-
-                    <span>›</span>
+                    <span>
+                        Pending update
+                    </span>
 
                 </div>
+
+                <button
+                    class="action-btn-primary"
+                    style="width:auto;padding:8px 14px;font-size:13px;"
+                    onclick="this.closest('.upcoming-item').style.display='none'"
+                >
+                    Done
+                </button>
 
             </div>
 
@@ -1391,1053 +1051,1705 @@
     </div>
 
 
-    <!-- ==========================================
-         JAVASCRIPT
-         ========================================== -->
+    <div class="card">
 
-    <script>
+        <div class="card-tag">
+            SAFE TO SPEND TODAY
+        </div>
 
-        /* ==========================================
-           PAGE LOAD
-           ========================================== */
+        <div
+            class="card-title serif"
+            style="font-size:42px;margin-top:4px;"
+        >
+            $1,107.31
+        </div>
 
-        window.onload = function() {
-
-            var today = new Date();
-
-            var days = [
-                'SUNDAY',
-                'MONDAY',
-                'TUESDAY',
-                'WEDNESDAY',
-                'THURSDAY',
-                'FRIDAY',
-                'SATURDAY'
-            ];
-
-            var months = [
-                'JANUARY',
-                'FEBRUARY',
-                'MARCH',
-                'APRIL',
-                'MAY',
-                'JUNE',
-                'JULY',
-                'AUGUST',
-                'SEPTEMBER',
-                'OCTOBER',
-                'NOVEMBER',
-                'DECEMBER'
-            ];
-
-            var shortMonths = [
-                'JAN',
-                'FEB',
-                'MAR',
-                'APR',
-                'MAY',
-                'JUN',
-                'JUL',
-                'AUG',
-                'SEP',
-                'OCT',
-                'NOV',
-                'DEC'
-            ];
-
-            var dayName =
-                days[today.getDay()];
+        <div class="card-desc">
+            of today's starting balance
+        </div>
 
 
-            /* MONTH */
+        <div class="quick-pills">
 
-            var monthEl =
-                document.getElementById(
-                    'current-month'
-                );
+            <button class="pill-btn">
+                + Coffee ($5)
+            </button>
 
-            if (monthEl) {
+            <button class="pill-btn">
+                + Lunch ($15)
+            </button>
 
-                monthEl.innerText =
-                    months[today.getMonth()];
+            <button class="pill-btn">
+                + Bus ($2.50)
+            </button>
+
+        </div>
+
+    </div>
+
+</div>
+
+
+<!-- PLANNER -->
+
+<div
+    id="view-planner"
+    class="view-section"
+>
+
+    <div class="card">
+
+        <div class="card-tag">
+            THIS MONTH AT A GLANCE
+        </div>
+
+        <div class="card-desc">
+            $10 kept
+        </div>
+
+
+        <div class="stats-grid">
+
+            <div class="stat-box green">
+
+                <span class="stat-label">
+                    Came in
+                </span>
+
+                <span class="stat-val serif">
+                    $600
+                </span>
+
+            </div>
+
+
+            <div class="stat-box red">
+
+                <span class="stat-label">
+                    Went out
+                </span>
+
+                <span class="stat-val serif">
+                    $590
+                </span>
+
+            </div>
+
+
+            <div class="stat-box purple">
+
+                <span class="stat-label">
+                    Kept
+                </span>
+
+                <span class="stat-val serif">
+                    $10
+                </span>
+
+            </div>
+
+
+            <div class="stat-box blue">
+
+                <span class="stat-label">
+                    Still yours
+                </span>
+
+                <span class="stat-val serif">
+                    $0
+                </span>
+
+            </div>
+
+        </div>
+
+    </div>
+
+</div>
+
+
+<!-- BILLS -->
+
+<div
+    id="view-bills"
+    class="view-section"
+>
+
+    <div class="card">
+
+        <div class="card-tag">
+            STILL TO GO OUT
+        </div>
+
+        <div
+            class="card-title serif"
+            style="font-size:36px;color:var(--accent-purple);"
+        >
+            $2,000.00
+        </div>
+
+        <div class="card-desc">
+            all clear for now
+        </div>
+
+    </div>
+
+</div>
+
+
+<!-- GOALS -->
+
+<div
+    id="view-goals"
+    class="view-section"
+>
+
+    <div class="card">
+
+        <div
+            class="card-title serif"
+            style="font-size:26px;"
+        >
+            Add a goal
+        </div>
+
+        <div class="card-desc">
+            name, amount, pace
+        </div>
+
+
+        <div class="form-group">
+
+            <label class="form-label">
+                What it is for
+            </label>
+
+            <input
+                type="text"
+                class="form-input"
+                placeholder="Japan, next spring"
+            >
+
+        </div>
+
+
+        <div class="form-group">
+
+            <label class="form-label">
+                How much you need
+            </label>
+
+            <input
+                type="number"
+                class="form-input"
+                placeholder="0.00"
+            >
+
+        </div>
+
+
+        <div style="display:flex;gap:10px;margin-top:10px;">
+
+            <button
+                class="action-btn-primary"
+                style="flex:1;"
+            >
+                Add goal
+            </button>
+
+        </div>
+
+    </div>
+
+
+    <div class="card">
+
+        <div class="card-tag">
+            CREDIT SCORES & BUREAUS
+        </div>
+
+        <div
+            class="card-title serif"
+            style="font-size:24px;"
+        >
+            Monthly Bureau Updates
+        </div>
+
+        <div class="card-desc">
+            Track scores & trend growth for Experian,
+            TransUnion, and Equifax.
+        </div>
+
+
+        <div class="bureau-grid">
+
+            <div class="bureau-card">
+
+                <span class="bureau-name">
+                    Experian
+                </span>
+
+                <span
+                    class="bureau-score serif"
+                    id="score-exp"
+                >
+                    742
+                </span>
+
+                <span
+                    class="score-change score-up"
+                    id="change-exp"
+                >
+                    +12 pts
+                </span>
+
+            </div>
+
+
+            <div class="bureau-card">
+
+                <span class="bureau-name">
+                    TransUnion
+                </span>
+
+                <span
+                    class="bureau-score serif"
+                    id="score-tu"
+                >
+                    738
+                </span>
+
+                <span
+                    class="score-change score-up"
+                    id="change-tu"
+                >
+                    +5 pts
+                </span>
+
+            </div>
+
+
+            <div class="bureau-card">
+
+                <span class="bureau-name">
+                    Equifax
+                </span>
+
+                <span
+                    class="bureau-score serif"
+                    id="score-eq"
+                >
+                    745
+                </span>
+
+                <span
+                    class="score-change score-up"
+                    id="change-eq"
+                >
+                    +8 pts
+                </span>
+
+            </div>
+
+        </div>
+
+
+        <div class="form-group">
+
+            <label class="form-label">
+                Update Score
+            </label>
+
+            <select
+                class="form-input"
+                id="bureau-select"
+            >
+
+                <option value="exp">
+                    Experian
+                </option>
+
+                <option value="tu">
+                    TransUnion
+                </option>
+
+                <option value="eq">
+                    Equifax
+                </option>
+
+            </select>
+
+        </div>
+
+
+        <div class="credit-input-row">
+
+            <input
+                type="number"
+                class="form-input"
+                id="new-score-input"
+                placeholder="New Score (e.g. 750)"
+            >
+
+            <button
+                class="action-btn-primary"
+                style="width:auto;padding:0 18px;"
+                onclick="updateCreditScore()"
+            >
+                Update
+            </button>
+
+        </div>
+
+
+        <div class="chart-container">
+
+            <div
+                class="card-tag"
+                style="margin-bottom:4px;font-size:9px;"
+            >
+                SCORE GROWTH TREND
+            </div>
+
+            <svg
+                viewBox="0 0 300 50"
+                style="width:100%;height:45px;"
+            >
+
+                <path
+                    d="M 0 40 Q 75 35, 150 20 T 300 10"
+                    fill="none"
+                    stroke="var(--accent-purple)"
+                    stroke-width="3"
+                    stroke-linecap="round"
+                />
+
+                <circle
+                    cx="300"
+                    cy="10"
+                    r="4"
+                    fill="var(--accent-purple)"
+                />
+
+            </svg>
+
+        </div>
+
+    </div>
+
+</div>
+
+
+<!-- SETTINGS -->
+
+<div
+    id="view-settings"
+    class="view-section"
+>
+
+    <div class="card">
+
+        <div class="card-tag">
+            APPEARANCE
+        </div>
+
+        <div class="card-desc">
+            Choose your preferred workspace theme.
+        </div>
+
+
+        <div class="toggle-group">
+
+            <button
+                class="toggle-btn active"
+                id="btn-light"
+                onclick="setTheme('light')"
+            >
+                White / Light
+            </button>
+
+            <button
+                class="toggle-btn"
+                id="btn-dark"
+                onclick="setTheme('dark')"
+            >
+                Midnight Dark
+            </button>
+
+        </div>
+
+    </div>
+
+
+    <div class="card">
+
+        <div class="card-tag">
+            YOUR MONEY
+        </div>
+
+        <div class="form-group">
+
+            <label class="form-label">
+                Already set aside
+            </label>
+
+            <input
+                type="number"
+                class="form-input"
+                value="1054.00"
+            >
+
+        </div>
+
+    </div>
+
+</div>
+
+</div>
+
+
+<!-- =========================
+     BOTTOM NAV
+========================= -->
+
+<nav class="bottom-nav">
+
+    <button
+        class="nav-item active"
+        id="nav-today"
+        onclick="switchView('today',this)"
+    >
+        <span class="icon">☼</span>
+        Today
+    </button>
+
+
+    <button
+        class="nav-item"
+        id="nav-planner"
+        onclick="switchView('planner',this)"
+    >
+        <span class="icon">📅</span>
+        Planner
+    </button>
+
+
+    <button
+        class="nav-item"
+        id="nav-bills"
+        onclick="switchView('bills',this)"
+    >
+        <span class="icon">📋</span>
+        Bills
+    </button>
+
+
+    <button
+        class="nav-item"
+        id="nav-goals"
+        onclick="switchView('goals',this)"
+    >
+        <span class="icon">🎯</span>
+        Goals
+    </button>
+
+
+    <button
+        class="nav-item"
+        id="nav-more"
+        onclick="openMoreModal()"
+    >
+        <span class="icon">•••</span>
+        More
+    </button>
+
+</nav>
+
+
+<!-- =========================
+     MORE MODAL
+========================= -->
+
+<div
+    class="more-modal"
+    id="moreModal"
+    onclick="closeMoreModal()"
+>
+
+    <div
+        class="more-content"
+        onclick="event.stopPropagation()"
+    >
+
+        <div
+            style="display:flex;justify-content:space-between;align-items:center;"
+        >
+
+            <div
+                class="card-title serif"
+                style="font-size:22px;"
+            >
+                Menu
+            </div>
+
+
+            <button
+                class="action-btn-primary"
+                style="width:auto;padding:6px 14px;"
+                onclick="closeMoreModal()"
+            >
+                Close
+            </button>
+
+        </div>
+
+
+        <div class="menu-list">
+
+            <div
+                class="menu-card"
+                onclick="switchView('settings',null);closeMoreModal();"
+            >
+
+                <div>
+
+                    <div style="font-weight:600;">
+                        Settings & Themes
+                    </div>
+
+                    <div
+                        style="font-size:12px;color:var(--text-muted);"
+                    >
+                        Adjust colors & preferences
+                    </div>
+
+                </div>
+
+                <span>›</span>
+
+            </div>
+
+        </div>
+
+    </div>
+
+</div>
+
+
+<script>
+
+/* ==========================================
+   DATE + MONTH
+========================================== */
+
+window.onload = function() {
+
+    var today = new Date();
+
+    var days = [
+        'SUNDAY',
+        'MONDAY',
+        'TUESDAY',
+        'WEDNESDAY',
+        'THURSDAY',
+        'FRIDAY',
+        'SATURDAY'
+    ];
+
+    var months = [
+        'January',
+        'February',
+        'March',
+        'April',
+        'May',
+        'June',
+        'July',
+        'August',
+        'September',
+        'October',
+        'November',
+        'December'
+    ];
+
+    var shortMonths = [
+        'JAN',
+        'FEB',
+        'MAR',
+        'APR',
+        'MAY',
+        'JUN',
+        'JUL',
+        'AUG',
+        'SEP',
+        'OCT',
+        'NOV',
+        'DEC'
+    ];
+
+    var dayName = days[today.getDay()];
+
+    var dateEl =
+        document.getElementById('current-date');
+
+    if (dateEl) {
+
+        dateEl.innerText =
+            dayName +
+            ', ' +
+            today.getDate() +
+            ' ' +
+            shortMonths[today.getMonth()];
+
+    }
+
+
+    var monthEl =
+        document.getElementById('month-title');
+
+    if (monthEl) {
+
+        monthEl.innerText =
+            months[today.getMonth()];
+
+    }
+
+
+    /*
+       No motivational quote.
+       Just a simple welcome message.
+    */
+
+    var greetEl =
+        document.getElementById('dynamic-greeting');
+
+    if (greetEl) {
+
+        greetEl.innerText =
+            'Welcome back, Vicky!';
+
+    }
+
+
+    loadSavedStickers();
+
+};
+
+
+/* ==========================================
+   STICKER PASTE SYSTEM
+========================================== */
+
+/*
+   This is the important part.
+
+   When you copy a cut-out sticker from
+   iPhone Photos, the clipboard contains
+   an image.
+
+   We listen for the paste event and turn
+   that clipboard image into a sticker.
+*/
+
+var stickerBoard =
+    document.getElementById('stickerBoard');
+
+
+document.addEventListener('paste', function(event) {
+
+    var items =
+        event.clipboardData &&
+        event.clipboardData.items;
+
+    if (!items) return;
+
+
+    for (var i = 0; i < items.length; i++) {
+
+        var item = items[i];
+
+
+        if (item.type.indexOf('image') !== -1) {
+
+            var file = item.getAsFile();
+
+            if (file) {
+
+                createStickerFromFile(file);
 
             }
-
-
-            /* DATE */
-
-            var dateEl =
-                document.getElementById(
-                    'current-date'
-                );
-
-            if (dateEl) {
-
-                dateEl.innerText =
-                    dayName +
-                    ', ' +
-                    today.getDate() +
-                    ' ' +
-                    shortMonths[today.getMonth()];
-
-            }
-
-
-            /* GREETING */
-
-            var greetings = [
-
-                'Welcome back, Vicky',
-
-                'Good day, Vicky',
-
-                'Hey Vicky, welcome back',
-
-                'Welcome back, Vicky!',
-
-                'Good to see you, Vicky'
-
-            ];
-
-            var greetEl =
-                document.getElementById(
-                    'dynamic-greeting'
-                );
-
-            if (greetEl) {
-
-                greetEl.innerText =
-                    greetings[
-                        Math.floor(
-                            Math.random() *
-                            greetings.length
-                        )
-                    ];
-
-            }
-
-
-            /* LOAD STICKERS */
-
-            loadStickers();
-
-        };
-
-
-        /* ==========================================
-           VIEW SWITCHING
-           ========================================== */
-
-        function switchView(viewId, el) {
-
-            var sections =
-                document.querySelectorAll(
-                    '.view-section'
-                );
-
-            for (
-                var i = 0;
-                i < sections.length;
-                i++
-            ) {
-
-                sections[i]
-                    .classList
-                    .remove('active-view');
-
-            }
-
-
-            var target =
-                document.getElementById(
-                    'view-' + viewId
-                );
-
-            if (target) {
-
-                target.classList.add(
-                    'active-view'
-                );
-
-            }
-
-
-            if (el) {
-
-                var navItems =
-                    document.querySelectorAll(
-                        '.nav-item'
-                    );
-
-                for (
-                    var j = 0;
-                    j < navItems.length;
-                    j++
-                ) {
-
-                    navItems[j]
-                        .classList
-                        .remove('active');
-
-                }
-
-                el.classList.add('active');
-
-            }
-
-        }
-
-
-        /* ==========================================
-           MORE MENU
-           ========================================== */
-
-        function openMoreModal() {
-
-            var modal =
-                document.getElementById(
-                    'moreModal'
-                );
-
-            if (modal) {
-
-                modal.classList.add('open');
-
-            }
-
-        }
-
-
-        function closeMoreModal() {
-
-            var modal =
-                document.getElementById(
-                    'moreModal'
-                );
-
-            if (modal) {
-
-                modal.classList.remove('open');
-
-            }
-
-        }
-
-
-        /* ==========================================
-           LIGHT / DARK MODE
-           ========================================== */
-
-        function setTheme(theme) {
-
-            document.body.setAttribute(
-                'data-theme',
-                theme
-            );
-
-            var btnLight =
-                document.getElementById(
-                    'btn-light'
-                );
-
-            var btnDark =
-                document.getElementById(
-                    'btn-dark'
-                );
-
-            if (btnLight) {
-
-                btnLight.classList.toggle(
-                    'active',
-                    theme === 'light'
-                );
-
-            }
-
-            if (btnDark) {
-
-                btnDark.classList.toggle(
-                    'active',
-                    theme === 'dark'
-                );
-
-            }
-
-        }
-
-
-        /* ==========================================
-           CREDIT SCORE
-           ========================================== */
-
-        var previousScores = {
-
-            exp: 730,
-            tu: 733,
-            eq: 737
-
-        };
-
-
-        function updateCreditScore() {
-
-            var bureauSelect =
-                document.getElementById(
-                    'bureau-select'
-                );
-
-            var scoreInput =
-                document.getElementById(
-                    'new-score-input'
-                );
-
-            if (
-                !bureauSelect ||
-                !scoreInput
-            ) {
-
-                return;
-
-            }
-
-
-            var bureau =
-                bureauSelect.value;
-
-            var newScoreVal =
-                parseInt(
-                    scoreInput.value,
-                    10
-                );
-
-
-            if (
-                !newScoreVal ||
-                isNaN(newScoreVal)
-            ) {
-
-                return;
-
-            }
-
-
-            var scoreEl =
-                document.getElementById(
-                    'score-' + bureau
-                );
-
-            var changeEl =
-                document.getElementById(
-                    'change-' + bureau
-                );
-
-
-            var diff =
-                newScoreVal -
-                previousScores[bureau];
-
-
-            if (scoreEl) {
-
-                scoreEl.innerText =
-                    newScoreVal;
-
-            }
-
-
-            if (changeEl) {
-
-                if (diff >= 0) {
-
-                    changeEl.innerText =
-                        '+' + diff + ' pts';
-
-                    changeEl.className =
-                        'score-change score-up';
-
-                } else {
-
-                    changeEl.innerText =
-                        diff + ' pts';
-
-                    changeEl.className =
-                        'score-change score-down';
-
-                }
-
-            }
-
-
-            previousScores[bureau] =
-                newScoreVal;
-
-            scoreInput.value = '';
-
-        }
-
-
-        /* ==========================================
-           STICKER SYSTEM
-           ========================================== */
-
-
-        var activeSticker = null;
-
-        var stickerStartDistance = 0;
-
-        var stickerStartSize = 55;
-
-        var stickerStartX = 0;
-
-        var stickerStartY = 0;
-
-        var stickerStartLeft = 0;
-
-        var stickerStartTop = 0;
-
-
-        /* ==========================================
-           PASTE STICKER
-           ========================================== */
-
-        function pasteSticker(event, zone) {
 
             event.preventDefault();
 
-            var clipboard =
-                event.clipboardData ||
-                window.clipboardData;
-
-            if (!clipboard) {
-
-                return;
-
-            }
-
-
-            var items =
-                clipboard.items;
-
-            if (!items) {
-
-                return;
-
-            }
-
-
-            for (
-                var i = 0;
-                i < items.length;
-                i++
-            ) {
-
-                var item =
-                    items[i];
-
-
-                if (
-                    item.type &&
-                    item.type.indexOf('image') !== -1
-                ) {
-
-                    var file =
-                        item.getAsFile();
-
-
-                    if (!file) {
-
-                        return;
-
-                    }
-
-
-                    var reader =
-                        new FileReader();
-
-
-                    reader.onload =
-                        function(e) {
-
-                            createSticker(
-                                zone,
-                                e.target.result
-                            );
-
-                        };
-
-
-                    reader.readAsDataURL(file);
-
-
-                    return;
-
-                }
-
-            }
+            return;
 
         }
 
+    }
 
-        /* ==========================================
-           CREATE STICKER
-           ========================================== */
-
-        function createSticker(
-            zone,
-            imageSource
-        ) {
-
-            var sticker =
-                document.createElement('img');
+});
 
 
-            sticker.src =
-                imageSource;
+/* ==========================================
+   CREATE STICKER
+========================================== */
+
+function createStickerFromFile(file) {
+
+    var reader = new FileReader();
 
 
-            sticker.className =
-                'sticker-item';
+    reader.onload = function(e) {
+
+        createSticker(e.target.result);
+
+    };
 
 
-            sticker.draggable =
-                false;
+    reader.readAsDataURL(file);
+
+}
 
 
-            sticker.style.width =
-                '55px';
+/* ==========================================
+   CREATE STICKER ELEMENT
+========================================== */
 
-            sticker.style.height =
-                '55px';
+function createSticker(imageSrc) {
 
+    var board =
+        document.getElementById('stickerBoard');
 
-            var left =
-                Math.max(
-                    0,
-                    (zone.clientWidth - 55) / 2
-                );
+    if (!board) return;
 
 
-            var top =
-                Math.max(
-                    0,
-                    (zone.clientHeight - 55) / 2
-                );
+    var sticker =
+        document.createElement('div');
+
+    sticker.className =
+        'sticker';
+
+
+    /*
+       Give every new sticker a slightly
+       different starting position.
+    */
+
+    var existing =
+        board.querySelectorAll('.sticker').length;
+
+
+    var startX =
+        25 + ((existing * 55) % 260);
+
+    var startY =
+        10 + ((existing * 25) % 70);
+
+
+    sticker.style.left =
+        startX + 'px';
+
+    sticker.style.top =
+        startY + 'px';
+
+
+    sticker.style.width =
+        '80px';
+
+
+    var img =
+        document.createElement('img');
+
+    img.src =
+        imageSrc;
+
+
+    img.draggable =
+        false;
+
+
+    sticker.appendChild(img);
+
+
+    /*
+       Resize handle
+    */
+
+    var resize =
+        document.createElement('div');
+
+    resize.className =
+        'sticker-resize';
+
+
+    sticker.appendChild(resize);
+
+
+    board.appendChild(sticker);
+
+
+    /*
+       Hide empty-board message
+    */
+
+    updateStickerHint();
+
+
+    /*
+       Make it draggable
+    */
+
+    makeStickerDraggable(sticker);
+
+
+    /*
+       Make it resizable
+    */
+
+    makeStickerResizable(
+        sticker,
+        resize
+    );
+
+
+    /*
+       Save it
+    */
+
+    saveStickers();
+
+
+    selectSticker(sticker);
+
+}
+
+
+/* ==========================================
+   DRAG STICKER
+========================================== */
+
+function makeStickerDraggable(sticker) {
+
+    var dragging = false;
+
+    var startPointerX = 0;
+    var startPointerY = 0;
+
+    var startLeft = 0;
+    var startTop = 0;
+
+
+    sticker.addEventListener(
+        'pointerdown',
+        function(event) {
+
+            /*
+               Don't start dragging when the
+               user grabs the resize handle.
+            */
+
+            if (
+                event.target.classList.contains(
+                    'sticker-resize'
+                )
+            ) {
+                return;
+            }
+
+
+            event.preventDefault();
+
+
+            dragging = true;
+
+
+            sticker.setPointerCapture(
+                event.pointerId
+            );
+
+
+            startPointerX =
+                event.clientX;
+
+            startPointerY =
+                event.clientY;
+
+
+            startLeft =
+                parseFloat(
+                    sticker.style.left
+                ) || 0;
+
+
+            startTop =
+                parseFloat(
+                    sticker.style.top
+                ) || 0;
+
+
+            selectSticker(sticker);
+
+        }
+    );
+
+
+    sticker.addEventListener(
+        'pointermove',
+        function(event) {
+
+            if (!dragging) return;
+
+
+            var dx =
+                event.clientX -
+                startPointerX;
+
+            var dy =
+                event.clientY -
+                startPointerY;
 
 
             sticker.style.left =
-                left + 'px';
-
+                (startLeft + dx) + 'px';
 
             sticker.style.top =
-                top + 'px';
+                (startTop + dy) + 'px';
+
+        }
+    );
 
 
-            zone.appendChild(
-                sticker
-            );
+    sticker.addEventListener(
+        'pointerup',
+        function(event) {
+
+            if (!dragging) return;
+
+            dragging = false;
 
 
-            enableStickerTouch(
-                sticker
-            );
+            try {
+
+                sticker.releasePointerCapture(
+                    event.pointerId
+                );
+
+            } catch(e) {}
 
 
             saveStickers();
 
         }
+    );
+
+}
 
 
-        /* ==========================================
-           STICKER TOUCH CONTROLS
-           ========================================== */
+/* ==========================================
+   RESIZE STICKER
+========================================== */
 
-        function enableStickerTouch(
-            sticker
-        ) {
+function makeStickerResizable(
+    sticker,
+    handle
+) {
 
-            sticker.addEventListener(
-                'touchstart',
-                function(event) {
+    var resizing = false;
 
-                    event.preventDefault();
+    var startX = 0;
 
-                    activeSticker =
-                        sticker;
+    var startWidth = 0;
 
 
-                    if (
-                        event.touches.length === 1
-                    ) {
+    handle.addEventListener(
+        'pointerdown',
+        function(event) {
 
-                        stickerStartX =
-                            event.touches[0].clientX;
-
-                        stickerStartY =
-                            event.touches[0].clientY;
+            event.preventDefault();
+            event.stopPropagation();
 
 
-                        stickerStartLeft =
-                            parseFloat(
-                                sticker.style.left
-                            ) || 0;
+            resizing = true;
 
 
-                        stickerStartTop =
-                            parseFloat(
-                                sticker.style.top
-                            ) || 0;
-
-                    }
-
-
-                    if (
-                        event.touches.length === 2
-                    ) {
-
-                        stickerStartDistance =
-                            getTouchDistance(
-                                event
-                            );
-
-
-                        stickerStartSize =
-                            parseFloat(
-                                sticker.style.width
-                            ) || 55;
-
-                    }
-
-                },
-                {
-                    passive: false
-                }
+            handle.setPointerCapture(
+                event.pointerId
             );
 
 
-            sticker.addEventListener(
-                'touchmove',
-                function(event) {
-
-                    event.preventDefault();
+            startX =
+                event.clientX;
 
 
-                    /* DRAG */
-
-                    if (
-                        event.touches.length === 1 &&
-                        activeSticker === sticker
-                    ) {
-
-                        var touch =
-                            event.touches[0];
+            startWidth =
+                parseFloat(
+                    sticker.style.width
+                ) || 80;
 
 
-                        var dx =
-                            touch.clientX -
-                            stickerStartX;
-
-
-                        var dy =
-                            touch.clientY -
-                            stickerStartY;
-
-
-                        var zone =
-                            sticker.parentElement;
-
-
-                        var newLeft =
-                            stickerStartLeft +
-                            dx;
-
-
-                        var newTop =
-                            stickerStartTop +
-                            dy;
-
-
-                        var maxLeft =
-                            zone.clientWidth -
-                            sticker.offsetWidth;
-
-
-                        var maxTop =
-                            zone.clientHeight -
-                            sticker.offsetHeight;
-
-
-                        newLeft =
-                            Math.max(
-                                0,
-                                Math.min(
-                                    newLeft,
-                                    maxLeft
-                                )
-                            );
-
-
-                        newTop =
-                            Math.max(
-                                0,
-                                Math.min(
-                                    newTop,
-                                    maxTop
-                                )
-                            );
-
-
-                        sticker.style.left =
-                            newLeft + 'px';
-
-
-                        sticker.style.top =
-                            newTop + 'px';
-
-                    }
-
-
-                    /* PINCH TO RESIZE */
-
-                    if (
-                        event.touches.length === 2 &&
-                        activeSticker === sticker
-                    ) {
-
-                        var currentDistance =
-                            getTouchDistance(
-                                event
-                            );
-
-
-                        if (
-                            stickerStartDistance > 0
-                        ) {
-
-                            var scale =
-                                currentDistance /
-                                stickerStartDistance;
-
-
-                            var newSize =
-                                stickerStartSize *
-                                scale;
-
-
-                            newSize =
-                                Math.max(
-                                    25,
-                                    Math.min(
-                                        newSize,
-                                        140
-                                    )
-                                );
-
-
-                            sticker.style.width =
-                                newSize + 'px';
-
-
-                            sticker.style.height =
-                                newSize + 'px';
-
-                        }
-
-                    }
-
-                },
-                {
-                    passive: false
-                }
-            );
-
-
-            sticker.addEventListener(
-                'touchend',
-                function(event) {
-
-                    if (
-                        event.touches.length === 0
-                    ) {
-
-                        activeSticker =
-                            null;
-
-                        saveStickers();
-
-                    }
-
-
-                    if (
-                        event.touches.length === 1
-                    ) {
-
-                        stickerStartX =
-                            event.touches[0].clientX;
-
-
-                        stickerStartY =
-                            event.touches[0].clientY;
-
-
-                        stickerStartLeft =
-                            parseFloat(
-                                sticker.style.left
-                            ) || 0;
-
-
-                        stickerStartTop =
-                            parseFloat(
-                                sticker.style.top
-                            ) || 0;
-
-                    }
-
-                }
-            );
+            selectSticker(sticker);
 
         }
+    );
 
 
-        /* ==========================================
-           PINCH DISTANCE
-           ========================================== */
+    handle.addEventListener(
+        'pointermove',
+        function(event) {
 
-        function getTouchDistance(
-            event
-        ) {
-
-            var touch1 =
-                event.touches[0];
-
-            var touch2 =
-                event.touches[1];
+            if (!resizing) return;
 
 
-            var dx =
-                touch2.clientX -
-                touch1.clientX;
+            var difference =
+                event.clientX -
+                startX;
 
 
-            var dy =
-                touch2.clientY -
-                touch1.clientY;
+            var newWidth =
+                startWidth +
+                difference;
 
 
-            return Math.sqrt(
-                dx * dx +
-                dy * dy
-            );
+            /*
+               Prevent sticker from becoming
+               ridiculously tiny or huge.
+            */
 
-        }
-
-
-        /* ==========================================
-           SAVE STICKERS
-           ========================================== */
-
-        function saveStickers() {
-
-            var data = {
-
-                left: [],
-
-                right: []
-
-            };
-
-
-            var zones = [
-
-                {
-                    id: 'left-stickers',
-                    array: data.left
-                },
-
-                {
-                    id: 'right-stickers',
-                    array: data.right
-                }
-
-            ];
-
-
-            zones.forEach(
-                function(item) {
-
-                    var zone =
-                        document.getElementById(
-                            item.id
-                        );
-
-
-                    if (!zone) {
-
-                        return;
-
-                    }
-
-
-                    var stickers =
-                        zone.querySelectorAll(
-                            '.sticker-item'
-                        );
-
-
-                    stickers.forEach(
-                        function(sticker) {
-
-                            item.array.push({
-
-                                src:
-                                    sticker.src,
-
-                                left:
-                                    sticker.style.left,
-
-                                top:
-                                    sticker.style.top,
-
-                                width:
-                                    sticker.style.width,
-
-                                height:
-                                    sticker.style.height
-
-                            });
-
-                        }
-                    );
-
-                }
-            );
-
-
-            localStorage.setItem(
-                'plannerStickers',
-                JSON.stringify(data)
-            );
-
-        }
-
-
-        /* ==========================================
-           LOAD STICKERS
-           ========================================== */
-
-        function loadStickers() {
-
-            var saved =
-                localStorage.getItem(
-                    'plannerStickers'
+            newWidth =
+                Math.max(
+                    40,
+                    Math.min(
+                        220,
+                        newWidth
+                    )
                 );
 
 
-            if (!saved) {
+            sticker.style.width =
+                newWidth + 'px';
 
-                return;
+        }
+    );
 
-            }
+
+    handle.addEventListener(
+        'pointerup',
+        function(event) {
+
+            if (!resizing) return;
+
+
+            resizing = false;
 
 
             try {
 
-                var data =
-                    JSON.parse(saved);
-
-
-                loadStickerZone(
-                    'left-stickers',
-                    data.left || []
+                handle.releasePointerCapture(
+                    event.pointerId
                 );
 
-
-                loadStickerZone(
-                    'right-stickers',
-                    data.right || []
-                );
+            } catch(e) {}
 
 
-            } catch (error) {
-
-                console.log(
-                    'Could not load stickers.'
-                );
-
-            }
+            saveStickers();
 
         }
+    );
+
+}
 
 
-        function loadStickerZone(
-            zoneId,
-            stickers
+/* ==========================================
+   SELECT STICKER
+========================================== */
+
+function selectSticker(sticker) {
+
+    var stickers =
+        document.querySelectorAll(
+            '.sticker'
+        );
+
+
+    for (
+        var i = 0;
+        i < stickers.length;
+        i++
+    ) {
+
+        stickers[i].classList.remove(
+            'selected'
+        );
+
+    }
+
+
+    sticker.classList.add(
+        'selected'
+    );
+
+}
+
+
+/* ==========================================
+   BOARD HINT
+========================================== */
+
+function updateStickerHint() {
+
+    var board =
+        document.getElementById(
+            'stickerBoard'
+        );
+
+    var hint =
+        document.getElementById(
+            'stickerBoardHint'
+        );
+
+
+    if (!board || !hint) return;
+
+
+    var stickers =
+        board.querySelectorAll(
+            '.sticker'
+        );
+
+
+    hint.style.display =
+        stickers.length
+        ? 'none'
+        : 'block';
+
+}
+
+
+/* ==========================================
+   CLICK BOARD
+========================================== */
+
+stickerBoard.addEventListener(
+    'click',
+    function() {
+
+        stickerBoard.focus();
+
+    }
+);
+
+
+/* ==========================================
+   PASTE HIGHLIGHT
+========================================== */
+
+stickerBoard.addEventListener(
+    'focus',
+    function() {
+
+        stickerBoard.classList.add(
+            'active-paste'
+        );
+
+    }
+);
+
+
+stickerBoard.addEventListener(
+    'blur',
+    function() {
+
+        stickerBoard.classList.remove(
+            'active-paste'
+        );
+
+    }
+);
+
+
+/* ==========================================
+   SAVE STICKERS
+========================================== */
+
+/*
+   Stickers are stored in localStorage
+   so they stay on the page after closing
+   and reopening it.
+
+   NOTE:
+   This stores the sticker image itself,
+   not your personal Photos library.
+*/
+
+function saveStickers() {
+
+    var board =
+        document.getElementById(
+            'stickerBoard'
+        );
+
+
+    if (!board) return;
+
+
+    var stickers =
+        board.querySelectorAll(
+            '.sticker'
+        );
+
+
+    var saved = [];
+
+
+    for (
+        var i = 0;
+        i < stickers.length;
+        i++
+    ) {
+
+        var sticker =
+            stickers[i];
+
+        var img =
+            sticker.querySelector(
+                'img'
+            );
+
+
+        if (!img) continue;
+
+
+        saved.push({
+
+            src: img.src,
+
+            left:
+                sticker.style.left,
+
+            top:
+                sticker.style.top,
+
+            width:
+                sticker.style.width
+
+        });
+
+    }
+
+
+    try {
+
+        localStorage.setItem(
+            'vickyPlannerStickers',
+            JSON.stringify(saved)
+        );
+
+    } catch(error) {
+
+        console.log(
+            'Could not save stickers.'
+        );
+
+    }
+
+}
+
+
+/* ==========================================
+   LOAD STICKERS
+========================================== */
+
+function loadSavedStickers() {
+
+    var saved;
+
+
+    try {
+
+        saved =
+            JSON.parse(
+                localStorage.getItem(
+                    'vickyPlannerStickers'
+                )
+            );
+
+    } catch(error) {
+
+        saved = [];
+
+    }
+
+
+    if (!saved || !saved.length) {
+
+        updateStickerHint();
+
+        return;
+
+    }
+
+
+    var board =
+        document.getElementById(
+            'stickerBoard'
+        );
+
+
+    for (
+        var i = 0;
+        i < saved.length;
+        i++
+    ) {
+
+        var data =
+            saved[i];
+
+
+        var sticker =
+            document.createElement(
+                'div'
+            );
+
+        sticker.className =
+            'sticker';
+
+
+        sticker.style.left =
+            data.left || '20px';
+
+
+        sticker.style.top =
+            data.top || '20px';
+
+
+        sticker.style.width =
+            data.width || '80px';
+
+
+        var img =
+            document.createElement(
+                'img'
+            );
+
+
+        img.src =
+            data.src;
+
+
+        img.draggable =
+            false;
+
+
+        sticker.appendChild(img);
+
+
+        var resize =
+            document.createElement(
+                'div'
+            );
+
+
+        resize.className =
+            'sticker-resize';
+
+
+        sticker.appendChild(
+            resize
+        );
+
+
+        board.appendChild(
+            sticker
+        );
+
+
+        makeStickerDraggable(
+            sticker
+        );
+
+
+        makeStickerResizable(
+            sticker,
+            resize
+        );
+
+    }
+
+
+    updateStickerHint();
+
+}
+
+
+/* ==========================================
+   NAVIGATION
+========================================== */
+
+function switchView(
+    viewId,
+    el
+) {
+
+    var sections =
+        document.querySelectorAll(
+            '.view-section'
+        );
+
+
+    for (
+        var i = 0;
+        i < sections.length;
+        i++
+    ) {
+
+        sections[i].classList.remove(
+            'active-view'
+        );
+
+    }
+
+
+    var target =
+        document.getElementById(
+            'view-' + viewId
+        );
+
+
+    if (target) {
+
+        target.classList.add(
+            'active-view'
+        );
+
+    }
+
+
+    if (el) {
+
+        var navItems =
+            document.querySelectorAll(
+                '.nav-item'
+            );
+
+
+        for (
+            var j = 0;
+            j < navItems.length;
+            j++
         ) {
 
-            var zone =
-                document.getElementById(
-                    zoneId
-                );
-
-
-            if (!zone) {
-
-                return;
-
-            }
-
-
-            stickers.forEach(
-                function(data) {
-
-                    var sticker =
-                        document.createElement(
-                            'img'
-                        );
-
-
-                    sticker.src =
-                        data.src;
-
-
-                    sticker.className =
-                        'sticker-item';
-
-
-                    sticker.draggable =
-                        false;
-
-
-                    sticker.style.left =
-                        data.left;
-
-
-                    sticker.style.top =
-                        data.top;
-
-
-                    sticker.style.width =
-                        data.width;
-
-
-                    sticker.style.height =
-                        data.height;
-
-
-                    zone.appendChild(
-                        sticker
-                    );
-
-
-                    enableStickerTouch(
-                        sticker
-                    );
-
-                }
+            navItems[j].classList.remove(
+                'active'
             );
 
         }
 
-    </script>
+
+        el.classList.add(
+            'active'
+        );
+
+    }
+
+}
+
+
+/* ==========================================
+   MORE MENU
+========================================== */
+
+function openMoreModal() {
+
+    var modal =
+        document.getElementById(
+            'moreModal'
+        );
+
+
+    if (modal) {
+
+        modal.classList.add(
+            'open'
+        );
+
+    }
+
+}
+
+
+function closeMoreModal() {
+
+    var modal =
+        document.getElementById(
+            'moreModal'
+        );
+
+
+    if (modal) {
+
+        modal.classList.remove(
+            'open'
+        );
+
+    }
+
+}
+
+
+/* ==========================================
+   DARK / LIGHT THEME
+========================================== */
+
+function setTheme(theme) {
+
+    document.body.setAttribute(
+        'data-theme',
+        theme
+    );
+
+
+    var btnLight =
+        document.getElementById(
+            'btn-light'
+        );
+
+
+    var btnDark =
+        document.getElementById(
+            'btn-dark'
+        );
+
+
+    if (btnLight) {
+
+        btnLight.classList.toggle(
+            'active',
+            theme === 'light'
+        );
+
+    }
+
+
+    if (btnDark) {
+
+        btnDark.classList.toggle(
+            'active',
+            theme === 'dark'
+        );
+
+    }
+
+}
+
+
+/* ==========================================
+   CREDIT SCORE
+========================================== */
+
+var previousScores = {
+
+    exp: 730,
+
+    tu: 733,
+
+    eq: 737
+
+};
+
+
+function updateCreditScore() {
+
+    var bureauSelect =
+        document.getElementById(
+            'bureau-select'
+        );
+
+
+    var scoreInput =
+        document.getElementById(
+            'new-score-input'
+        );
+
+
+    if (
+        !bureauSelect ||
+        !scoreInput
+    ) return;
+
+
+    var bureau =
+        bureauSelect.value;
+
+
+    var newScoreVal =
+        parseInt(
+            scoreInput.value,
+            10
+        );
+
+
+    if (
+        !newScoreVal ||
+        isNaN(newScoreVal)
+    ) return;
+
+
+    var scoreEl =
+        document.getElementById(
+            'score-' + bureau
+        );
+
+
+    var changeEl =
+        document.getElementById(
+            'change-' + bureau
+        );
+
+
+    var diff =
+        newScoreVal -
+        previousScores[bureau];
+
+
+    if (scoreEl) {
+
+        scoreEl.innerText =
+            newScoreVal;
+
+    }
+
+
+    if (changeEl) {
+
+        if (diff >= 0) {
+
+            changeEl.innerText =
+                '+' + diff + ' pts';
+
+            changeEl.className =
+                'score-change score-up';
+
+        } else {
+
+            changeEl.innerText =
+                diff + ' pts';
+
+            changeEl.className =
+                'score-change score-down';
+
+        }
+
+    }
+
+
+    previousScores[bureau] =
+        newScoreVal;
+
+
+    scoreInput.value = '';
+
+}
+
+</script>
 
 </body>
 </html>
