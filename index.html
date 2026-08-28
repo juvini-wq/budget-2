@@ -3,14 +3,12 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
-    <meta name="apple-mobile-web-app-capable" content="yes">
     <title>Budget and Planner</title>
     <link rel="preconnect" href="https://fonts.googleapis.com">
     <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
     <link href="https://fonts.googleapis.com/css2?family=Instrument+Serif:ital@0;1&family=Inter:wght@300;400;500;600;700&display=swap" rel="stylesheet">
     <style>
         :root {
-            /* Light Theme (Default) */
             --bg-main: #f8f9fc;
             --bg-card: #ffffff;
             --bg-card-border: rgba(0, 0, 0, 0.08);
@@ -28,7 +26,6 @@
         }
 
         [data-theme="dark"] {
-            /* Dark Theme Option */
             --bg-main: #131722;
             --bg-card: #1c2230;
             --bg-card-border: rgba(255, 255, 255, 0.08);
@@ -60,14 +57,12 @@
             font-family: 'Inter', -apple-system, sans-serif;
             min-height: 100vh;
             padding-bottom: 90px;
-            transition: background-color 0.2s, color 0.2s;
         }
 
         .serif {
             font-family: 'Instrument Serif', Georgia, serif;
         }
 
-        /* Header Layout */
         .header {
             padding: 24px 20px 12px 20px;
             max-width: 500px;
@@ -130,7 +125,6 @@
             text-align: center;
         }
 
-        /* Main Container */
         .container {
             max-width: 500px;
             margin: 0 auto;
@@ -152,7 +146,6 @@
             display: flex;
         }
 
-        /* Cards */
         .card {
             background: var(--bg-card);
             border: 1px solid var(--bg-card-border);
@@ -162,7 +155,6 @@
             width: 100%;
         }
 
-        /* Bigger Coming Up Next Card */
         .card-large {
             padding: 26px;
         }
@@ -197,7 +189,6 @@
             margin-bottom: 16px;
         }
 
-        /* List Items inside Coming Up Next */
         .upcoming-list {
             display: flex;
             flex-direction: column;
@@ -225,153 +216,7 @@
             color: var(--text-muted);
         }
 
-        /* Credit Bureau Cards */
         .bureau-grid {
             display: grid;
             grid-template-columns: repeat(3, 1fr);
-            gap: 8px;
-            margin-top: 12px;
-            margin-bottom: 16px;
-        }
-
-        .bureau-card {
-            background: var(--input-bg);
-            border: 1px solid var(--input-border);
-            border-radius: 14px;
-            padding: 12px 8px;
-            text-align: center;
-            display: flex;
-            flex-direction: column;
-            gap: 4px;
-        }
-
-        .bureau-name {
-            font-size: 10px;
-            font-weight: 700;
-            text-transform: uppercase;
-            letter-spacing: 0.5px;
-            color: var(--text-muted);
-        }
-
-        .bureau-score {
-            font-size: 22px;
-            font-weight: 400;
-        }
-
-        .score-change {
-            font-size: 10px;
-            font-weight: 700;
-            padding: 2px 6px;
-            border-radius: 10px;
-            display: inline-block;
-            margin: 0 auto;
-        }
-
-        .score-up {
-            color: var(--accent-green);
-            background: var(--accent-green-bg);
-        }
-
-        .score-down {
-            color: var(--accent-red);
-            background: var(--accent-red-bg);
-        }
-
-        /* Credit Score Input Row */
-        .credit-input-row {
-            display: flex;
-            gap: 8px;
-            margin-top: 10px;
-        }
-
-        /* SVG Trend Chart */
-        .chart-container {
-            width: 100%;
-            height: 100px;
-            margin-top: 14px;
-            background: var(--input-bg);
-            border-radius: 14px;
-            padding: 10px;
-            display: flex;
-            flex-direction: column;
-            justify-content: flex-end;
-        }
-
-        /* Quick Spend Pills */
-        .quick-pills {
-            display: flex;
-            flex-direction: column;
-            gap: 8px;
-            margin-top: 14px;
-        }
-
-        .pill-btn {
-            background: var(--input-bg);
-            border: 1px solid var(--input-border);
-            color: var(--text-primary);
-            padding: 12px;
-            border-radius: 12px;
-            font-size: 14px;
-            font-weight: 500;
-            text-align: center;
-            cursor: pointer;
-        }
-
-        /* Forms */
-        .form-group {
-            display: flex;
-            flex-direction: column;
-            gap: 6px;
-            margin-bottom: 14px;
-        }
-
-        .form-label {
-            font-size: 13px;
-            font-weight: 500;
-        }
-
-        .form-input {
-            width: 100%;
-            background: var(--input-bg);
-            border: 1px solid var(--input-border);
-            color: var(--text-primary);
-            padding: 12px 14px;
-            border-radius: 12px;
-            font-size: 15px;
-            outline: none;
-        }
-
-        .toggle-group {
-            display: flex;
-            gap: 8px;
-            margin-bottom: 16px;
-        }
-
-        .toggle-btn {
-            flex: 1;
-            padding: 10px;
-            border-radius: 14px;
-            border: 1px solid var(--input-border);
-            background: transparent;
-            color: var(--text-primary);
-            font-size: 13px;
-            font-weight: 500;
-            cursor: pointer;
-        }
-
-        .toggle-btn.active {
-            border-color: var(--accent-purple);
-            background: var(--accent-purple-light);
-            color: var(--accent-purple);
-            font-weight: 600;
-        }
-
-        /* Grid Stats */
-        .stats-grid {
-            display: grid;
-            grid-template-columns: 1fr 1fr;
-            gap: 10px;
-        }
-
-        .stat-box {
-            padding: 14px;
+            gap:
