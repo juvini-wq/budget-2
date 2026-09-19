@@ -1,7 +1,247 @@
-<!doctype html><html lang="en"><head><meta charset="UTF-8"><meta name="viewport" content="width=device-width,initial-scale=1"><title>Vicky's Planner</title><style>:root{--bg:#f5f7fb;--card:#fff;--soft:#f1f3f7;--line:#e4e8ef;--text:#18212f;--muted:#697585;--purple:#8b5cf6;--green:#18ad76;--red:#ed6262;--shadow:0 10px 28px #18212f12}[data-theme=dark]{--bg:#111827;--card:#1f2937;--soft:#293548;--line:#3a4658;--text:#f3f4f6;--muted:#aab4c3;--shadow:0 10px 28px #0005}*{box-sizing:border-box}body{margin:0;padding:20px 18px 100px;background:var(--bg);color:var(--text);font:15px Arial,sans-serif}button,input,select{font:inherit}button{cursor:pointer}.app{max-width:540px;margin:auto}.top,.row{display:flex;align-items:center;justify-content:space-between;gap:12px}.top{margin-bottom:18px}.eyebrow,label{font-size:11px;letter-spacing:.12em;text-transform:uppercase;color:var(--muted);font-weight:bold}.month{font-size:44px;font-weight:bold;letter-spacing:-.06em}.icon,.small{border:1px solid var(--line);background:var(--card);color:var(--text);border-radius:11px;padding:9px}.card,.item,.empty{background:var(--card);border:1px solid var(--line);border-radius:20px;box-shadow:var(--shadow)}.hero{padding:22px;background:linear-gradient(135deg,#8b5cf61f,#4e7cff0b)}.balance{font-size:44px;font-weight:bold;letter-spacing:-.07em;margin-top:6px}.pill{color:var(--green);background:#18ad7620;padding:8px 12px;border-radius:99px;font-size:12px;font-weight:bold}.grid{display:grid;grid-template-columns:1fr 1fr;gap:12px}.summary{margin-top:18px}.box{padding:14px;border-radius:16px;border:1px solid var(--line)}.in{background:#18ad7620}.out{background:#ed626220}.left{background:#8b5cf620}.save{background:#4e7cff18}.value{font-size:25px;font-weight:bold;margin-top:9px}.section{margin-top:20px}.head{margin:0 4px 11px}.title{font-size:18px;font-weight:bold}.link{border:0;background:none;color:var(--purple);font-weight:bold;padding:0}.form{padding:18px}.actions{display:flex;gap:9px}.quick{flex:1;border:1px solid var(--line);background:var(--soft);color:var(--text);padding:11px;border-radius:12px;font-weight:bold}.quick.active{color:var(--purple);background:#8b5cf61c;border-color:#8b5cf655}.fields{display:grid;grid-template-columns:1fr 1fr;gap:11px;margin-top:15px}.field{display:flex;flex-direction:column;gap:6px}.full{grid-column:1/-1}input,select{width:100%;padding:12px;border-radius:11px;border:1px solid var(--line);background:var(--soft);color:var(--text)}.primary{width:100%;border:0;background:var(--purple);color:#fff;padding:14px;border-radius:12px;font-weight:bold;margin-top:15px}.list{display:flex;flex-direction:column;gap:9px}.item{padding:14px 16px;display:flex;align-items:center;gap:12px}.grow{flex:1}.muted{font-size:12px;color:var(--muted);margin-top:4px}.avatar{width:40px;height:40px;border-radius:12px;display:grid;place-items:center;font-weight:bold}.income{background:#18ad7620;color:var(--green)}.expense{background:#ed626220;color:var(--red)}.amount{font-weight:bold}.income-text{color:var(--green)}.expense-text{color:var(--red)}.bar{height:9px;background:var(--soft);border:1px solid var(--line);border-radius:99px;overflow:hidden;margin-top:10px}.fill{height:100%;background:var(--purple)}.view{display:none}.view.active{display:block}.notice{padding:15px;background:#8b5cf61c;color:var(--purple);border-radius:15px;line-height:1.4}.empty{padding:24px;text-align:center;color:var(--muted);box-shadow:none}.nav{position:fixed;z-index:2;bottom:12px;left:50%;transform:translateX(-50%);width:min(540px,calc(100% - 24px));display:grid;grid-template-columns:repeat(5,1fr);gap:3px;padding:9px;background:var(--card);border:1px solid var(--line);border-radius:19px;box-shadow:var(--shadow)}.nav button{border:0;background:none;color:var(--muted);border-radius:11px;padding:8px 2px;font-size:10px;font-weight:bold}.nav button.active{background:#8b5cf61c;color:var(--purple)}.bureau-grid{display:grid;grid-template-columns:repeat(3,1fr);gap:8px}.bureau{padding:12px 6px;text-align:center;background:var(--soft);border:1px solid var(--line);border-radius:14px}.score{font-size:25px;font-weight:bold;margin:7px 0}.change{font-size:12px;font-weight:bold}.up{color:var(--green)}.down{color:var(--red)}.chart{height:220px;background:var(--soft);border-radius:14px;padding:10px}.chart svg{width:100%;height:100%}.chart-line{fill:none;stroke:var(--purple);stroke-width:3}.dot{fill:var(--purple)}.modal{display:none;position:fixed;inset:0;background:#0008;z-index:5;align-items:center;padding:18px}.modal.open{display:flex}.sheet{width:100%;max-width:540px;max-height:85vh;overflow:auto;margin:auto;background:var(--card);border-radius:24px;padding:22px}.switch{width:48px;height:28px;border:0;border-radius:20px;background:var(--muted);padding:3px}.switch span{display:block;width:22px;height:22px;border-radius:50%;background:#fff;transition:.2s}.switch.on{background:var(--purple)}.switch.on span{transform:translateX(20px)}@media(max-width:420px){.fields{grid-template-columns:1fr}.full{grid-column:auto}}</style></head><body><div class="app"><header class="top"><div><div class="eyebrow">Budget</div><div class="month" id="month"></div></div><button class="icon" id="settingsButton">⚙️</button></header><main>
-<section id="home" class="view active"><div class="card hero"><div class="row"><div><div class="eyebrow">Available</div><div class="balance" id="balance">$0.00</div></div><div class="pill">This month</div></div><div class="grid summary"><div class="box in"><div class="eyebrow">Income</div><div class="value" id="income">$0.00</div></div><div class="box out"><div class="eyebrow">Spent</div><div class="value" id="spent">$0.00</div></div><div class="box left"><div class="eyebrow">Left</div><div class="value" id="left">$0.00</div></div><div class="box save"><div class="eyebrow">Saved</div><div class="value" id="saved">$0.00</div></div></div></div><div class="section"><div class="head title">Quick add</div><div class="card form"><div class="actions"><button class="quick active" data-kind="expense">Expense</button><button class="quick" data-kind="income">Income</button></div><div class="fields"><div class="field full"><label>Title</label><input id="name" placeholder="Groceries, salary, rent..."></div><div class="field"><label>Amount</label><input id="amount" type="number" min="0" step=".01"></div><div class="field"><label>Category</label><select id="category"><option>Housing</option><option>Food</option><option>Transport</option><option>Bills</option><option>Entertainment</option><option>Health</option><option>Savings</option><option>Other</option></select></div></div><button class="primary" id="add">Add transaction</button></div></div><div class="section"><div class="head row"><div class="title">Recent activity</div><button class="link" id="clear">Clear all</button></div><div class="list" id="transactions"></div></div><div class="section"><div class="head title">Budget overview</div><div class="list" id="budgets"></div></div></section>
-<section id="planner" class="view"><div class="head title">Monthly planner</div><div class="notice">Keep track of the money tasks that help you stay on course.</div><div class="section card form"><div class="field"><label>New task</label><input id="task" placeholder="Review subscriptions..."></div><button class="primary" id="addTask">Add planner task</button></div><div class="section"><div class="head row"><div class="title">This month</div><button class="link" id="clearTasks">Clear done</button></div><div class="list" id="tasks"></div></div></section>
-<section id="stats" class="view"><div class="head title">Your stats</div><div class="grid"><div class="card form"><div class="eyebrow">Transactions</div><div class="value" id="count">0</div></div><div class="card form"><div class="eyebrow">Average expense</div><div class="value" id="average">$0</div></div></div><div class="section card form"><div class="head row"><div class="title">Credit history</div><button class="link" id="openHistory">View history</button></div><div class="muted">Choose a bureau to see its saved monthly chart.</div><select id="chartBureau" style="margin-top:12px"><option>TransUnion</option><option>Experian</option><option>Equifax</option></select><div class="section"><div class="chart"><svg id="growthChart" viewBox="0 0 500 190" preserveAspectRatio="none"></svg></div></div><div class="muted" id="chartLabels"></div><div class="muted" id="chartChange"></div></div><div class="section card form"><div class="title">Spending by category</div><div class="list" id="categories" style="margin-top:14px"></div></div></section>
-<section id="bills" class="view"><div class="head title">Bills</div><div class="card form"><div class="fields"><div class="field"><label>Bill name</label><input id="billName" placeholder="Electricity"></div><div class="field"><label>Amount</label><input id="billAmount" type="number" min="0" step=".01"></div><div class="field full"><label>Due date</label><input id="billDue" type="date"></div></div><button class="primary" id="addBill">Add bill</button></div><div class="section list" id="bills"></div></section>
-<section id="goals" class="view"><div class="head title">Credit scores</div><div class="card form"><div class="muted">Save the score for a month. The card shows the change from the previous saved month.</div><div class="field" style="margin-top:14px"><label>Month being recorded</label><input id="scoreMonth" type="month"></div><div class="bureau-grid" style="margin-top:14px"><div class="bureau"><label>TransUnion</label><input class="score-input" data-bureau="TransUnion" type="number" min="300" max="850"><div class="score" id="score-TransUnion">--</div><div class="change" id="change-TransUnion"></div></div><div class="bureau"><label>Experian</label><input class="score-input" data-bureau="Experian" type="number" min="300" max="850"><div class="score" id="score-Experian">--</div><div class="change" id="change-Experian"></div></div><div class="bureau"><label>Equifax</label><input class="score-input" data-bureau="Equifax" type="number" min="300" max="850"><div class="score" id="score-Equifax">--</div><div class="change" id="change-Equifax"></div></div></div><button class="primary" id="saveScores">Save scores for this month</button></div><div class="section notice">Scores are stored only in this browser. The app does not connect to the credit bureaus.</div></section></main></div><nav class="nav"><button class="active" data-view="home">🏠<br>Home</button><button data-view="planner">🗓️<br>Planner</button><button data-view="stats">📊<br>Stats</button><button data-view="bills">🧾<br>Bills</button><button data-view="goals">⚑<br>Credit</button></nav><div class="modal" id="settings"><div class="sheet"><div class="head row"><div class="title">Settings</div><button class="link" id="closeSettings">Close</button></div><div class="row" style="padding:16px 0;border-bottom:1px solid var(--line)"><div><b>Dark theme</b><div class="muted">Use a darker color palette</div></div><button class="switch" id="themeSwitch"><span></span></button></div></div></div><div class="modal" id="historyModal"><div class="sheet"><div class="head row"><div class="title">Saved credit history</div><button class="link" id="closeHistory">Close</button></div><select id="historyBureau" style="margin:8px 0 14px"><option>TransUnion</option><option>Experian</option><option>Equifax</option></select><div class="list" id="historyList"></div></div></div>
-<script>const $=id=>document.getElementById(id),read=(k,d)=>{try{return JSON.parse(localStorage.getItem(k))??d}catch{return d}},money=n=>new Intl.NumberFormat('en-US',{style:'currency',currency:'USD'}).format(Number(n)||0),safe=s=>String(s).replace(/[&<>"']/g,c=>({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#039;'}[c])),monthKey=d=>{let x=new Date(d+'-01');return `${x.getFullYear()}-${String(x.getMonth()+1).padStart(2,'0')}`},monthText=k=>new Date(k+'-01').toLocaleString('en-US',{month:'long',year:'numeric'}),state={kind:'expense',tx:read('budget-transactions',[]),tasks:read('budget-tasks',[]),bills:read('budget-bills',[]),scores:read('budget-score-history',{}),theme:localStorage.getItem('budget-theme')||'light'};function save(){localStorage.setItem('budget-transactions',JSON.stringify(state.tx));localStorage.setItem('budget-tasks',JSON.stringify(state.tasks));localStorage.setItem('budget-bills',JSON.stringify(state.bills));localStorage.setItem('budget-score-history',JSON.stringify(state.scores))}function renderHome(){let i=state.tx.filter(x=>x.kind==='income').reduce((a,x)=>a+Number(x.amount),0),e=state.tx.filter(x=>x.kind==='expense').reduce((a,x)=>a+Number(x.amount),0);['balance','left'].forEach(id=>$(id).textContent=money(i-e));$('income').textContent=money(i);$('spent').textContent=money(e);$('saved').textContent=money(Math.max(i-e,0));$('transactions').innerHTML=state.tx.length?[...state.tx].reverse().slice(0,8).map(x=>`<div class="item"><div class="avatar ${x.kind}">${x.kind==='income'?'↑':'↓'}</div><div class="grow"><b>${safe(x.name)}</b><div class="muted">${safe(x.category)} • ${new Date(x.date).toLocaleDateString()}</div></div><b class="${x.kind}-text">${x.kind==='income'?'+':'-'}${money(x.amount)}</b></div>`).join(''):'<div class="empty">No transactions yet.</div>';let targets={Housing:1200,Food:520,Transport:220,Bills:350,Entertainment:260,Health:180,Savings:450,Other:200};$('budgets').innerHTML=Object.entries(targets).map(([c,t])=>{let v=state.tx.filter(x=>x.kind==='expense'&&x.category===c).reduce((a,x)=>a+Number(x.amount),0);return`<div class="item" style="display:block"><div class="row"><b>${c}</b><span class="muted">${money(v)} / ${money(t)}</span></div><div class="bar"><div class="fill" style="width:${Math.min(100,v/t*100)}%"></div></div></div>`}).join('')}function renderPlanner(){$('tasks').innerHTML=state.tasks.length?state.tasks.map((x,i)=>`<label class="item"><input type="checkbox" data-task="${i}" ${x.done?'checked':''}><span class="grow ${x.done?'muted':''}">${safe(x.text)}</span></label>`).join(''):'<div class="empty">No planner tasks yet.</div>';document.querySelectorAll('[data-task]').forEach(x=>x.onchange=()=>{state.tasks[x.dataset.task].done=x.checked;save();renderPlanner()})}function renderBills(){$('bills').innerHTML=state.bills.length?state.bills.map((x,i)=>`<div class="item"><div class="grow"><b>${safe(x.name)}</b><div class="muted">${x.due?'Due '+x.due:'No due date'} • ${money(x.amount)}</div></div><button class="small" data-paid="${i}">${x.paid?'Paid':'Mark paid'}</button><button class="small" data-delete="${i}">×</button></div>`).join(''):'<div class="empty">No bills added yet.</div>';document.querySelectorAll('[data-paid]').forEach(x=>x.onclick=()=>{state.bills[x.dataset.paid].paid=!state.bills[x.dataset.paid].paid;save();renderBills()});document.querySelectorAll('[data-delete]').forEach(x=>x.onclick=()=>{state.bills.splice(x.dataset.delete,1);save();renderBills()})}function renderStats(){let e=state.tx.filter(x=>x.kind==='expense'),sum=e.reduce((a,x)=>a+Number(x.amount),0);$('count').textContent=state.tx.length;$('average').textContent=money(e.length?sum/e.length:0);let c={};e.forEach(x=>c[x.category]=(c[x.category]||0)+Number(x.amount));$('categories').innerHTML=Object.entries(c).map(([k,v])=>`<div class="item"><b class="grow">${safe(k)}</b><span>${money(v)}</span></div>`).join('')||'<div class="empty">Add expenses to see your breakdown.</div>';renderChart()}function historyFor(b){return state.scores[b]||{}}function renderScores(){document.querySelectorAll('.score-input').forEach(x=>{let h=historyFor(x.dataset.bureau),keys=Object.keys(h).sort(),last=keys.at(-1),prev=keys.at(-2);x.value=last?h[last]:'';$('score-'+x.dataset.bureau).textContent=last?h[last]:'--';let d=last&&prev?h[last]-h[prev]:null,el=$('change-'+x.dataset.bureau);el.textContent=d===null?'':`${d>=0?'+':''}${d}`;el.className='change '+(d>0?'up':d<0?'down':'')})}function renderChart(){let b=$('chartBureau').value,h=historyFor(b),keys=Object.keys(h).sort().slice(-6),vals=keys.map(k=>h[k]);$('chartLabels').textContent=keys.map(monthText).join(' • ');if(!vals.length){$('growthChart').innerHTML='<text x="20" y="95" fill="currentColor">Save monthly scores to see the trend</text>';$('chartChange').textContent='';return}let min=Math.min(...vals,300),max=Math.max(...vals,850),range=Math.max(max-min,50),points=vals.map((v,i)=>`${i*(500/Math.max(vals.length-1,1))},${175-(v-min)/range*145}`).join(' ');$('growthChart').innerHTML=`<polyline class="chart-line" points="${points}"/>`+vals.map((v,i)=>`<circle class="dot" cx="${i*(500/Math.max(vals.length-1,1))}" cy="${175-(v-min)/range*145}" r="4"/>`).join('');let d=vals.length>1?vals.at(-1)-vals.at(-2):null;$('chartChange').textContent=d===null?'Add another month to show change':`Latest change: ${d>=0?'+':''}${d} points`}function renderHistory(){let b=$('historyBureau').value,h=historyFor(b),keys=Object.keys(h).sort().reverse();$('historyList').innerHTML=keys.length?keys.map((k,i)=>{let previous=keys[i+1],d=previous?h[k]-h[previous]:null;return`<div class="item"><b class="grow">${monthText(k)}</b><b>${h[k]}</b><span class="${d>0?'up':d<0?'down':''}">${d===null?'—':`${d>=0?'+':''}${d}`}</span></div>`}).join(''):'<div class="empty">No saved months yet.</div>'}function render(){renderHome();renderPlanner();renderBills();renderStats();renderScores();$('month').textContent=new Date().toLocaleString('en-US',{month:'long'});$('scoreMonth').value||=monthKey(new Date())}document.querySelectorAll('.quick').forEach(b=>b.onclick=()=>{state.kind=b.dataset.kind;document.querySelectorAll('.quick').forEach(x=>x.classList.toggle('active',x===b))});$('add').onclick=()=>{let n=$('name').value.trim(),a=Number($('amount').value);if(!n||a<=0)return alert('Enter a title and amount.');state.tx.push({name:n,amount:a,kind:state.kind,category:state.kind==='income'?'Income':$('category').value,date:new Date().toISOString()});$('name').value='';$('amount').value='';save();render()};$('clear').onclick=()=>{if(confirm('Clear all transactions?')){state.tx=[];save();render()}};$('addTask').onclick=()=>{let t=$('task').value.trim();if(!t)return;$('task').value='';state.tasks.push({text:t,done:false});save();renderPlanner()};$('clearTasks').onclick=()=>{state.tasks=state.tasks.filter(x=>!x.done);save();renderPlanner()};$('addBill').onclick=()=>{let n=$('billName').value.trim(),a=Number($('billAmount').value);if(!n||a<=0)return alert('Enter a bill name and amount.');state.bills.push({name:n,amount:a,due:$('billDue').value,paid:false});$('billName').value='';$('billAmount').value='';$('billDue').value='';save();renderBills()};$('saveScores').onclick=()=>{let k=monthKey($('scoreMonth').value||monthKey(new Date()));document.querySelectorAll('.score-input').forEach(x=>{let v=Number(x.value);if(v>=300&&v<=850){state.scores[x.dataset.bureau]??={};state.scores[x.dataset.bureau][k]=v}});save();renderScores();renderChart();alert('Scores saved for '+monthText(k)+'.')};$('chartBureau').onchange=renderChart;$('openHistory').onclick=()=>{$('historyModal').classList.add('open');renderHistory()};$('closeHistory').onclick=()=>$('historyModal').classList.remove('open');$('historyBureau').onchange=renderHistory;document.querySelectorAll('.nav button').forEach(b=>b.onclick=()=>{document.querySelectorAll('.nav button').forEach(x=>x.classList.toggle('active',x===b));document.querySelectorAll('.view').forEach(v=>v.classList.toggle('active',v.id===b.dataset.view));scrollTo(0,0)});$('settingsButton').onclick=()=>$('settings').classList.add('open');$('closeSettings').onclick=()=>$('settings').classList.remove('open');$('settings').onclick=e=>{if(e.target.id==='settings')$('settings').classList.remove('open')};function applyTheme(){document.documentElement.dataset.theme=state.theme;$('themeSwitch').classList.toggle('on',state.theme==='dark')}$('themeSwitch').onclick=()=>{state.theme=state.theme==='dark'?'light':'dark';localStorage.setItem('budget-theme',state.theme);applyTheme()};applyTheme();render();</script></body></html>
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width,initial-scale=1">
+  <title>Vicky's Planner</title>
+  <style>
+    :root {
+      --bg:#f5f7fb;--card:#fff;--soft:#f1f3f7;--line:#e4e8ef;--text:#18212f;--muted:#697585;--purple:#8b5cf6;--green:#18ad76;--red:#ed6262;--shadow:0 10px 28px #18212f12;
+      --yeti-fur:#f5f7fb;--yeti-accent:#dfe8f9;--yeti-blush:#f4cdbd;--yeti-shadow:rgba(24,33,47,.12);
+    }
+    [data-theme=dark] {
+      --bg:#111827;--card:#1f2937;--soft:#293548;--line:#3a4658;--text:#f3f4f6;--muted:#aab4c3;--shadow:0 10px 28px #0005;
+      --yeti-fur:#dfe6f4;--yeti-accent:#b7c7e6;--yeti-blush:#f2c6b7;--yeti-shadow:rgba(0,0,0,.36);
+    }
+    *{box-sizing:border-box}body{margin:0;padding:20px 18px 110px;background:var(--bg);color:var(--text);font:15px Arial,sans-serif}button,input,select{font:inherit}button{cursor:pointer}.app{max-width:540px;margin:auto}.top,.row{display:flex;align-items:center;justify-content:space-between;gap:12px}.top{margin-bottom:18px}.eyebrow,label{font-size:11px;letter-spacing:.12em;text-transform:uppercase;color:var(--muted);font-weight:bold}.month{font-size:44px;font-weight:bold;letter-spacing:-.06em}.icon,.small{border:1px solid var(--line);background:var(--card);color:var(--text);border-radius:11px;padding:9px}.card,.item,.empty{background:var(--card);border:1px solid var(--line);border-radius:20px;box-shadow:var(--shadow)}.hero{padding:22px;background:linear-gradient(135deg,#8b5cf61f,#4e7cff0b)}.balance{font-size:44px;font-weight:bold;letter-spacing:-.07em;margin-top:6px}.pill{color:var(--green);background:#18ad7620;padding:8px 12px;border-radius:99px;font-size:12px;font-weight:bold}.grid{display:grid;grid-template-columns:1fr 1fr;gap:12px}.summary{margin-top:18px}.box{padding:14px;border-radius:16px;border:1px solid var(--line)}.in{background:#18ad7620}.out{background:#ed626220}.left{background:#8b5cf620}.save{background:#4e7cff18}.value{font-size:25px;font-weight:bold;margin-top:9px}.section{margin-top:20px}.head{margin:0 4px 11px}.title{font-size:18px;font-weight:bold}.link{border:0;background:none;color:var(--purple);font-weight:bold;padding:0}.form{padding:18px}.actions{display:flex;gap:9px}.quick{flex:1;border:1px solid var(--line);background:var(--soft);color:var(--text);padding:11px;border-radius:12px;font-weight:bold}.quick.active{color:var(--purple);background:#8b5cf61c;border-color:#8b5cf655}.fields{display:grid;grid-template-columns:1fr 1fr;gap:11px;margin-top:15px}.field{display:flex;flex-direction:column;gap:6px}.full{grid-column:1/-1}input,select{width:100%;padding:12px;border-radius:11px;border:1px solid var(--line);background:var(--soft);color:var(--text)}.primary{width:100%;border:0;background:var(--purple);color:#fff;padding:14px;border-radius:12px;font-weight:bold;margin-top:15px}.list{display:flex;flex-direction:column;gap:9px}.item{padding:14px 16px;display:flex;align-items:center;gap:12px}.grow{flex:1}.muted{font-size:12px;color:var(--muted);margin-top:4px}.avatar{width:40px;height:40px;border-radius:12px;display:grid;place-items:center;font-weight:bold}.income{background:#18ad7620;color:var(--green)}.expense{background:#ed626220;color:var(--red)}.amount{font-weight:bold}.income-text{color:var(--green)}.expense-text{color:var(--red)}.bar{height:9px;background:var(--soft);border:1px solid var(--line);border-radius:99px;overflow:hidden;margin-top:10px}.fill{height:100%;background:var(--purple)}.view{display:none}.view.active{display:block}.notice{padding:15px;background:#8b5cf61c;color:var(--purple);border-radius:15px;line-height:1.4}.empty{padding:24px;text-align:center;color:var(--muted);box-shadow:none}.nav{position:fixed;z-index:10;bottom:12px;left:50%;transform:translateX(-50%);width:min(540px,calc(100% - 24px));display:grid;grid-template-columns:repeat(5,1fr);gap:3px;padding:9px;background:var(--card);border:1px solid var(--line);border-radius:19px;box-shadow:var(--shadow)}.nav button{border:0;background:none;color:var(--muted);border-radius:11px;padding:8px 2px;font-size:10px;font-weight:bold}.nav button.active{background:#8b5cf61c;color:var(--purple)}.bureau-grid{display:grid;grid-template-columns:repeat(3,minmax(0,1fr));gap:8px}.bureau{padding:12px 6px;text-align:center;background:var(--soft);border:1px solid var(--line);border-radius:14px;min-width:0}.bureau label{display:block;overflow:hidden;text-overflow:ellipsis;white-space:nowrap}.score-input{font-size:14px;padding:10px 8px}.score{font-size:25px;font-weight:bold;margin:7px 0}.change{font-size:12px;font-weight:bold;min-height:16px}.up{color:var(--green)}.down{color:var(--red)}.chart{height:220px;background:var(--soft);border-radius:14px;padding:10px}.chart svg{width:100%;height:100%}.chart-line{fill:none;stroke:var(--purple);stroke-width:3}.dot{fill:var(--purple)}.modal{display:none;position:fixed;inset:0;background:#0008;z-index:20;align-items:center;padding:18px}.modal.open{display:flex}.sheet{width:100%;max-width:540px;max-height:85vh;overflow:auto;margin:auto;background:var(--card);border-radius:24px;padding:22px}.switch{width:48px;height:28px;border:0;border-radius:20px;background:var(--muted);padding:3px}.switch span{display:block;width:22px;height:22px;border-radius:50%;background:#fff;transition:.2s}.switch.on{background:var(--purple)}.switch.on span{transform:translateX(20px)}
+    .yeti-wrap{position:fixed;right:14px;bottom:84px;z-index:12;pointer-events:none}.yeti{position:relative;width:90px;height:112px;filter:drop-shadow(0 12px 12px var(--yeti-shadow));transition:transform .2s ease}.yeti.happy{transform:translateY(-2px) scale(1.02)}.yeti.sad{transform:translateY(2px)}.yeti .body{position:absolute;left:18px;bottom:8px;width:52px;height:54px;background:var(--yeti-fur);border-radius:48% 48% 52% 52%;border:2px solid rgba(0,0,0,.04)}.yeti .head{position:absolute;left:23px;top:0;width:42px;height:42px;background:var(--yeti-fur);border-radius:50%;border:2px solid rgba(0,0,0,.04)}.yeti .head::before,.yeti .head::after{content:"";position:absolute;top:16px;width:5px;height:5px;border-radius:50%;background:#1f2937}.yeti .head::before{left:11px}.yeti .head::after{right:11px}.yeti .mouth{position:absolute;left:50%;bottom:9px;transform:translateX(-50%);width:18px;height:10px;border-bottom:3px solid #1f2937;border-radius:0 0 12px 12px}.yeti.happy .mouth{width:16px;height:9px;border-bottom:3px solid #1f2937;border-radius:0 0 12px 12px}.yeti.sad .mouth{width:16px;height:9px;border-top:3px solid #1f2937;border-radius:12px 12px 0 0;bottom:13px;border-bottom:0}.yeti .arm{position:absolute;top:42px;width:12px;height:32px;background:var(--yeti-fur);border-radius:12px}.yeti .arm.left{left:8px;transform:rotate(26deg)}.yeti .arm.right{right:8px;transform:rotate(-26deg)}.yeti .ear{position:absolute;top:-4px;width:7px;height:9px;border-radius:50%;background:var(--yeti-accent)}.yeti .ear.left{left:8px}.yeti .ear.right{right:8px}.yeti .prop{position:absolute;right:-4px;bottom:26px;width:28px;height:28px;border-radius:50%;background:#fff;border:2px solid var(--line);display:grid;place-items:center;font-size:18px;box-shadow:0 8px 18px rgba(0,0,0,.08)}.yeti .glow{position:absolute;left:16px;bottom:52px;width:58px;height:14px;background:rgba(255,255,255,.25);filter:blur(8px);border-radius:50%}.yeti .blush{position:absolute;top:22px;width:7px;height:5px;border-radius:50%;background:var(--yeti-blush)}.yeti .blush.left{left:6px}.yeti .blush.right{right:6px}.yeti.sad .head::before,.yeti.sad .head::after{top:17px}.yeti.neutral .mouth{width:12px;height:5px;border-bottom:2px solid #1f2937;border-radius:0 0 15px 15px}.yeti.neutral .head::before,.yeti.neutral .head::after{top:15px}
+    @media(max-width:420px){.fields{grid-template-columns:1fr}.full{grid-column:auto}.bureau-grid{grid-template-columns:1fr;}.yeti-wrap{right:8px;bottom:86px;transform:scale(.9);transform-origin:right bottom}.}
+  </style>
+</head>
+<body>
+  <div class="app">
+    <header class="top">
+      <div><div class="eyebrow">Budget</div><div class="month" id="month"></div></div>
+      <button class="icon" id="settingsButton">⚙️</button>
+    </header>
+    <main>
+      <section id="home" class="view active">
+        <div class="card hero">
+          <div class="row"><div><div class="eyebrow">Available</div><div class="balance" id="balance">$0.00</div></div><div class="pill">This month</div></div>
+          <div class="grid summary">
+            <div class="box in"><div class="eyebrow">Income</div><div class="value" id="income">$0.00</div></div>
+            <div class="box out"><div class="eyebrow">Spent</div><div class="value" id="spent">$0.00</div></div>
+            <div class="box left"><div class="eyebrow">Left</div><div class="value" id="left">$0.00</div></div>
+            <div class="box save"><div class="eyebrow">Saved</div><div class="value" id="saved">$0.00</div></div>
+          </div>
+        </div>
+        <div class="section">
+          <div class="head title">Quick add</div>
+          <div class="card form">
+            <div class="actions"><button class="quick active" data-kind="expense">Expense</button><button class="quick" data-kind="income">Income</button></div>
+            <div class="fields">
+              <div class="field full"><label>Title</label><input id="name" placeholder="Groceries, salary, rent..."></div>
+              <div class="field"><label>Amount</label><input id="amount" type="number" min="0" step=".01"></div>
+              <div class="field"><label>Category</label><select id="category"><option>Housing</option><option>Food</option><option>Transport</option><option>Bills</option><option>Entertainment</option><option>Health</option><option>Savings</option><option>Other</option></select></div>
+            </div>
+            <button class="primary" id="add">Add transaction</button>
+          </div>
+        </div>
+        <div class="section">
+          <div class="head row"><div class="title">Recent activity</div><button class="link" id="clear">Clear all</button></div>
+          <div class="list" id="transactions"></div>
+        </div>
+        <div class="section">
+          <div class="head title">Budget overview</div>
+          <div class="list" id="budgets"></div>
+        </div>
+      </section>
+
+      <section id="planner" class="view">
+        <div class="head title">Monthly planner</div>
+        <div class="notice">Keep track of the money tasks that help you stay on course.</div>
+        <div class="section card form">
+          <div class="field"><label>New task</label><input id="task" placeholder="Review subscriptions..."></div>
+          <button class="primary" id="addTask">Add planner task</button>
+        </div>
+        <div class="section">
+          <div class="head row"><div class="title">This month</div><button class="link" id="clearTasks">Clear done</button></div>
+          <div class="list" id="tasks"></div>
+        </div>
+      </section>
+
+      <section id="stats" class="view">
+        <div class="head title">Your stats</div>
+        <div class="grid">
+          <div class="card form"><div class="eyebrow">Transactions</div><div class="value" id="count">0</div></div>
+          <div class="card form"><div class="eyebrow">Average expense</div><div class="value" id="average">$0</div></div>
+        </div>
+        <div class="section card form">
+          <div class="head row"><div class="title">Credit history</div><button class="link" id="openHistory">View history</button></div>
+          <div class="muted">Choose a bureau to see its saved monthly chart.</div>
+          <select id="chartBureau" style="margin-top:12px"><option>TransUnion</option><option>Experian</option><option>Equifax</option></select>
+          <div class="section"><div class="chart"><svg id="growthChart" viewBox="0 0 500 190" preserveAspectRatio="none"></svg></div></div>
+          <div class="muted" id="chartLabels"></div>
+          <div class="muted" id="chartChange"></div>
+        </div>
+        <div class="section card form">
+          <div class="title">Spending by category</div>
+          <div class="list" id="categories" style="margin-top:14px"></div>
+        </div>
+      </section>
+
+      <section id="bills" class="view">
+        <div class="head title">Bills</div>
+        <div class="card form">
+          <div class="fields">
+            <div class="field"><label>Bill name</label><input id="billName" placeholder="Electricity"></div>
+            <div class="field"><label>Amount</label><input id="billAmount" type="number" min="0" step=".01"></div>
+            <div class="field full"><label>Due date</label><input id="billDue" type="date"></div>
+          </div>
+          <button class="primary" id="addBill">Add bill</button>
+        </div>
+        <div class="section list" id="bills"></div>
+      </section>
+
+      <section id="goals" class="view">
+        <div class="head title">Credit scores</div>
+        <div class="card form">
+          <div class="muted">Save the score for a month. The card shows the change from the previous saved month.</div>
+          <div class="field" style="margin-top:14px"><label>Month being recorded</label><input id="scoreMonth" type="month"></div>
+          <div class="bureau-grid" style="margin-top:14px">
+            <div class="bureau"><label>TransUnion</label><input class="score-input" data-bureau="TransUnion" type="number" min="300" max="850"><div class="score" id="score-TransUnion">--</div><div class="change" id="change-TransUnion"></div></div>
+            <div class="bureau"><label>Experian</label><input class="score-input" data-bureau="Experian" type="number" min="300" max="850"><div class="score" id="score-Experian">--</div><div class="change" id="change-Experian"></div></div>
+            <div class="bureau"><label>Equifax</label><input class="score-input" data-bureau="Equifax" type="number" min="300" max="850"><div class="score" id="score-Equifax">--</div><div class="change" id="change-Equifax"></div></div>
+          </div>
+          <button class="primary" id="saveScores">Save scores for this month</button>
+        </div>
+        <div class="section notice">Scores are stored only in this browser. The app does not connect to the credit bureaus.</div>
+      </section>
+    </main>
+  </div>
+
+  <div class="yeti-wrap" aria-hidden="true">
+    <div class="yeti neutral" id="yeti">
+      <div class="glow"></div>
+      <div class="head">
+        <span class="ear left"></span>
+        <span class="ear right"></span>
+        <span class="blush left"></span>
+        <span class="blush right"></span>
+        <span class="mouth"></span>
+      </div>
+      <div class="body"></div>
+      <div class="arm left"></div>
+      <div class="arm right"></div>
+      <div class="prop" id="yetiProp">💳</div>
+    </div>
+  </div>
+
+  <nav class="nav">
+    <button class="active" data-view="home">🏠<br>Home</button>
+    <button data-view="planner">🗓️<br>Planner</button>
+    <button data-view="stats">📊<br>Stats</button>
+    <button data-view="bills">🧾<br>Bills</button>
+    <button data-view="goals">⚑<br>Credit</button>
+  </nav>
+
+  <div class="modal" id="settings">
+    <div class="sheet">
+      <div class="head row"><div class="title">Settings</div><button class="link" id="closeSettings">Close</button></div>
+      <div class="row" style="padding:16px 0;border-bottom:1px solid var(--line)"><div><b>Dark theme</b><div class="muted">Use a darker color palette</div></div><button class="switch" id="themeSwitch"><span></span></button></div>
+    </div>
+  </div>
+
+  <div class="modal" id="historyModal">
+    <div class="sheet">
+      <div class="head row"><div class="title">Saved credit history</div><button class="link" id="closeHistory">Close</button></div>
+      <select id="historyBureau" style="margin:8px 0 14px"><option>TransUnion</option><option>Experian</option><option>Equifax</option></select>
+      <div class="list" id="historyList"></div>
+    </div>
+  </div>
+
+  <script>
+    const $=id=>document.getElementById(id),read=(k,d)=>{try{return JSON.parse(localStorage.getItem(k))??d}catch{return d}},money=n=>new Intl.NumberFormat('en-US',{style:'currency',currency:'USD'}).format(Number(n)||0),safe=s=>String(s).replace(/[&<>"']/g,c=>({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#039;'}[c])),monthKey=d=>{let x=new Date(d+'-01');return `${x.getFullYear()}-${String(x.getMonth()+1).padStart(2,'0')}`},monthText=k=>new Date(k+'-01').toLocaleString('en-US',{month:'long',year:'numeric'}),state={kind:'expense',tx:read('budget-transactions',[]),tasks:read('budget-tasks',[]),bills:read('budget-bills',[]),scores:read('budget-score-history',{}),theme:localStorage.getItem('budget-theme')||'light'};
+    function save(){localStorage.setItem('budget-transactions',JSON.stringify(state.tx));localStorage.setItem('budget-tasks',JSON.stringify(state.tasks));localStorage.setItem('budget-bills',JSON.stringify(state.bills));localStorage.setItem('budget-score-history',JSON.stringify(state.scores));}
+    function historyFor(b){return state.scores[b]||{}};
+    function getCreditMood(){
+      let deltas=[];
+      Object.keys(state.scores).forEach(b=>{
+        let h=historyFor(b),keys=Object.keys(h).sort(),last=keys.at(-1),prev=keys.at(-2);
+        if(last && prev) deltas.push(h[last]-h[prev]);
+      });
+      if(deltas.some(d=>d<0)) return 'sad';
+      if(deltas.some(d=>d>0)) return 'happy';
+      return 'neutral';
+    }
+    function updateYeti(){
+      let currentView=document.querySelector('.view.active')?.id || 'home';
+      const props={home:'🍦',planner:'✅',stats:'📊',bills:'🧾',goals:'💳'};
+      const mood=getCreditMood();
+      const yeti=$('#yeti');
+      yeti.classList.remove('happy','sad','neutral');
+      yeti.classList.add(mood);
+      $('#yetiProp').textContent=props[currentView] || '💳';
+    }
+    function renderHome(){
+      let income=state.tx.filter(x=>x.kind==='income').reduce((a,x)=>a+Number(x.amount),0),expense=state.tx.filter(x=>x.kind==='expense').reduce((a,x)=>a+Number(x.amount),0);
+      ['balance','left'].forEach(id=>$(id).textContent=money(income-expense));
+      $('income').textContent=money(income);$('spent').textContent=money(expense);$('saved').textContent=money(Math.max(income-expense,0));
+      $('transactions').innerHTML=state.tx.length?
+        [...state.tx].reverse().slice(0,8).map(x=>`<div class="item"><div class="avatar ${x.kind}">${x.kind==='income'?'↑':'↓'}</div><div class="grow"><b>${safe(x.name)}</b><div class="muted">${safe(x.category)} • ${new Date(x.date).toLocaleDateString()}</div></div><b class="${x.kind}-text">${x.kind==='income'?'+':'-'}${money(x.amount)}</b></div>`).join(''):
+        '<div class="empty">No transactions yet.</div>';
+      let targets={Housing:1200,Food:520,Transport:220,Bills:350,Entertainment:260,Health:180,Savings:450,Other:200};
+      $('budgets').innerHTML=Object.entries(targets).map(([c,t])=>{let v=state.tx.filter(x=>x.kind==='expense'&&x.category===c).reduce((a,x)=>a+Number(x.amount),0),pct=Math.min(100,v/t*100);return `<div class="item" style="display:block"><div class="row"><b>${c}</b><span class="muted">${money(v)} / ${money(t)}</span></div><div class="bar"><div class="fill" style="width:${pct}%"></div></div></div>`}).join('');
+    }
+    function renderPlanner(){
+      $('tasks').innerHTML=state.tasks.length?state.tasks.map((x,i)=>`<label class="item"><input type="checkbox" data-task="${i}" ${x.done?'checked':''}><span class="grow ${x.done?'muted':''}">${safe(x.text)}</span></label>`).join(''):'<div class="empty">No planner tasks yet.</div>';
+      document.querySelectorAll('[data-task]').forEach(x=>x.onchange=()=>{state.tasks[x.dataset.task].done=x.checked;save();renderPlanner();});
+    }
+    function renderBills(){
+      $('bills').innerHTML=state.bills.length?state.bills.map((x,i)=>`<div class="item"><div class="grow"><b>${safe(x.name)}</b><div class="muted">${x.due?'Due '+x.due:'No due date'} • ${money(x.amount)}</div></div><button class="small" data-paid="${i}">${x.paid?'Paid':'Mark paid'}</button><button class="small" data-delete="${i}">×</button></div>`).join(''):'<div class="empty">No bills added yet.</div>';
+      document.querySelectorAll('[data-paid]').forEach(x=>x.onclick=()=>{state.bills[x.dataset.paid].paid=!state.bills[x.dataset.paid].paid;save();renderBills();});
+      document.querySelectorAll('[data-delete]').forEach(x=>x.onclick=()=>{state.bills.splice(x.dataset.delete,1);save();renderBills();});
+    }
+    function renderStats(){
+      let e=state.tx.filter(x=>x.kind==='expense'),sum=e.reduce((a,x)=>a+Number(x.amount),0);$('count').textContent=state.tx.length;$('average').textContent=money(e.length?sum/e.length:0);
+      let c={};e.forEach(x=>c[x.category]=(c[x.category]||0)+Number(x.amount));
+      $('categories').innerHTML=Object.entries(c).map(([k,v])=>`<div class="item"><b class="grow">${safe(k)}</b><span>${money(v)}</span></div>`).join('')||'<div class="empty">Add expenses to see your breakdown.</div>';
+      renderChart();
+    }
+    function renderScores(){
+      document.querySelectorAll('.score-input').forEach(x=>{let h=historyFor(x.dataset.bureau),keys=Object.keys(h).sort(),last=keys.at(-1),prev=keys.at(-2);x.value=last?h[last]:'';$('#score-'+x.dataset.bureau).textContent=last?h[last]:'--';let diff=last&&prev?h[last]-h[prev]:null,el=$('#change-'+x.dataset.bureau);el.textContent=diff===null?'':`${diff>=0?'+':''}${diff}`;el.className='change '+(diff>0?'up':diff<0?'down':'');});
+    }
+    function renderChart(){
+      let bureau=$('chartBureau').value,h=historyFor(bureau),keys=Object.keys(h).sort().slice(-6),vals=keys.map(k=>h[k]);
+      $('chartLabels').textContent=keys.map(monthText).join(' • ');
+      if(!vals.length){$('growthChart').innerHTML='<text x="20" y="95" fill="currentColor">Save monthly scores to see the trend</text>';$('chartChange').textContent='';return;}
+      let min=Math.min(...vals,300),max=Math.max(...vals,850),range=Math.max(max-min,50),points=vals.map((v,i)=>`${i*(500/Math.max(vals.length-1,1))},${175-((v-min)/range)*145}`).join(' ');
+      $('growthChart').innerHTML=`<polyline class="chart-line" points="${points}"/>`+vals.map((v,i)=>`<circle class="dot" cx="${i*(500/Math.max(vals.length-1,1))}" cy="${175-((v-min)/range)*145}" r="4"/>`).join('');
+      let diff=vals.length>1?vals.at(-1)-vals.at(-2):null;$('chartChange').textContent=diff===null?'Add another month to show change':`Latest change: ${diff>=0?'+':''}${diff} points`;
+    }
+    function renderHistory(){
+      let bureau=$('historyBureau').value,h=historyFor(bureau),keys=Object.keys(h).sort().reverse();
+      $('historyList').innerHTML=keys.length?keys.map((k,i)=>{let prev=keys[i+1],diff=prev?h[k]-h[prev]:null;return `<div class="item"><b class="grow">${monthText(k)}</b><b>${h[k]}</b><span class="${diff>0?'up':diff<0?'down':''}">${diff===null?'—':`${diff>=0?'+':''}${diff}`}</span></div>`}).join(''):'<div class="empty">No saved months yet.</div>';
+    }
+    function render(){
+      renderHome();renderPlanner();renderBills();renderStats();renderScores();
+      $('month').textContent=new Date().toLocaleString('en-US',{month:'long'});
+      if(!$('scoreMonth').value)$('scoreMonth').value=monthKey(new Date());
+      updateYeti();
+    }
+    document.querySelectorAll('.quick').forEach(b=>b.onclick=()=>{state.kind=b.dataset.kind;document.querySelectorAll('.quick').forEach(x=>x.classList.toggle('active',x===b));});
+    $('add').onclick=()=>{let n=$('name').value.trim(),a=Number($('amount').value);if(!n||a<=0)return alert('Enter a title and amount.');state.tx.push({name:n,amount:a,kind:state.kind,category:state.kind==='income'?'Income':$('category').value,date:new Date().toISOString()});$('name').value='';$('amount').value='';save();render();};
+    $('clear').onclick=()=>{if(confirm('Clear all transactions?')){state.tx=[];save();render();}};
+    $('addTask').onclick=()=>{let t=$('task').value.trim();if(!t)return;$('task').value='';state.tasks.push({text:t,done:false});save();renderPlanner();};
+    $('clearTasks').onclick=()=>{state.tasks=state.tasks.filter(x=>!x.done);save();renderPlanner();};
+    $('addBill').onclick=()=>{let n=$('billName').value.trim(),a=Number($('billAmount').value);if(!n||a<=0)return alert('Enter a bill name and amount.');state.bills.push({name:n,amount:a,due:$('billDue').value,paid:false});$('billName').value='';$('billAmount').value='';$('billDue').value='';save();renderBills();};
+    $('saveScores').onclick=()=>{let k=monthKey($('scoreMonth').value||monthKey(new Date()));document.querySelectorAll('.score-input').forEach(x=>{let v=Number(x.value);if(v>=300&&v<=850){state.scores[x.dataset.bureau]??={};state.scores[x.dataset.bureau][k]=v;}});save();renderScores();renderChart();renderHistory();updateYeti();alert('Scores saved for '+monthText(k)+'.');};
+    $('chartBureau').onchange=renderChart;$('historyBureau').onchange=renderHistory;$('openHistory').onclick=()=>{$('historyModal').classList.add('open');renderHistory();};$('closeHistory').onclick=()=>$('historyModal').classList.remove('open');
+    document.querySelectorAll('.nav button').forEach(b=>b.onclick=()=>{document.querySelectorAll('.nav button').forEach(x=>x.classList.toggle('active',x===b));document.querySelectorAll('.view').forEach(v=>v.classList.toggle('active',v.id===b.dataset.view));scrollTo(0,0);updateYeti();});
+    $('settingsButton').onclick=()=>$('settings').classList.add('open');$('closeSettings').onclick=()=>$('settings').classList.remove('open');$('settings').onclick=e=>{if(e.target.id==='settings')$('settings').classList.remove('open');};
+    function applyTheme(){document.documentElement.dataset.theme=state.theme;$('#themeSwitch').classList.toggle('on',state.theme==='dark');}
+    $('#themeSwitch').onclick=()=>{state.theme=state.theme==='dark'?'light':'dark';localStorage.setItem('budget-theme',state.theme);applyTheme();};
+    applyTheme();render();
+  </script>
+</body>
+</html>
