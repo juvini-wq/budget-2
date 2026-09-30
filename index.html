@@ -14,14 +14,14 @@
 
 :root {
     color-scheme: light;
-    --bg-main: #f8f9fc;
+    --bg-main: #eef6f9;
     --bg-card: #ffffff;
     --bg-card-border: rgba(0,0,0,0.08);
     --text-primary: #111827;
     --text-muted: #6b7280;
-    --accent-purple: #a78bfa;
-    --accent-purple-light: rgba(167,139,250,0.10);
-    --card-shadow: 0 1px 2px rgba(17,24,39,0.04), 0 10px 18px -8px rgba(17,24,39,0.16), 0 3px 10px rgba(244,114,182,0.20);
+    --accent-purple: #5cc2ec;
+    --accent-purple-light: rgba(92,194,236,0.15);
+    --card-shadow: none;
     --accent-green: #059669;
     --accent-green-bg: rgba(5,150,105,0.1);
     --accent-red: #dc2626;
@@ -29,6 +29,7 @@
     --input-bg: #f3f4f6;
     --input-border: #e5e7eb;
     --nav-bg: #ffffff;
+    --btn-shadow: none;
 }
 
 [data-theme="dark"] {
@@ -38,9 +39,9 @@
     --bg-card-border: rgba(255,255,255,0.08);
     --text-primary: #f0f3f8;
     --text-muted: #8e9bb0;
-    --accent-purple: #b3a1f0;
-    --accent-purple-light: rgba(179,161,240,0.16);
-    --card-shadow: 0 1px 2px rgba(0,0,0,0.3), 0 10px 18px -8px rgba(0,0,0,0.45), 0 3px 10px rgba(244,114,182,0.18);
+    --accent-purple: #a3ddf5;
+    --accent-purple-light: rgba(163,221,245,0.22);
+    --card-shadow: none;
     --accent-green: #71b898;
     --accent-green-bg: rgba(113,184,152,0.15);
     --accent-red: #d97d75;
@@ -48,6 +49,7 @@
     --input-bg: #151a26;
     --input-border: rgba(255,255,255,0.15);
     --nav-bg: #131722;
+    --btn-shadow: none;
 }
 
 * {
@@ -118,12 +120,6 @@ body {
 
     overflow: visible;
 
-    /* IMPORTANT:
-       This is NOT a box.
-       It is simply an invisible
-       area where stickers can live.
-    */
-
     border: none;
     background: transparent;
 }
@@ -135,8 +131,6 @@ body {
 .sticker-zone.right {
     right: 0;
 }
-
-/* Little hint before stickers are added */
 
 .sticker-zone:empty::after {
     content: "+";
@@ -188,14 +182,10 @@ body {
     z-index: 10;
 }
 
-/* selected sticker */
-
 .sticker.selected {
     outline: 1px dashed var(--accent-purple);
     outline-offset: 3px;
 }
-
-/* resize handle */
 
 .resize-handle {
     position: absolute;
@@ -309,8 +299,6 @@ body {
     transform: scale(0.96);
 }
 
-/* hidden paste area */
-
 #pasteArea {
     position: fixed;
 
@@ -347,6 +335,10 @@ body {
     cursor: pointer;
 
     text-align: center;
+
+    box-shadow: var(--btn-shadow);
+
+    transition: transform 0.1s ease, box-shadow 0.1s ease;
 }
 
 .action-btn-primary:active {
@@ -579,6 +571,12 @@ body {
     outline: none;
 }
 
+.form-error {
+    font-size: 12px;
+    color: var(--accent-red);
+    display: none;
+}
+
 /* =========================
    STATS
 ========================= */
@@ -612,11 +610,11 @@ body {
 }
 
 .stat-box.purple {
-    background: rgba(124,58,237,0.08);
+    background: var(--input-bg);
 }
 
 .stat-box.blue {
-    background: rgba(37,99,235,0.08);
+    background: var(--input-bg);
 }
 
 .stat-label {
@@ -802,7 +800,7 @@ body {
 
     border: none;
 
-    box-shadow: var(--card-shadow);
+    box-shadow: var(--btn-shadow);
 
     font-size: 24px;
 
@@ -867,6 +865,20 @@ body {
     gap: 10px;
 
     margin-top: 16px;
+}
+
+.menu-section-label {
+    font-size: 11px;
+    font-weight: 700;
+    letter-spacing: 1px;
+    text-transform: uppercase;
+    color: var(--text-muted);
+    margin-top: 14px;
+    margin-bottom: 2px;
+}
+
+.menu-section-label:first-child {
+    margin-top: 0;
 }
 
 .menu-card {
@@ -1176,8 +1188,13 @@ body {
 
     <div class="brand-pill">
 
-        <div class="brand-avatar">
-            V
+        <div class="brand-avatar" style="background:#eef7fb; padding:2px;">
+            <svg viewBox="0 0 32 32" width="24" height="24">
+                <circle cx="16" cy="16" r="15" fill="#ffffff" stroke="var(--accent-purple)" stroke-width="1.5"/>
+                <circle cx="11" cy="14" r="1.6" fill="#2d3748"/>
+                <circle cx="21" cy="14" r="1.6" fill="#2d3748"/>
+                <path d="M11 20 Q16 24 21 20" stroke="#2d3748" stroke-width="1.5" fill="none" stroke-linecap="round"/>
+            </svg>
         </div>
 
         <div class="brand-text">
@@ -1187,31 +1204,15 @@ body {
     </div>
 
 
-    <!-- MONTH + STICKERS -->
+    <!-- MONTH -->
 
     <div class="month-row">
-
-        <div
-            class="sticker-zone left"
-            id="sticker-left"
-            contenteditable="true"
-            spellcheck="false">
-        </div>
-
 
         <h1
             class="month-title"
             id="month-title">
             August
         </h1>
-
-
-        <div
-            class="sticker-zone right"
-            id="sticker-right"
-            contenteditable="true"
-            spellcheck="false">
-        </div>
 
     </div>
 
@@ -1237,22 +1238,6 @@ body {
         </div>
 
 
-        <button
-            class="sticker-paste-button"
-            onclick="activateStickerPaste()">
-
-            ＋ Sticker
-
-        </button>
-
-    </div>
-
-
-    <!-- INVISIBLE PASTE AREA -->
-
-    <div
-        id="pasteArea"
-        contenteditable="true">
     </div>
 
 </div>
@@ -1270,6 +1255,21 @@ body {
 <div
     id="view-today"
     class="view-section active-view">
+
+
+    <div class="card" id="next-bill-card-wrap" style="display:none;">
+
+        <div class="card-tag" style="margin-bottom:0;">
+            NEXT BILL DUE
+        </div>
+
+        <div id="next-bill-content" style="margin-top:10px;">
+
+            <!-- soonest unpaid bill renders here -->
+
+        </div>
+
+    </div>
 
 
     <div class="card">
@@ -1666,7 +1666,7 @@ body {
     </div>
 
 
-    <div class="card rainbow-card">
+    <div class="card" style="background:linear-gradient(135deg, #ffd9e8 0%, #d9f2ff 35%, #e2ffe6 68%, #fff6cc 100%); border-color:rgba(255,255,255,0.6);">
 
         <div class="card-tag">
             SAFE TO SPEND TODAY
@@ -1776,6 +1776,10 @@ body {
         </div>
 
 
+        <button class="breakdown-toggle" id="run-details-toggle" onclick="toggleRunDetails()">Show details</button>
+
+        <div id="run-details-panel" style="display:none; margin-top:10px;">
+
         <div class="payday-track" id="payday-track">
 
             <!-- day-by-day segments render here -->
@@ -1804,16 +1808,611 @@ body {
             <span id="run-logged-so-far">nothing yet</span>
         </div>
 
+        </div>
+
+    </div>
+
+</div>
+<!-- BILLS -->
+
+<div
+    id="view-bills"
+    class="view-section">
+
+    <div class="card">
+
+        <div class="card-tag">
+            STILL TO GO OUT
+        </div>
+
+        <div
+            class="card-title serif"
+            id="bills-still-to-go-amount"
+            style="font-size:36px;color:var(--accent-purple);">
+
+            $0.00
+
+        </div>
+
+        <div class="card-desc" id="bills-still-to-go-subtitle">
+            all clear for now
+        </div>
+
+    </div>
+
+
+    <div class="card">
+
+        <div class="card-tag">
+            MUST-PAYS
+        </div>
+
+        <div class="card-desc">
+            Soonest first. Tick one off when it's paid.
+        </div>
+
+        <div
+            class="upcoming-list"
+            id="bills-upcoming-list">
+
+            <!-- upcoming bill occurrences render here -->
+
+        </div>
+
+    </div>
+
+
+    <div class="card">
+
+        <div
+            class="card-title serif"
+            style="font-size:24px;">
+
+            Add a bill
+
+        </div>
+
+        <div class="card-desc">
+            Pick how it comes round — the planner works out the dates.
+        </div>
+
+
+        <div class="form-group">
+
+            <label class="form-label">
+                Bill name
+            </label>
+
+            <input
+                type="text"
+                class="form-input"
+                id="bill-name"
+                placeholder="Internet, Rent, Car insurance...">
+
+        </div>
+
+
+        <div class="form-group">
+
+            <label class="form-label">
+                Amount when it lands
+            </label>
+
+            <input
+                type="number"
+                step="0.01"
+                class="form-input"
+                id="bill-amount"
+                placeholder="0.00">
+
+        </div>
+
+
+        <div class="form-group">
+
+            <label class="form-label">
+                How often
+            </label>
+
+            <select
+                class="form-input"
+                id="bill-recurrence-type"
+                onchange="onBillRecurrenceTypeChanged()">
+
+                <option value="monthly">Once a month</option>
+                <option value="biweekly">Every 2 weeks</option>
+
+            </select>
+
+        </div>
+
+
+        <div id="field-group-monthly" class="form-group">
+
+            <label class="form-label">
+                Day of the month (31 = last day)
+            </label>
+
+            <input
+                type="number"
+                min="1"
+                max="31"
+                class="form-input"
+                id="bill-day-monthly"
+                placeholder="e.g. 1">
+
+            <div class="form-error" id="bill-day-monthly-error">Add a day between 1 and 31 so this bill can show up on your calendar.</div>
+
+        </div>
+
+
+        <div id="field-group-biweekly" class="form-group" style="display:none;">
+
+            <label class="form-label">
+                First (or a recent) date it's due
+            </label>
+
+            <input
+                type="date"
+                class="form-input"
+                id="bill-anchor-biweekly">
+
+            <div class="form-error" id="bill-anchor-biweekly-error">Pick a date so this bill knows when to repeat.</div>
+
+        </div>
+
+
+        <div class="form-group" style="flex-direction:row; align-items:center; gap:8px;">
+
+            <input
+                type="checkbox"
+                id="bill-set-aside"
+                style="width:18px; height:18px;">
+
+            <label class="form-label" for="bill-set-aside" style="margin:0;">
+                Put a bit aside each month for this one
+            </label>
+
+        </div>
+
+
+        <button
+            class="action-btn-primary"
+            onclick="addBill()">
+
+            Add bill
+
+        </button>
+
+    </div>
+
+
+    <div class="card">
+
+        <div class="card-tag">
+            YOUR BILLS
+        </div>
+
+        <div
+            class="upcoming-list"
+            id="bills-list">
+
+            <!-- all bills render here -->
+
+        </div>
+
     </div>
 
 </div>
 
 
-<!-- PLANNER -->
+<!-- GOALS (also holds Envelopes + Milestones as tabs, kept simple in one place) -->
 
 <div
-    id="view-planner"
+    id="view-goals"
     class="view-section">
+
+    <div class="toggle-group">
+
+        <button class="toggle-btn active" id="btn-goalstab-goals" onclick="switchGoalsTab('goals')">Goals</button>
+        <button class="toggle-btn" id="btn-goalstab-envelopes" onclick="switchGoalsTab('envelopes')">Envelopes</button>
+        <button class="toggle-btn" id="btn-goalstab-milestones" onclick="switchGoalsTab('milestones')">Wins</button>
+
+    </div>
+
+
+    <div id="goalstab-goals">
+
+        <div class="card">
+
+            <div class="card-tag">
+                YOUR GOALS
+            </div>
+
+            <div
+                class="upcoming-list"
+                id="goals-list">
+
+                <!-- goals render here -->
+
+            </div>
+
+        </div>
+
+
+        <div class="card">
+
+            <div
+                class="card-title serif"
+                style="font-size:26px;">
+
+                Add a goal
+
+            </div>
+
+            <div class="card-desc">
+                name, amount, pace
+            </div>
+
+
+            <div class="form-group">
+
+                <label class="form-label">
+                    What it is for
+                </label>
+
+                <input
+                    type="text"
+                    class="form-input"
+                    id="goal-name"
+                    placeholder="Japan, next spring">
+
+            </div>
+
+
+            <div class="form-group">
+
+                <label class="form-label">
+                    How much you need
+                </label>
+
+                <input
+                    type="number"
+                    step="0.01"
+                    class="form-input"
+                    id="goal-target"
+                    placeholder="0.00">
+
+            </div>
+
+
+            <button class="action-btn-primary" onclick="addGoal()">
+                Add goal
+            </button>
+
+        </div>
+
+
+        <div class="card">
+
+            <div class="card-tag">
+                CREDIT SCORES & BUREAUS
+            </div>
+
+            <div
+                class="card-title serif"
+                style="font-size:24px;">
+
+                Monthly Bureau Updates
+
+            </div>
+
+            <div class="card-desc">
+                Track scores & trend growth for Experian,
+                TransUnion, and Equifax.
+            </div>
+
+
+            <div class="bureau-grid">
+
+
+                <div class="bureau-card">
+
+                    <span class="bureau-name">
+                        Experian
+                    </span>
+
+                    <span
+                        class="bureau-score serif"
+                        id="score-exp">
+
+                        —
+
+                    </span>
+
+                    <span
+                        class="score-change"
+                        id="change-exp"
+                        style="display:none;">
+
+                    </span>
+
+                </div>
+
+
+                <div class="bureau-card">
+
+                    <span class="bureau-name">
+                        TransUnion
+                    </span>
+
+                    <span
+                        class="bureau-score serif"
+                        id="score-tu">
+
+                        —
+
+                    </span>
+
+                    <span
+                        class="score-change"
+                        id="change-tu"
+                        style="display:none;">
+
+                    </span>
+
+                </div>
+
+
+                <div class="bureau-card">
+
+                    <span class="bureau-name">
+                        Equifax
+                    </span>
+
+                    <span
+                        class="bureau-score serif"
+                        id="score-eq">
+
+                        —
+
+                    </span>
+
+                    <span
+                        class="score-change"
+                        id="change-eq"
+                        style="display:none;">
+
+                    </span>
+
+                </div>
+
+            </div>
+
+
+            <div class="form-group">
+
+                <label class="form-label">
+                    Update Score
+                </label>
+
+                <select
+                    class="form-input"
+                    id="bureau-select">
+
+                    <option value="exp">
+                        Experian
+                    </option>
+
+                    <option value="tu">
+                        TransUnion
+                    </option>
+
+                    <option value="eq">
+                        Equifax
+                    </option>
+
+                </select>
+
+            </div>
+
+
+            <div class="credit-input-row">
+
+                <input
+                    type="number"
+                    class="form-input"
+                    id="new-score-input"
+                    placeholder="New Score (e.g. 750)">
+
+                <button
+                    class="action-btn-primary"
+                    style="width:auto;padding:0 18px;"
+                    onclick="updateCreditScore()">
+
+                    Update
+
+                </button>
+
+            </div>
+
+            <div class="card-desc" style="margin-top:8px; margin-bottom:0;">
+                One entry per month — updating again this month replaces this month's number rather than adding a new point.
+            </div>
+
+
+            <div class="chart-container" style="height:auto; padding-bottom:14px;">
+
+                <div
+                    class="card-tag"
+                    style="margin-bottom:4px;font-size:9px;">
+
+                    SCORE GROWTH TREND
+
+                </div>
+
+                <svg
+                    id="credit-trend-svg"
+                    viewBox="0 0 300 60"
+                    style="width:100%;height:60px;">
+
+                    <!-- trend lines render here -->
+
+                </svg>
+
+                <div class="debt-legend" id="credit-trend-legend" style="margin-top:6px;">
+
+                    <span><span class="debt-legend-dot" style="background:#a78bfa;"></span>Experian</span>
+                    <span><span class="debt-legend-dot" style="background:#5fb88a;"></span>TransUnion</span>
+                    <span><span class="debt-legend-dot" style="background:#5b9bd5;"></span>Equifax</span>
+
+                </div>
+
+                <div class="card-desc" id="credit-trend-empty" style="margin-top:8px; margin-bottom:0;">
+                    Add at least two monthly updates to see a trend.
+                </div>
+
+            </div>
+
+        </div>
+
+    </div>
+
+
+    <div id="goalstab-envelopes" style="display:none;">
+
+        <div class="card">
+
+            <div class="card-tag">
+                YOUR ENVELOPES
+            </div>
+
+            <div class="card-desc">
+                Soft limits by category. Go over? You'll just see it — no red alarms.
+            </div>
+
+            <div
+                class="upcoming-list"
+                id="envelopes-list">
+
+                <!-- envelopes render here -->
+
+            </div>
+
+        </div>
+
+
+        <div class="card">
+
+            <div
+                class="card-title serif"
+                style="font-size:24px;">
+
+                Add an envelope
+
+            </div>
+
+
+            <div class="form-group">
+
+                <label class="form-label">
+                    Category
+                </label>
+
+                <input
+                    type="text"
+                    class="form-input"
+                    id="envelope-category"
+                    placeholder="Groceries, Lunch, Clothes...">
+
+            </div>
+
+            <div class="category-pill-row" style="margin-bottom:14px;">
+
+                <button class="pill-btn" onclick="prefillEnvelopeCategory('Lunch')">Lunch</button>
+                <button class="pill-btn" onclick="prefillEnvelopeCategory('Dinner')">Dinner</button>
+                <button class="pill-btn" onclick="prefillEnvelopeCategory('Groceries')">Groceries</button>
+                <button class="pill-btn" onclick="prefillEnvelopeCategory('Clothes')">Clothes</button>
+                <button class="pill-btn" onclick="prefillEnvelopeCategory('Coffee')">Coffee</button>
+                <button class="pill-btn" onclick="prefillEnvelopeCategory('Transport')">Transport</button>
+
+            </div>
+
+
+            <div class="form-group">
+
+                <label class="form-label">
+                    Monthly limit
+                </label>
+
+                <input
+                    type="number"
+                    step="0.01"
+                    class="form-input"
+                    id="envelope-limit"
+                    placeholder="0.00">
+
+            </div>
+
+
+            <button
+                class="action-btn-primary"
+                onclick="addEnvelope()">
+
+                Add envelope
+
+            </button>
+
+        </div>
+
+    </div>
+
+
+    <div id="goalstab-milestones" style="display:none;">
+
+        <div class="card">
+
+            <div class="card-tag">
+                MILESTONES
+            </div>
+
+            <div class="card-desc">
+                The wins that quietly add up. No streaks, nothing that can be broken.
+            </div>
+
+
+            <div
+                class="upcoming-list"
+                id="milestones-list">
+
+                <!-- earned milestones render here -->
+
+            </div>
+
+        </div>
+
+    </div>
+
+</div>
+
+
+<!-- MONEY (Planner + Money In + Debt combined) -->
+
+<div
+    id="view-money"
+    class="view-section">
+
+    <div class="toggle-group">
+
+        <button class="toggle-btn active" id="btn-moneytab-planner" onclick="switchMoneyTab('planner')">Planner</button>
+        <button class="toggle-btn" id="btn-moneytab-moneyin" onclick="switchMoneyTab('moneyin')">Money In</button>
+        <button class="toggle-btn" id="btn-moneytab-debt" onclick="switchMoneyTab('debt')">Debt</button>
+
+    </div>
+
+
+    <div id="moneytab-planner">
+
 
     <div class="card">
 
@@ -2018,466 +2617,12 @@ body {
 
     </div>
 
-</div>
-
-
-<!-- BILLS -->
-
-<div
-    id="view-bills"
-    class="view-section">
-
-    <div class="card">
-
-        <div class="card-tag">
-            STILL TO GO OUT
-        </div>
-
-        <div
-            class="card-title serif"
-            id="bills-still-to-go-amount"
-            style="font-size:36px;color:var(--accent-purple);">
-
-            $0.00
-
-        </div>
-
-        <div class="card-desc" id="bills-still-to-go-subtitle">
-            all clear for now
-        </div>
 
     </div>
 
 
-    <div class="card">
+    <div id="moneytab-moneyin" style="display:none;">
 
-        <div class="card-tag">
-            MUST-PAYS
-        </div>
-
-        <div class="card-desc">
-            Soonest first. Tick one off when it's paid.
-        </div>
-
-        <div
-            class="upcoming-list"
-            id="bills-upcoming-list">
-
-            <!-- upcoming bill occurrences render here -->
-
-        </div>
-
-    </div>
-
-
-    <div class="card">
-
-        <div
-            class="card-title serif"
-            style="font-size:24px;">
-
-            Add a bill
-
-        </div>
-
-        <div class="card-desc">
-            Pick how it comes round — the planner works out the dates.
-        </div>
-
-
-        <div class="form-group">
-
-            <label class="form-label">
-                Bill name
-            </label>
-
-            <input
-                type="text"
-                class="form-input"
-                id="bill-name"
-                placeholder="Internet, Rent, Car insurance...">
-
-        </div>
-
-
-        <div class="form-group">
-
-            <label class="form-label">
-                Amount when it lands
-            </label>
-
-            <input
-                type="number"
-                step="0.01"
-                class="form-input"
-                id="bill-amount"
-                placeholder="0.00">
-
-        </div>
-
-
-        <div class="form-group">
-
-            <label class="form-label">
-                How often
-            </label>
-
-            <select
-                class="form-input"
-                id="bill-recurrence-type"
-                onchange="onBillRecurrenceTypeChanged()">
-
-                <option value="monthly">Once a month</option>
-                <option value="biweekly">Every 2 weeks</option>
-
-            </select>
-
-        </div>
-
-
-        <div id="field-group-monthly" class="form-group">
-
-            <label class="form-label">
-                Day of the month (31 = last day)
-            </label>
-
-            <input
-                type="number"
-                min="1"
-                max="31"
-                class="form-input"
-                id="bill-day-monthly"
-                placeholder="e.g. 1">
-
-        </div>
-
-
-        <div id="field-group-biweekly" class="form-group" style="display:none;">
-
-            <label class="form-label">
-                First (or a recent) date it's due
-            </label>
-
-            <input
-                type="date"
-                class="form-input"
-                id="bill-anchor-biweekly">
-
-        </div>
-
-
-        <div class="form-group" style="flex-direction:row; align-items:center; gap:8px;">
-
-            <input
-                type="checkbox"
-                id="bill-set-aside"
-                style="width:18px; height:18px;">
-
-            <label class="form-label" for="bill-set-aside" style="margin:0;">
-                Put a bit aside each month for this one
-            </label>
-
-        </div>
-
-
-        <button
-            class="action-btn-primary"
-            onclick="addBill()">
-
-            Add bill
-
-        </button>
-
-    </div>
-
-
-    <div class="card">
-
-        <div class="card-tag">
-            YOUR BILLS
-        </div>
-
-        <div
-            class="upcoming-list"
-            id="bills-list">
-
-            <!-- all bills render here -->
-
-        </div>
-
-    </div>
-
-</div>
-
-
-<!-- GOALS -->
-
-<div
-    id="view-goals"
-    class="view-section">
-
-
-    <div class="card">
-
-        <div class="card-tag">
-            YOUR GOALS
-        </div>
-
-        <div
-            class="upcoming-list"
-            id="goals-list">
-
-            <!-- goals render here -->
-
-        </div>
-
-    </div>
-
-
-    <div class="card">
-
-        <div
-            class="card-title serif"
-            style="font-size:26px;">
-
-            Add a goal
-
-        </div>
-
-        <div class="card-desc">
-            name, amount, pace
-        </div>
-
-
-        <div class="form-group">
-
-            <label class="form-label">
-                What it is for
-            </label>
-
-            <input
-                type="text"
-                class="form-input"
-                id="goal-name"
-                placeholder="Japan, next spring">
-
-        </div>
-
-
-        <div class="form-group">
-
-            <label class="form-label">
-                How much you need
-            </label>
-
-            <input
-                type="number"
-                step="0.01"
-                class="form-input"
-                id="goal-target"
-                placeholder="0.00">
-
-        </div>
-
-
-        <button class="action-btn-primary" onclick="addGoal()">
-            Add goal
-        </button>
-
-    </div>
-
-
-    <div class="card">
-
-        <div class="card-tag">
-            CREDIT SCORES & BUREAUS
-        </div>
-
-        <div
-            class="card-title serif"
-            style="font-size:24px;">
-
-            Monthly Bureau Updates
-
-        </div>
-
-        <div class="card-desc">
-            Track scores & trend growth for Experian,
-            TransUnion, and Equifax.
-        </div>
-
-
-        <div class="bureau-grid">
-
-
-            <div class="bureau-card">
-
-                <span class="bureau-name">
-                    Experian
-                </span>
-
-                <span
-                    class="bureau-score serif"
-                    id="score-exp">
-
-                    —
-
-                </span>
-
-                <span
-                    class="score-change"
-                    id="change-exp"
-                    style="display:none;">
-
-                </span>
-
-            </div>
-
-
-            <div class="bureau-card">
-
-                <span class="bureau-name">
-                    TransUnion
-                </span>
-
-                <span
-                    class="bureau-score serif"
-                    id="score-tu">
-
-                    —
-
-                </span>
-
-                <span
-                    class="score-change"
-                    id="change-tu"
-                    style="display:none;">
-
-                </span>
-
-            </div>
-
-
-            <div class="bureau-card">
-
-                <span class="bureau-name">
-                    Equifax
-                </span>
-
-                <span
-                    class="bureau-score serif"
-                    id="score-eq">
-
-                    —
-
-                </span>
-
-                <span
-                    class="score-change"
-                    id="change-eq"
-                    style="display:none;">
-
-                </span>
-
-            </div>
-
-        </div>
-
-
-        <div class="form-group">
-
-            <label class="form-label">
-                Update Score
-            </label>
-
-            <select
-                class="form-input"
-                id="bureau-select">
-
-                <option value="exp">
-                    Experian
-                </option>
-
-                <option value="tu">
-                    TransUnion
-                </option>
-
-                <option value="eq">
-                    Equifax
-                </option>
-
-            </select>
-
-        </div>
-
-
-        <div class="credit-input-row">
-
-            <input
-                type="number"
-                class="form-input"
-                id="new-score-input"
-                placeholder="New Score (e.g. 750)">
-
-            <button
-                class="action-btn-primary"
-                style="width:auto;padding:0 18px;"
-                onclick="updateCreditScore()">
-
-                Update
-
-            </button>
-
-        </div>
-
-        <div class="card-desc" style="margin-top:8px; margin-bottom:0;">
-            One entry per month — updating again this month replaces this month's number rather than adding a new point.
-        </div>
-
-
-        <div class="chart-container" style="height:auto; padding-bottom:14px;">
-
-            <div
-                class="card-tag"
-                style="margin-bottom:4px;font-size:9px;">
-
-                SCORE GROWTH TREND
-
-            </div>
-
-            <svg
-                id="credit-trend-svg"
-                viewBox="0 0 300 60"
-                style="width:100%;height:60px;">
-
-                <!-- trend lines render here -->
-
-            </svg>
-
-            <div class="debt-legend" id="credit-trend-legend" style="margin-top:6px;">
-
-                <span><span class="debt-legend-dot" style="background:#a78bfa;"></span>Experian</span>
-                <span><span class="debt-legend-dot" style="background:#5fb88a;"></span>TransUnion</span>
-                <span><span class="debt-legend-dot" style="background:#5b9bd5;"></span>Equifax</span>
-
-            </div>
-
-            <div class="card-desc" id="credit-trend-empty" style="margin-top:8px; margin-bottom:0;">
-                Add at least two monthly updates to see a trend.
-            </div>
-
-        </div>
-
-    </div>
-
-</div>
-
-
-<!-- MONEY IN -->
-
-<div
-    id="view-moneyin"
-    class="view-section">
 
     <div class="card">
 
@@ -2607,14 +2752,12 @@ body {
 
     </div>
 
-</div>
+
+    </div>
 
 
-<!-- DEBT -->
+    <div id="moneytab-debt" style="display:none;">
 
-<div
-    id="view-debt"
-    class="view-section">
 
     <div class="card">
 
@@ -2775,6 +2918,10 @@ body {
                 id="debt-minimum"
                 placeholder="0.00">
 
+            <div class="card-desc" style="margin-bottom:0;">
+                Add this so you can put its due date on your bill calendar later.
+            </div>
+
         </div>
 
 
@@ -2804,126 +2951,6 @@ body {
 
     </div>
 
-</div>
-
-
-<!-- ENVELOPES -->
-
-<div
-    id="view-envelopes"
-    class="view-section">
-
-    <div class="card">
-
-        <div class="card-tag">
-            YOUR ENVELOPES
-        </div>
-
-        <div class="card-desc">
-            Soft limits by category. Go over? You'll just see it — no red alarms.
-        </div>
-
-        <div
-            class="upcoming-list"
-            id="envelopes-list">
-
-            <!-- envelopes render here -->
-
-        </div>
-
-    </div>
-
-
-    <div class="card">
-
-        <div
-            class="card-title serif"
-            style="font-size:24px;">
-
-            Add an envelope
-
-        </div>
-
-
-        <div class="form-group">
-
-            <label class="form-label">
-                Category
-            </label>
-
-            <input
-                type="text"
-                class="form-input"
-                id="envelope-category"
-                placeholder="Groceries, Lunch, Clothes...">
-
-        </div>
-
-        <div class="category-pill-row" style="margin-bottom:14px;">
-
-            <button class="pill-btn" onclick="prefillEnvelopeCategory('Lunch')">Lunch</button>
-            <button class="pill-btn" onclick="prefillEnvelopeCategory('Dinner')">Dinner</button>
-            <button class="pill-btn" onclick="prefillEnvelopeCategory('Groceries')">Groceries</button>
-            <button class="pill-btn" onclick="prefillEnvelopeCategory('Clothes')">Clothes</button>
-            <button class="pill-btn" onclick="prefillEnvelopeCategory('Coffee')">Coffee</button>
-            <button class="pill-btn" onclick="prefillEnvelopeCategory('Transport')">Transport</button>
-
-        </div>
-
-
-        <div class="form-group">
-
-            <label class="form-label">
-                Monthly limit
-            </label>
-
-            <input
-                type="number"
-                step="0.01"
-                class="form-input"
-                id="envelope-limit"
-                placeholder="0.00">
-
-        </div>
-
-
-        <button
-            class="action-btn-primary"
-            onclick="addEnvelope()">
-
-            Add envelope
-
-        </button>
-
-    </div>
-
-</div>
-
-
-<!-- MILESTONES -->
-
-<div
-    id="view-milestones"
-    class="view-section">
-
-    <div class="card">
-
-        <div class="card-tag">
-            MILESTONES
-        </div>
-
-        <div class="card-desc">
-            The wins that quietly add up. No streaks, nothing that can be broken.
-        </div>
-
-
-        <div
-            class="upcoming-list"
-            id="milestones-list">
-
-            <!-- earned milestones render here -->
-
-        </div>
 
     </div>
 
@@ -2971,6 +2998,39 @@ body {
 
         </div>
 
+
+        <div class="form-group" style="margin-top:4px;">
+
+            <label class="form-label">
+                Accent color
+            </label>
+
+            <div style="display:flex; align-items:center; gap:12px;">
+
+                <input
+                    type="color"
+                    id="accent-color-picker"
+                    value="#5cc2ec"
+                    oninput="setAccentColor(this.value)"
+                    style="width:56px; height:44px; padding:2px; border-radius:12px; border:1px solid var(--input-border); background:var(--input-bg); cursor:pointer;">
+
+                <button
+                    class="action-btn-primary"
+                    style="width:auto; padding:0 16px; background:var(--input-bg); color:var(--text-primary); border:1px solid var(--input-border);"
+                    onclick="resetAccentColor()">
+
+                    Reset to default
+
+                </button>
+
+            </div>
+
+            <div class="card-desc" style="margin-bottom:0; margin-top:6px;">
+                Tap the swatch to open your device's color picker and tint buttons, badges, and highlights throughout the app.
+            </div>
+
+        </div>
+
     </div>
 
 
@@ -3001,7 +3061,7 @@ body {
 
         <button
             class="action-btn-primary"
-            style="margin-top:10px; background:var(--input-bg); color:var(--text-primary); border:1px solid var(--input-border);"
+            style="margin-top:10px; background:var(--input-bg); color:var(--text-primary); border:1px solid var(--input-border); box-shadow:none;"
             onclick="document.getElementById('restore-backup-input').click()">
 
             Restore from a backup
@@ -3297,6 +3357,62 @@ body {
 
 
 <!-- =========================
+     YETI CELEBRATION (shown briefly when a bill is marked paid)
+========================= -->
+
+<div id="yeti-celebration" onclick="hideYetiCelebration()" style="display:none; position:fixed; inset:0; z-index:400; background:rgba(238,246,249,0.85); align-items:center; justify-content:center; flex-direction:column; text-align:center;">
+
+    <svg viewBox="0 0 140 140" width="120" height="120" style="overflow:visible;">
+
+        <ellipse cx="70" cy="128" rx="30" ry="6" fill="rgba(45,55,72,0.08)"/>
+
+        <!-- yeti body -->
+        <ellipse cx="70" cy="75" rx="38" ry="42" fill="#ffffff" stroke="var(--accent-purple)" stroke-width="2"/>
+
+        <!-- feet -->
+        <ellipse cx="54" cy="114" rx="10" ry="6" fill="#ffffff" stroke="var(--accent-purple)" stroke-width="2"/>
+        <ellipse cx="86" cy="114" rx="10" ry="6" fill="#ffffff" stroke="var(--accent-purple)" stroke-width="2"/>
+
+        <!-- face -->
+        <circle cx="58" cy="62" r="4" fill="#2d3748"/>
+        <circle cx="82" cy="62" r="4" fill="#2d3748"/>
+        <path d="M56 78 Q70 90 84 78" stroke="#2d3748" stroke-width="2.5" fill="none" stroke-linecap="round"/>
+
+        <!-- scooping arm -->
+        <g id="yeti-arm" style="transform-origin: 40px 70px; animation: yeti-scoop 1s ease-in-out infinite;">
+            <ellipse cx="30" cy="78" rx="9" ry="18" fill="#ffffff" stroke="var(--accent-purple)" stroke-width="2"/>
+        </g>
+
+        <!-- ice cream cone -->
+        <g id="yeti-icecream" style="transform-origin: 96px 100px; animation: yeti-cone-grow 1s ease-out forwards;">
+            <path d="M88 100 L104 100 L96 122 Z" fill="#e8c090" stroke="#c9a06a" stroke-width="1.5"/>
+            <circle cx="96" cy="95" r="11" fill="#ffe3ef"/>
+            <circle cx="90" cy="88" r="7" fill="#ffe3ef"/>
+            <circle cx="102" cy="88" r="7" fill="#ffe3ef"/>
+        </g>
+
+    </svg>
+
+    <div class="card-title serif" style="margin-top:10px; font-size:24px;">Bill paid! 🍦</div>
+    <div class="card-desc" style="margin-bottom:0;">nice work — tap anywhere to close</div>
+
+    <style>
+        @keyframes yeti-scoop {
+            0%   { transform: rotate(0deg); }
+            50%  { transform: rotate(-25deg); }
+            100% { transform: rotate(0deg); }
+        }
+        @keyframes yeti-cone-grow {
+            0%   { transform: scale(0.2); opacity: 0; }
+            60%  { transform: scale(1.15); opacity: 1; }
+            100% { transform: scale(1); opacity: 1; }
+        }
+    </style>
+
+</div>
+
+
+<!-- =========================
      NAV
 ========================= -->
 
@@ -3350,6 +3466,8 @@ body {
 
         <div class="menu-list">
 
+            <div class="menu-section-label">Every day</div>
+
             <div
                 class="menu-card"
                 onclick="switchView('today',null);closeMoreModal();">
@@ -3374,28 +3492,20 @@ body {
             </div>
 
 
-            <div
-                class="menu-card"
-                onclick="switchView('planner',null);closeMoreModal();">
+            <button
+                class="action-btn-primary"
+                style="text-align:left; display:flex; flex-direction:column; align-items:flex-start; gap:2px; padding:16px;"
+                onclick="openSpendLoggerFromMenu()">
 
-                <div>
+                <span style="font-weight:600; font-size:15px;">
+                    Log a spend
+                </span>
 
-                    <div style="font-weight:600;">
-                        Planner
-                    </div>
+                <span style="font-size:12px; opacity:0.85; font-weight:400;">
+                    quick logger
+                </span>
 
-                    <div
-                        style="font-size:12px;color:var(--text-muted);">
-
-                        monthly overview
-
-                    </div>
-
-                </div>
-
-                <span>›</span>
-
-            </div>
+            </button>
 
 
             <div
@@ -3424,6 +3534,32 @@ body {
 
             <div
                 class="menu-card"
+                onclick="switchView('money',null);closeMoreModal();">
+
+                <div>
+
+                    <div style="font-weight:600;">
+                        Money
+                    </div>
+
+                    <div
+                        style="font-size:12px;color:var(--text-muted);">
+
+                        planner, income & debt
+
+                    </div>
+
+                </div>
+
+                <span>›</span>
+
+            </div>
+
+
+            <div class="menu-section-label">Tracking</div>
+
+            <div
+                class="menu-card"
                 onclick="switchView('goals',null);closeMoreModal();">
 
                 <div>
@@ -3435,119 +3571,7 @@ body {
                     <div
                         style="font-size:12px;color:var(--text-muted);">
 
-                        savings & credit score
-
-                    </div>
-
-                </div>
-
-                <span>›</span>
-
-            </div>
-
-
-            <button
-                class="action-btn-primary"
-                style="text-align:left; display:flex; flex-direction:column; align-items:flex-start; gap:2px; padding:16px; margin-top:6px;"
-                onclick="openSpendLoggerFromMenu()">
-
-                <span style="font-weight:600; font-size:15px;">
-                    Log a spend
-                </span>
-
-                <span style="font-size:12px; opacity:0.85; font-weight:400;">
-                    quick logger
-                </span>
-
-            </button>
-
-
-            <div
-                class="menu-card"
-                onclick="switchView('moneyin',null);closeMoreModal();">
-
-                <div>
-
-                    <div style="font-weight:600;">
-                        Money in
-                    </div>
-
-                    <div
-                        style="font-size:12px;color:var(--text-muted);">
-
-                        income you log
-
-                    </div>
-
-                </div>
-
-                <span>›</span>
-
-            </div>
-
-
-            <div
-                class="menu-card"
-                onclick="switchView('debt',null);closeMoreModal();">
-
-                <div>
-
-                    <div style="font-weight:600;">
-                        Debt
-                    </div>
-
-                    <div
-                        style="font-size:12px;color:var(--text-muted);">
-
-                        payoff tracker
-
-                    </div>
-
-                </div>
-
-                <span>›</span>
-
-            </div>
-
-
-            <div
-                class="menu-card"
-                onclick="switchView('envelopes',null);closeMoreModal();">
-
-                <div>
-
-                    <div style="font-weight:600;">
-                        Envelopes
-                    </div>
-
-                    <div
-                        style="font-size:12px;color:var(--text-muted);">
-
-                        spending caps
-
-                    </div>
-
-                </div>
-
-                <span>›</span>
-
-            </div>
-
-
-            <div
-                class="menu-card"
-                onclick="switchView('milestones',null);closeMoreModal();">
-
-                <div>
-
-                    <div style="font-weight:600;">
-                        Milestones
-                    </div>
-
-                    <div
-                        style="font-size:12px;color:var(--text-muted);">
-
-                        your wins
+                        savings, envelopes, credit score & wins
 
                     </div>
 
@@ -3692,10 +3716,6 @@ window.onload = function() {
 
 /* =====================================================
    MONEY ENGINE
-   (Phase 1+2: real state, persistence, safe-to-spend,
-   spend logging. Bills and real paydays land in later
-   phases and will replace the "days until payday"
-   placeholder below.)
 ===================================================== */
 
 var STORAGE_KEY = 'vickysPlanner.state.v1';
@@ -3711,89 +3731,25 @@ function defaultState() {
         setAside: 1054.00,
         daysToPayday: 14,
 
-        /*
-           Savings — separate from checking. Money moved
-           here doesn't count toward Safe-to-Spend (it's
-           not spendable), but stays visible so both
-           accounts can be tracked side by side.
-        */
-
         savingsBalance: 0,
-
-        /*
-           Each transfer: { id, amount, direction, note, date }
-           direction is 'toSavings' or 'toChecking'
-        */
 
         transfers: [],
 
-        /*
-           Each spend: { id, amount, note, date }
-           date is a YYYY-MM-DD string so we can tell
-           which spends belong to "today".
-        */
-
         spends: [],
-
-        /*
-           Each bill: {
-             id, name, amount, recurrenceType, setAside,
-             paidOccurrences: [dateKey, ...],
-             + type-specific fields (day / dayA+dayB /
-             anchorDate / everyNMonths / onceDate)
-           }
-        */
 
         bills: [],
 
-        /*
-           Each paycheck: {
-             id, name, amount, frequency, weekendShift,
-             allocationPercent,
-             + frequency-specific fields (day / dayA+dayB
-             / anchorDate)
-           }
-        */
-
         paychecks: [],
 
-        /*
-           Each income entry: { id, amount, source, note, date }
-           Logged manually since paycheck and commission
-           amounts vary week to week.
-        */
-
         income: [],
-
-        /*
-           Each debt: {
-             id, name, balance, apr, minimumPayment,
-             payments: [{ id, amount, date }]
-           }
-        */
 
         debts: [],
 
         debtStrategy: 'avalanche',
 
-        /*
-           Each envelope: { id, category, limit }
-        */
-
         envelopes: [],
 
-        /*
-           Each expected-income entry: { id, description,
-           amount, when }. Planning only — never touches
-           balance.
-        */
-
         expectedIncome: [],
-
-        /*
-           Each bureau: { history: [{ monthKey, score }] }
-           One entry per month, keyed 'YYYY-MM'.
-        */
 
         creditScores: {
             exp: { history: [] },
@@ -3801,20 +3757,13 @@ function defaultState() {
             eq: { history: [] }
         },
 
-        /*
-           Each goal: { id, name, targetAmount, savedAmount }
-        */
-
         goals: [],
-
-        /*
-           Each milestone: { id, type, title, date }
-           type is one of: 'black', 'debt-paid', 'goal-reached'
-        */
 
         milestones: [],
 
-        theme: 'light'
+        theme: 'light',
+
+        accentColor: null
 
     };
 
@@ -3861,11 +3810,6 @@ function loadState() {
     try {
 
         var parsed = JSON.parse(raw);
-
-        /*
-           Merge onto defaults so any new fields we add
-           later don't break an older saved state.
-        */
 
         var base = defaultState();
 
@@ -4020,13 +3964,6 @@ function saveState() {
 
     } catch (e) {
 
-        /*
-           Storage can be unavailable (private
-           browsing, an in-app preview browser with no
-           persistent storage, quota exceeded, etc).
-           Surface it instead of failing silently.
-        */
-
         showStorageWarning();
 
     }
@@ -4067,6 +4004,15 @@ function initMoneyEngine() {
     plannerState = loadState();
 
     setTheme(plannerState.theme || 'light');
+
+    if (plannerState.accentColor) {
+        setAccentColor(plannerState.accentColor);
+    } else {
+        var pickerEl = document.getElementById('accent-color-picker');
+        if (pickerEl) {
+            pickerEl.value = DEFAULT_ACCENT;
+        }
+    }
 
     populateSettingsFields();
 
@@ -4191,13 +4137,6 @@ function onMoneySettingChanged() {
 
 }
 
-
-/*
-   How much of the balance is still unspent, after
-   setting aside money that's already spoken for and
-   after everything logged so far. This pool gets
-   divided across the days left until payday.
-*/
 
 function calculateTotalSpent() {
 
@@ -4535,6 +4474,8 @@ function deleteSpend(id) {
 
 function renderToday() {
 
+    renderNextBillDue();
+
     var amountEl = document.getElementById('safe-to-spend-amount');
 
     var subtitleEl = document.getElementById('safe-to-spend-subtitle');
@@ -4741,6 +4682,29 @@ function toggleBreakdownPanel() {
 }
 
 
+function toggleRunDetails() {
+
+    var panel = document.getElementById('run-details-panel');
+
+    var toggle = document.getElementById('run-details-toggle');
+
+    if (!panel) {
+        return;
+    }
+
+    var isOpen = panel.style.display === 'block';
+
+    panel.style.display = isOpen ? 'none' : 'block';
+
+    if (toggle) {
+
+        toggle.innerText = isOpen ? 'Show details' : 'Hide details';
+
+    }
+
+}
+
+
 function renderSafeToSpendBreakdown() {
 
 
@@ -4810,8 +4774,6 @@ function renderSafeToSpendBreakdown() {
     }
 
 
-    /* Breakdown panel */
-
     var checkingEl = document.getElementById('breakdown-checking');
 
     var savingsEl = document.getElementById('breakdown-savings');
@@ -4846,8 +4808,6 @@ function renderSafeToSpendBreakdown() {
 
     }
 
-
-    /* Today's progress bar */
 
     var fillEl = document.getElementById('today-progress-fill');
 
@@ -5011,12 +4971,6 @@ function renderComingUp() {
 
 }
 
-
-/*
-   Approximate previous payday, purely for drawing the
-   run-to-payday bar — a day or two of drift here doesn't
-   affect any dollar figures.
-*/
 
 function getApproxPreviousPaycheckDate(paycheck, nextDate) {
 
@@ -5196,11 +5150,6 @@ function renderRunToPayday() {
 
 /* =====================================================
    BILLS ENGINE
-   (Phase 3: flexible recurrence, must-pays list,
-   set-aside smoothing for lumpy bills. "Still to go
-   out" uses the rest of the current calendar month as
-   its window — Phase 4 will swap that for a real
-   payday-based window.)
 ===================================================== */
 
 function startOfDay(d) {
@@ -5294,12 +5243,6 @@ function endOfCurrentMonth() {
 
 }
 
-
-/*
-   Every date this bill falls due within
-   [rangeStart, rangeEnd], inclusive, as Date objects
-   at midnight local time.
-*/
 
 function getBillOccurrences(bill, rangeStart, rangeEnd) {
 
@@ -5455,11 +5398,6 @@ function isOccurrencePaid(bill, date) {
 }
 
 
-/*
-   The monthly-smoothed cost of a set-aside bill —
-   $372 every 6 months becomes $62/month.
-*/
-
 function getBillMonthlyEquivalent(bill) {
 
     var monthsBetween = 1;
@@ -5595,6 +5533,19 @@ function onBillRecurrenceTypeChanged() {
 }
 
 
+function clearBillErrors() {
+
+    var e1 = document.getElementById('bill-day-monthly-error');
+
+    var e2 = document.getElementById('bill-anchor-biweekly-error');
+
+    if (e1) e1.style.display = 'none';
+
+    if (e2) e2.style.display = 'none';
+
+}
+
+
 function addBill() {
 
     var nameEl = document.getElementById('bill-name');
@@ -5604,6 +5555,9 @@ function addBill() {
     var typeEl = document.getElementById('bill-recurrence-type');
 
     var setAsideEl = document.getElementById('bill-set-aside');
+
+
+    clearBillErrors();
 
 
     var name = nameEl.value.trim();
@@ -5641,13 +5595,17 @@ function addBill() {
 
     if (type === 'monthly') {
 
-        var day = parseInt(
-            document.getElementById('bill-day-monthly').value,
-            10
-        );
+        var dayEl = document.getElementById('bill-day-monthly');
+
+        var day = parseInt(dayEl.value, 10);
 
         if (!day || day < 1 || day > 31) {
+
+            var err = document.getElementById('bill-day-monthly-error');
+            if (err) { err.style.display = 'block'; }
+            dayEl.focus();
             return;
+
         }
 
         bill.day = day;
@@ -5684,10 +5642,17 @@ function addBill() {
 
     } else if (type === 'biweekly') {
 
-        var anchorB = document.getElementById('bill-anchor-biweekly').value;
+        var anchorBEl = document.getElementById('bill-anchor-biweekly');
+
+        var anchorB = anchorBEl.value;
 
         if (!anchorB) {
+
+            var errB = document.getElementById('bill-anchor-biweekly-error');
+            if (errB) { errB.style.display = 'block'; }
+            anchorBEl.focus();
             return;
+
         }
 
         bill.anchorDate = anchorB;
@@ -5763,14 +5728,167 @@ function deleteBill(id) {
 }
 
 
-/*
-   Marking a regular bill paid also moves the money out
-   of "balance" (it really left the account), so safe-
-   to-spend doesn't change — it was already held back.
-   Set-aside bills don't touch balance: their cost was
-   already smoothed into every month, so ticking them
-   off is just a checklist, not a recalculation.
-*/
+function showYetiCelebration() {
+
+    var overlay = document.getElementById('yeti-celebration');
+
+    if (!overlay) {
+        return;
+    }
+
+    overlay.style.display = 'flex';
+
+    clearTimeout(window._yetiTimeout);
+
+    window._yetiTimeout = setTimeout(hideYetiCelebration, 2200);
+
+}
+
+
+function hideYetiCelebration() {
+
+    var overlay = document.getElementById('yeti-celebration');
+
+    if (overlay) {
+        overlay.style.display = 'none';
+    }
+
+}
+
+
+function renderNextBillDue() {
+
+    var wrapEl = document.getElementById('next-bill-card-wrap');
+
+    var contentEl = document.getElementById('next-bill-content');
+
+    if (!wrapEl || !contentEl) {
+        return;
+    }
+
+
+    var today = startOfDay(new Date());
+
+    var end = addDays(today, 60);
+
+    var soonest = null;
+
+
+    plannerState.bills.forEach(function(bill) {
+
+        var occurrences = getBillOccurrences(bill, today, end);
+
+        occurrences.forEach(function(date) {
+
+            if (!isOccurrencePaid(bill, date)) {
+
+                if (!soonest || date < soonest.date) {
+
+                    soonest = { bill: bill, date: date };
+
+                }
+
+            }
+
+        });
+
+    });
+
+
+    if (!soonest) {
+
+        wrapEl.style.display = 'none';
+
+        return;
+
+    }
+
+
+    wrapEl.style.display = 'block';
+
+
+    var dKey = dateKey(soonest.date);
+
+    var daysAway = Math.round((soonest.date - today) / 86400000);
+
+    var dayLabel = daysAway === 0 ? 'today' : (daysAway === 1 ? 'tomorrow' : 'in ' + daysAway + ' days');
+
+    var displayAmount = soonest.bill.setAside
+        ? getBillMonthlyEquivalent(soonest.bill)
+        : soonest.bill.amount;
+
+    var dateLabel = soonest.date.toLocaleDateString(undefined, { weekday: 'short', month: 'short', day: 'numeric' });
+
+
+    contentEl.innerHTML = '';
+
+
+    var row = document.createElement('div');
+
+    row.style.display = 'flex';
+
+    row.style.justifyContent = 'space-between';
+
+    row.style.alignItems = 'center';
+
+    row.style.gap = '10px';
+
+
+    var info = document.createElement('div');
+
+
+    var name = document.createElement('div');
+
+    name.className = 'card-title serif';
+
+    name.style.fontSize = '22px';
+
+    name.style.marginBottom = '2px';
+
+    name.innerText = soonest.bill.name;
+
+
+    var sub = document.createElement('div');
+
+    sub.className = 'card-desc';
+
+    sub.style.marginBottom = '0';
+
+    sub.innerText = formatMoney(displayAmount) + ' due ' + dayLabel + ' (' + dateLabel + ')';
+
+
+    info.appendChild(name);
+
+    info.appendChild(sub);
+
+
+    var btn = document.createElement('button');
+
+    btn.className = 'action-btn-primary';
+
+    btn.style.width = 'auto';
+
+    btn.style.padding = '10px 16px';
+
+    btn.style.flexShrink = '0';
+
+    btn.innerText = 'Mark paid';
+
+    btn.onclick = function() {
+
+        toggleBillPaid(soonest.bill.id, dKey);
+
+    };
+
+
+    row.appendChild(info);
+
+    row.appendChild(btn);
+
+    contentEl.appendChild(row);
+
+}
+
 
 function toggleBillPaid(billId, dKey) {
 
@@ -5792,6 +5910,8 @@ function toggleBillPaid(billId, dKey) {
     if (idx === -1) {
 
         bill.paidOccurrences.push(dKey);
+
+        showYetiCelebration();
 
         if (!bill.setAside) {
 
@@ -5927,6 +6047,8 @@ function renderBills() {
     renderBillsUpcomingList();
 
     renderBillsList();
+
+    renderNextBillDue();
 
 }
 
@@ -6125,6 +6247,8 @@ function renderBillsUpcomingList() {
 
             btn.style.color = 'var(--text-muted)';
 
+            btn.style.boxShadow = 'none';
+
         }
 
 
@@ -6262,12 +6386,6 @@ function renderBillsList() {
 
 /* =====================================================
    PAYDAY ENGINE
-   (Phase 4: real payday dates replace the manual "days
-   until payday" fallback. Multiple paychecks are
-   supported; the soonest one drives the countdown. The
-   % moved elsewhere is shown for information now — it
-   will feed real income tracking once "Money in" is
-   built.)
 ===================================================== */
 
 function onPaycheckFrequencyChanged() {
@@ -6297,11 +6415,6 @@ function onPaycheckFrequencyChanged() {
 
 }
 
-
-/*
-   The raw scheduled date (before any weekend shift) on
-   or after fromDate.
-*/
 
 function getNextPaycheckRawDate(paycheck, fromDate) {
 
@@ -6427,11 +6540,6 @@ function applyWeekendShift(date, paycheck) {
 }
 
 
-/*
-   Next real payday for this paycheck, accounting for
-   the weekend-shift rule.
-*/
-
 function getNextPaycheckDate(paycheck, fromDate) {
 
     var raw = getNextPaycheckRawDate(paycheck, fromDate);
@@ -6465,11 +6573,6 @@ function getNextPaycheckDate(paycheck, fromDate) {
 
 }
 
-
-/*
-   Across every paycheck, whichever lands soonest.
-   Returns { date, paycheck } or null if none are set up.
-*/
 
 function getOverallNextPayday() {
 
@@ -6828,11 +6931,6 @@ function renderPaychecks() {
 
 /* =====================================================
    MONEY IN
-   (Phase 5 groundwork: since paycheck and commission
-   amounts vary week to week, income is logged manually
-   at the real amount rather than assumed from a fixed
-   schedule. Logging adds straight to your balance;
-   deleting reverses it.)
 ===================================================== */
 
 function prefillIncomeSource(source) {
@@ -7483,11 +7581,6 @@ function renderIncome() {
 
 /* =====================================================
    DEBT ENGINE
-   Payoff order is just a sort — avalanche (highest APR
-   first) or snowball (smallest balance first). Logging
-   a payment moves money out of your balance (it really
-   left the account) and reduces the debt, with a running
-   history per debt.
 ===================================================== */
 
 function getSortedDebts() {
@@ -7629,15 +7722,6 @@ function deleteDebt(id) {
 
 }
 
-
-/*
-   How much of a payment covers this period's interest
-   (at the current balance and APR) versus actually
-   reduces the balance. Treated as one month's interest
-   per payment — a simplification, since real cards
-   accrue daily, but it matches the same monthly model
-   used for the payoff projection above.
-*/
 
 function calculateDebtInterestSplit(debt, paymentAmount) {
 
@@ -8026,13 +8110,6 @@ function renderDebtTotal() {
 }
 
 
-/*
-   Standard amortization simulation: how many months to
-   clear the balance at the current minimum payment, and
-   how much of that is interest. Returns
-   { months, totalInterest, payoffDate, neverPaysOff }.
-*/
-
 function calculateDebtPayoff(debt) {
 
     var balance = debt.balance;
@@ -8165,10 +8242,31 @@ function addDebtMinimumToCalendar(debtId) {
     });
 
 
-    if (!debt || !debt.minimumPayment || debt.minimumPayment <= 0) {
+    var errEl = document.getElementById('debt-cal-error-' + debtId);
+
+
+    if (!debt) {
+        return;
+    }
+
+
+    if (!debt.minimumPayment || debt.minimumPayment <= 0) {
+
+        if (errEl) {
+
+            errEl.style.display = 'block';
+
+            errEl.innerText = 'Add a minimum payment amount for ' + debt.name + ' first (edit it above), then you can put the day on your calendar.';
+
+        }
 
         return;
 
+    }
+
+
+    if (errEl) {
+        errEl.style.display = 'none';
     }
 
 
@@ -8179,8 +8277,15 @@ function addDebtMinimumToCalendar(debtId) {
 
     if (!day || day < 1 || day > 31) {
 
-        dayEl.focus();
+        if (errEl) {
 
+            errEl.style.display = 'block';
+
+            errEl.innerText = 'Enter a day between 1 and 31.';
+
+        }
+
+        dayEl.focus();
         return;
 
     }
@@ -8271,8 +8376,6 @@ function renderDebtList() {
         card.className = 'debt-detail-card';
 
 
-        /* Top row: badge, name, status pill */
-
         var topRow = document.createElement('div');
 
         topRow.className = 'debt-top-row';
@@ -8306,8 +8409,6 @@ function renderDebtList() {
         topRow.appendChild(statusPill);
 
 
-        /* APR + minimum row */
-
         var infoRow = document.createElement('div');
 
         infoRow.style.display = 'flex';
@@ -8340,8 +8441,6 @@ function renderDebtList() {
         infoRow.appendChild(minText);
 
 
-        /* Big balance */
-
         var balanceEl = document.createElement('div');
 
         balanceEl.className = 'debt-balance-amount';
@@ -8355,8 +8454,6 @@ function renderDebtList() {
 
         card.appendChild(balanceEl);
 
-
-        /* Credit limit + usage, only if a limit was given */
 
         if (debt.creditLimit && debt.creditLimit > 0) {
 
@@ -8402,8 +8499,6 @@ function renderDebtList() {
 
         }
 
-
-        /* Balance history sparkline — real progress over time */
 
         if (debt.balanceHistory && debt.balanceHistory.length >= 2) {
 
@@ -8464,8 +8559,6 @@ function renderDebtList() {
         }
 
 
-        /* Payoff projection */
-
         var payoffLine = document.createElement('div');
 
         payoffLine.style.fontSize = '13px';
@@ -8499,8 +8592,6 @@ function renderDebtList() {
 
             card.appendChild(payoffLine);
 
-
-            /* Progress bar: balance vs projected interest */
 
             var track = document.createElement('div');
 
@@ -8563,8 +8654,6 @@ function renderDebtList() {
 
         }
 
-
-        /* Calendar callout */
 
         var callout = document.createElement('div');
 
@@ -8713,19 +8802,28 @@ function renderDebtList() {
             addRow.appendChild(addDayBtn);
 
 
+            var calErr = document.createElement('div');
+
+            calErr.id = 'debt-cal-error-' + debt.id;
+
+            calErr.className = 'form-error';
+
+            calErr.style.display = 'none';
+
+
             callout.appendChild(promptText);
 
             callout.appendChild(subText);
 
             callout.appendChild(addRow);
 
+            callout.appendChild(calErr);
+
         }
 
 
         card.appendChild(callout);
 
-
-        /* Payment logging + history */
 
         var payRow = document.createElement('div');
 
@@ -8858,10 +8956,6 @@ function renderDebtList() {
 
 /* =====================================================
    ENVELOPES
-   Soft spending caps by category. "Go over? It simply
-   lets you know" — no red alarms, just a plain number.
-   Spend totals are matched against the category field
-   set when logging a spend (case-insensitive).
 ===================================================== */
 
 function prefillEnvelopeCategory(name) {
@@ -9106,12 +9200,6 @@ function renderEnvelopes() {
 
 /* =====================================================
    MONTHLY DEBT PLAN
-   A pure calculator: given a total budget, cover every
-   debt's minimum first, then cascade whatever's left
-   toward the top-priority debt (per the same avalanche/
-   snowball order used in Debt), overflowing to the next
-   debt once one is fully covered. This never applies a
-   payment by itself — it's just the plan.
 ===================================================== */
 
 function planDebtPayments(totalBudget) {
@@ -9135,9 +9223,6 @@ function planDebtPayments(totalBudget) {
 
 
     if (totalBudget < sumMinimums) {
-
-        /* Not enough to cover every minimum — cover what
-           we can, in priority order, and flag the gap. */
 
         var remaining = totalBudget;
 
@@ -9467,6 +9552,52 @@ function renderExpectedIncome() {
    GOALS
 ===================================================== */
 
+function switchMoneyTab(tab) {
+
+    var panels = ['planner', 'moneyin', 'debt'];
+
+    panels.forEach(function(p) {
+
+        var panelEl = document.getElementById('moneytab-' + p);
+
+        var btnEl = document.getElementById('btn-moneytab-' + p);
+
+        if (panelEl) {
+            panelEl.style.display = (p === tab) ? 'block' : 'none';
+        }
+
+        if (btnEl) {
+            btnEl.classList.toggle('active', p === tab);
+        }
+
+    });
+
+}
+
+
+function switchGoalsTab(tab) {
+
+    var panels = ['goals', 'envelopes', 'milestones'];
+
+    panels.forEach(function(p) {
+
+        var panelEl = document.getElementById('goalstab-' + p);
+
+        var btnEl = document.getElementById('btn-goalstab-' + p);
+
+        if (panelEl) {
+            panelEl.style.display = (p === tab) ? 'block' : 'none';
+        }
+
+        if (btnEl) {
+            btnEl.classList.toggle('active', p === tab);
+        }
+
+    });
+
+}
+
+
 function addGoal() {
 
     var nameEl = document.getElementById('goal-name');
@@ -9741,9 +9872,6 @@ function renderGoals() {
 
 /* =====================================================
    MILESTONES
-   Detected automatically from real state changes.
-   Each is recorded once via a stable dedupe key, so it
-   can never fire twice or be "broken" — nothing to lose.
 ===================================================== */
 
 function recordMilestone(type, title, key) {
@@ -10073,6 +10201,80 @@ function setTheme(theme) {
 
 
 /* =========================
+   ACCENT COLOR PICKER
+========================= */
+
+var DEFAULT_ACCENT = '#5cc2ec';
+
+
+function hexToRgba(hex, alpha) {
+
+    var r = parseInt(hex.slice(1, 3), 16);
+
+    var g = parseInt(hex.slice(3, 5), 16);
+
+    var b = parseInt(hex.slice(5, 7), 16);
+
+    return 'rgba(' + r + ',' + g + ',' + b + ',' + alpha + ')';
+
+}
+
+
+function setAccentColor(hex) {
+
+    document.body.style.setProperty('--accent-purple', hex);
+
+    document.body.style.setProperty('--accent-purple-light', hexToRgba(hex, 0.15));
+
+
+    var pickerEl = document.getElementById('accent-color-picker');
+
+    if (pickerEl) {
+
+        pickerEl.value = hex;
+
+    }
+
+
+    if (plannerState) {
+
+        plannerState.accentColor = hex;
+
+        saveState();
+
+    }
+
+}
+
+
+function resetAccentColor() {
+
+    document.body.style.removeProperty('--accent-purple');
+
+    document.body.style.removeProperty('--accent-purple-light');
+
+
+    var pickerEl = document.getElementById('accent-color-picker');
+
+    if (pickerEl) {
+
+        pickerEl.value = DEFAULT_ACCENT;
+
+    }
+
+
+    if (plannerState) {
+
+        plannerState.accentColor = null;
+
+        saveState();
+
+    }
+
+}
+
+
+/* =========================
    CREDIT SCORES
 ========================= */
 
@@ -10224,12 +10426,6 @@ function renderCreditScores() {
 }
 
 
-/*
-   Plain straight-line points from a series of values —
-   no smoothing, so the chart shows exactly what was
-   logged rather than a prettied-up curve.
-*/
-
 function buildSparklinePoints(values, width, height, padding) {
 
     if (values.length === 0) {
@@ -10358,682 +10554,6 @@ function renderCreditTrendChart(anyHasTwo) {
     });
 
 }
-
-
-/* =====================================================
-   STICKER SYSTEM
-===================================================== */
-
-/*
-    HOW IT WORKS:
-
-    1. Copy a cut-out from iPhone Photos.
-    2. Tap "+ Sticker".
-    3. Paste.
-
-    The copied image is inserted as an actual sticker.
-
-    Stickers can then be dragged around and resized.
-*/
-
-
-var activeStickerZone = null;
-
-
-/* Activate paste */
-
-function activateStickerPaste() {
-
-    /*
-       Default to the left side.
-       If the user taps the right side first,
-       the right side becomes active.
-    */
-
-    if (!activeStickerZone) {
-
-        activeStickerZone =
-            document.getElementById(
-                'sticker-left'
-            );
-
-    }
-
-
-    var pasteArea =
-        document.getElementById(
-            'pasteArea'
-        );
-
-
-    pasteArea.focus();
-
-
-    /*
-       On iPhone/iPad this opens the
-       paste action when the user
-       chooses Paste.
-    */
-
-    try {
-
-        document.execCommand(
-            'paste'
-        );
-
-    } catch (e) {
-
-        /*
-           The browser will handle the
-           normal Paste command.
-        */
-
-    }
-
-}
-
-
-/* Clicking either sticker area chooses it */
-
-document.addEventListener(
-    'click',
-    function(event) {
-
-        var left =
-            document.getElementById(
-                'sticker-left'
-            );
-
-        var right =
-            document.getElementById(
-                'sticker-right'
-            );
-
-
-        if (
-            event.target === left ||
-            left.contains(event.target)
-        ) {
-
-            activeStickerZone = left;
-
-        }
-
-
-        if (
-            event.target === right ||
-            right.contains(event.target)
-        ) {
-
-            activeStickerZone = right;
-
-        }
-
-    }
-);
-
-
-/* =========================
-   PASTE HANDLER
-========================= */
-
-document.addEventListener(
-    'paste',
-    function(event) {
-
-        var items =
-            event.clipboardData &&
-            event.clipboardData.items;
-
-
-        if (!items) {
-            return;
-        }
-
-
-        for (
-            var i = 0;
-            i < items.length;
-            i++
-        ) {
-
-            var item = items[i];
-
-
-            if (
-                item.type &&
-                item.type.indexOf(
-                    'image'
-                ) !== -1
-            ) {
-
-                var file =
-                    item.getAsFile();
-
-
-                if (file) {
-
-                    createSticker(
-                        file
-                    );
-
-                    event.preventDefault();
-
-                    return;
-
-                }
-
-            }
-
-        }
-
-    }
-);
-
-
-/* =========================
-   CREATE STICKER
-========================= */
-
-function createSticker(file) {
-
-    if (!activeStickerZone) {
-
-        activeStickerZone =
-            document.getElementById(
-                'sticker-left'
-            );
-
-    }
-
-
-    var reader =
-        new FileReader();
-
-
-    reader.onload = function(e) {
-
-        var wrapper =
-            document.createElement(
-                'div'
-            );
-
-
-        wrapper.className =
-            'sticker-wrapper';
-
-
-        wrapper.style.position =
-            'absolute';
-
-
-        wrapper.style.left =
-            '20px';
-
-
-        wrapper.style.top =
-            '5px';
-
-
-        wrapper.style.width =
-            '55px';
-
-
-        wrapper.style.height =
-            '55px';
-
-
-        wrapper.style.zIndex =
-            '20';
-
-
-        var img =
-            document.createElement(
-                'img'
-            );
-
-
-        img.className =
-            'sticker';
-
-
-        img.src =
-            e.target.result;
-
-
-        img.draggable =
-            false;
-
-
-        wrapper.appendChild(
-            img
-        );
-
-
-        /*
-           Resize handle
-        */
-
-        var handle =
-            document.createElement(
-                'div'
-            );
-
-
-        handle.className =
-            'resize-handle';
-
-
-        wrapper.appendChild(
-            handle
-        );
-
-
-        activeStickerZone.appendChild(
-            wrapper
-        );
-
-
-        enableStickerDrag(
-            wrapper,
-            img
-        );
-
-
-        enableStickerResize(
-            wrapper,
-            handle
-        );
-
-
-        selectSticker(
-            wrapper
-        );
-
-    };
-
-
-    reader.readAsDataURL(file);
-
-}
-
-
-/* =========================
-   SELECT STICKER
-========================= */
-
-function selectSticker(wrapper) {
-
-    var all =
-        document.querySelectorAll(
-            '.sticker-wrapper'
-        );
-
-
-    for (
-        var i = 0;
-        i < all.length;
-        i++
-    ) {
-
-        all[i].classList.remove(
-            'selected'
-        );
-
-    }
-
-
-    wrapper.classList.add(
-        'selected'
-    );
-
-}
-
-
-/* =========================
-   DRAG STICKER
-========================= */
-
-function enableStickerDrag(
-    wrapper,
-    img
-) {
-
-    var dragging = false;
-
-    var startX = 0;
-    var startY = 0;
-
-    var startLeft = 0;
-    var startTop = 0;
-
-
-    function start(e) {
-
-        /*
-           Don't drag if touching resize
-           handle.
-        */
-
-        if (
-            e.target.classList.contains(
-                'resize-handle'
-            )
-        ) {
-
-            return;
-
-        }
-
-
-        dragging = true;
-
-
-        var point =
-            e.touches
-            ? e.touches[0]
-            : e;
-
-
-        startX =
-            point.clientX;
-
-        startY =
-            point.clientY;
-
-
-        startLeft =
-            wrapper.offsetLeft;
-
-        startTop =
-            wrapper.offsetTop;
-
-
-        selectSticker(
-            wrapper
-        );
-
-
-        e.preventDefault();
-
-    }
-
-
-    function move(e) {
-
-        if (!dragging) {
-            return;
-        }
-
-
-        var point =
-            e.touches
-            ? e.touches[0]
-            : e;
-
-
-        var dx =
-            point.clientX -
-            startX;
-
-
-        var dy =
-            point.clientY -
-            startY;
-
-
-        wrapper.style.left =
-            (startLeft + dx) +
-            'px';
-
-
-        wrapper.style.top =
-            (startTop + dy) +
-            'px';
-
-
-        e.preventDefault();
-
-    }
-
-
-    function end() {
-
-        dragging = false;
-
-    }
-
-
-    wrapper.addEventListener(
-        'mousedown',
-        start
-    );
-
-
-    wrapper.addEventListener(
-        'touchstart',
-        start,
-        {
-            passive:false
-        }
-    );
-
-
-    document.addEventListener(
-        'mousemove',
-        move
-    );
-
-
-    document.addEventListener(
-        'touchmove',
-        move,
-        {
-            passive:false
-        }
-    );
-
-
-    document.addEventListener(
-        'mouseup',
-        end
-    );
-
-
-    document.addEventListener(
-        'touchend',
-        end
-    );
-
-}
-
-
-/* =========================
-   RESIZE STICKER
-========================= */
-
-function enableStickerResize(
-    wrapper,
-    handle
-) {
-
-    var resizing = false;
-
-    var startX = 0;
-
-    var startWidth = 0;
-
-
-    function start(e) {
-
-        resizing = true;
-
-
-        var point =
-            e.touches
-            ? e.touches[0]
-            : e;
-
-
-        startX =
-            point.clientX;
-
-
-        startWidth =
-            wrapper.offsetWidth;
-
-
-        selectSticker(
-            wrapper
-        );
-
-
-        e.preventDefault();
-
-        e.stopPropagation();
-
-    }
-
-
-    function move(e) {
-
-        if (!resizing) {
-            return;
-        }
-
-
-        var point =
-            e.touches
-            ? e.touches[0]
-            : e;
-
-
-        var dx =
-            point.clientX -
-            startX;
-
-
-        var newSize =
-            startWidth + dx;
-
-
-        /*
-           Prevent stickers from becoming
-           ridiculously tiny or huge.
-        */
-
-        newSize =
-            Math.max(
-                25,
-                Math.min(
-                    140,
-                    newSize
-                )
-            );
-
-
-        wrapper.style.width =
-            newSize + 'px';
-
-
-        wrapper.style.height =
-            newSize + 'px';
-
-
-        e.preventDefault();
-
-    }
-
-
-    function end() {
-
-        resizing = false;
-
-    }
-
-
-    handle.addEventListener(
-        'mousedown',
-        start
-    );
-
-
-    handle.addEventListener(
-        'touchstart',
-        start,
-        {
-            passive:false
-        }
-    );
-
-
-    document.addEventListener(
-        'mousemove',
-        move
-    );
-
-
-    document.addEventListener(
-        'touchmove',
-        move,
-        {
-            passive:false
-        }
-    );
-
-
-    document.addEventListener(
-        'mouseup',
-        end
-    );
-
-
-    document.addEventListener(
-        'touchend',
-        end
-    );
-
-}
-
-
-/* =========================
-   CLICK OUTSIDE = DESELECT
-========================= */
-
-document.addEventListener(
-    'click',
-    function(e) {
-
-        if (
-            !e.target.closest(
-                '.sticker-wrapper'
-            )
-        ) {
-
-            var stickers =
-                document.querySelectorAll(
-                    '.sticker-wrapper'
-                );
-
-
-            for (
-                var i = 0;
-                i < stickers.length;
-                i++
-            ) {
-
-                stickers[i]
-                    .classList
-                    .remove(
-                        'selected'
-                    );
-
-            }
-
-        }
-
-    }
-);
 
 </script>
 
