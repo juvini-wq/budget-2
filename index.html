@@ -1129,6 +1129,19 @@ body {
     flex: 1;
     border-radius: 4px;
     background: var(--accent-purple-light);
+    position: relative;
+}
+
+.payday-segment.has-bill::after {
+    content: "";
+    position: absolute;
+    left: 50%;
+    bottom: 3px;
+    transform: translateX(-50%);
+    width: 5px;
+    height: 5px;
+    border-radius: 50%;
+    background: var(--accent-red);
 }
 
 .payday-segment.past {
@@ -1785,6 +1798,13 @@ body {
             <span id="payday-label-start">—</span>
             <span id="payday-label-today">today</span>
             <span id="payday-label-end">payday</span>
+        </div>
+
+
+        <div id="payday-bills-list" style="margin-top:14px;">
+
+            <!-- bills due before payday render here -->
+
         </div>
 
 
@@ -4481,6 +4501,35 @@ function renderRunToPayday() {
     trackEl.innerHTML = '';
 
 
+    var upcomingBillOccurrences = [];
+
+    plannerState.bills.forEach(function(bill) {
+
+        var occurrences = getBillOccurrences(bill, today, nextDate);
+
+        occurrences.forEach(function(occDate) {
+
+            if (!isOccurrencePaid(bill, occDate)) {
+
+                upcomingBillOccurrences.push({ bill: bill, date: occDate });
+
+            }
+
+        });
+
+    });
+
+    upcomingBillOccurrences.sort(function(a, b) {
+        return a.date - b.date;
+    });
+
+    var dueDateKeys = {};
+
+    upcomingBillOccurrences.forEach(function(occ) {
+        dueDateKeys[dateKey(occ.date)] = true;
+    });
+
+
     for (var i = 0; i < totalSpan; i++) {
 
         var segment = document.createElement('div');
@@ -4498,6 +4547,17 @@ function renderRunToPayday() {
 
         }
 
+
+        var segDate = addDays(lastDate, i);
+
+        if (dueDateKeys[dateKey(segDate)]) {
+
+            segment.className += ' has-bill';
+
+            segment.title = 'Bill due';
+
+        }
+
         trackEl.appendChild(segment);
 
     }
@@ -4508,6 +4568,80 @@ function renderRunToPayday() {
     paydaySegment.className = 'payday-segment payday';
 
     trackEl.appendChild(paydaySegment);
+
+
+    var billsListEl = document.getElementById('payday-bills-list');
+
+    if (billsListEl) {
+
+        if (upcomingBillOccurrences.length === 0) {
+
+            billsListEl.innerHTML = '<div class="card-desc" style="margin:0;">Nothing due before payday</div>';
+
+        } else {
+
+            billsListEl.innerHTML = '';
+
+            upcomingBillOccurrences.forEach(function(occ) {
+
+                var daysAway = Math.round((occ.date - today) / 86400000);
+
+                var dayLabel = daysAway === 0 ? 'today' : (daysAway === 1 ? 'tomorrow' : 'in ' + daysAway + ' days');
+
+                var dateLabel = occ.date.toLocaleDateString(undefined, { weekday: 'short', month: 'short', day: 'numeric' });
+
+                var row = document.createElement('div');
+
+                row.style.display = 'flex';
+
+                row.style.justifyContent = 'space-between';
+
+                row.style.alignItems = 'center';
+
+                row.style.fontSize = '13px';
+
+                row.style.padding = '6px 0';
+
+
+                var label = document.createElement('span');
+
+                label.innerText = occ.bill.name + ' — ' + dateLabel;
+
+
+                var flag = document.createElement('span');
+
+                if (daysAway <= 2) {
+
+                    flag.className = 'pill';
+
+                    flag.style.background = 'var(--accent-red-bg)';
+
+                    flag.style.color = 'var(--accent-red)';
+
+                    flag.innerText = 'due ' + dayLabel;
+
+                } else {
+
+                    flag.style.color = 'var(--text-muted)';
+
+                    flag.style.fontSize = '12px';
+
+                    flag.innerText = 'due ' + dayLabel;
+
+                }
+
+
+                row.appendChild(label);
+
+                row.appendChild(flag);
+
+                billsListEl.appendChild(row);
+
+            });
+
+        }
+
+    }
 
 
     if (leftToLastEl) {
