@@ -899,6 +899,11 @@ body {
     cursor: pointer;
 }
 
+.menu-card.active {
+    border-color: var(--accent-purple);
+    background: var(--accent-purple-light);
+}
+
 /* =========================
    DEBT DETAIL CARD
 ========================= */
@@ -1781,6 +1786,37 @@ body {
 
         <div class="card-desc" id="run-days-left" style="margin-bottom:0;">
             No payday set up yet
+        </div>
+
+
+        <div id="quick-payday-update" style="display:none; margin-top:10px;">
+
+            <div style="display:flex; gap:8px; align-items:center;">
+
+                <input
+                    type="number"
+                    min="1"
+                    step="1"
+                    class="form-input"
+                    id="quick-days-to-payday"
+                    placeholder="Days away"
+                    style="max-width:110px;">
+
+                <button
+                    class="action-btn-primary"
+                    style="width:auto; padding:0 16px;"
+                    onclick="updateQuickDaysToPayday()">
+
+                    Update
+
+                </button>
+
+            </div>
+
+            <div class="card-desc" style="margin-top:6px; margin-bottom:0;">
+                Pay varies? Just update this whenever your estimate changes — no fixed schedule needed.
+            </div>
+
         </div>
 
 
@@ -2690,7 +2726,7 @@ body {
         <div class="form-group">
 
             <label class="form-label">
-                Amount
+                Usual amount (optional)
             </label>
 
             <input
@@ -2698,7 +2734,11 @@ body {
                 step="0.01"
                 class="form-input"
                 id="pc-amount"
-                placeholder="0.00">
+                placeholder="Leave blank if it varies">
+
+            <div class="card-desc" style="margin-bottom:0;">
+                Just for reference — your real pay still gets logged separately each time via "Got paid."
+            </div>
 
         </div>
 
@@ -2907,6 +2947,7 @@ body {
 
             <div
                 class="menu-card"
+                data-view="today"
                 onclick="switchView('today',null);closeMoreModal();">
 
                 <div>
@@ -2947,6 +2988,7 @@ body {
 
             <div
                 class="menu-card"
+                data-view="bills"
                 onclick="switchView('bills',null);closeMoreModal();">
 
                 <div>
@@ -2971,6 +3013,7 @@ body {
 
             <div
                 class="menu-card"
+                data-view="debt"
                 onclick="switchView('debt',null);closeMoreModal();">
 
                 <div>
@@ -2995,6 +3038,7 @@ body {
 
             <div
                 class="menu-card"
+                data-view="settings"
                 onclick="switchView('settings',null);closeMoreModal();">
 
                 <div>
@@ -3412,6 +3456,13 @@ function initMoneyEngine() {
     }
 
 
+    var initialMenuCard = document.querySelector('.menu-card[data-view="today"]');
+
+    if (initialMenuCard) {
+        initialMenuCard.classList.add('active');
+    }
+
+
     plannerState = loadState();
 
     setTheme(plannerState.theme || 'light');
@@ -3543,6 +3594,27 @@ function onMoneySettingChanged() {
 
 
     saveState();
+
+    renderToday();
+
+}
+
+
+function updateQuickDaysToPayday() {
+
+    var input = document.getElementById('quick-days-to-payday');
+
+    if (!input) {
+        return;
+    }
+
+    var days = parseInt(input.value, 10);
+
+    plannerState.daysToPayday = (isNaN(days) || days < 1) ? 1 : days;
+
+    saveState();
+
+    populateSettingsFields();
 
     renderToday();
 
@@ -4167,14 +4239,18 @@ function renderSafeToSpendBreakdown() {
 
             noteEl.style.display = 'block';
 
+            var amountPhrase = nextPayday.paycheck.amount > 0
+                ? (' around ' + formatMoney(nextPayday.paycheck.amount))
+                : '';
+
             noteEl.innerText =
                 'A ' +
                 nextPayday.paycheck.name +
-                ' payday around ' +
-                formatMoney(nextPayday.paycheck.amount) +
+                ' payday' +
+                amountPhrase +
                 ' is expected ' +
                 dateLabel +
-                ' — not counted here until you log it in Money in.';
+                ' — not counted here until you log it in Got paid.';
 
         } else {
 
@@ -4474,6 +4550,31 @@ function renderRunToPayday() {
     if (daysLeftEl) {
 
         daysLeftEl.innerText = daysLeft + (daysLeft === 1 ? ' day left' : ' days left');
+
+    }
+
+
+    var quickUpdateWrap = document.getElementById('quick-payday-update');
+
+    if (quickUpdateWrap) {
+
+        if (plannerState.paychecks.length === 0) {
+
+            quickUpdateWrap.style.display = 'block';
+
+            var quickDaysInput = document.getElementById('quick-days-to-payday');
+
+            if (quickDaysInput && document.activeElement !== quickDaysInput) {
+
+                quickDaysInput.value = plannerState.daysToPayday;
+
+            }
+
+        } else {
+
+            quickUpdateWrap.style.display = 'none';
+
+        }
 
     }
 
@@ -6226,7 +6327,14 @@ function addPaycheck() {
     var allocationPercent = parseFloat(allocationEl.value);
 
 
-    if (!name || isNaN(amount) || amount <= 0) {
+    if (isNaN(amount) || amount < 0) {
+
+        amount = 0;
+
+    }
+
+
+    if (!name) {
 
         nameEl.focus();
 
@@ -6414,12 +6522,11 @@ function renderPaychecks() {
         var takeHome = paycheck.amount * (1 - (paycheck.allocationPercent || 0) / 100);
 
         span.innerText =
-            formatMoney(paycheck.amount) +
-            ' • ' +
+            (paycheck.amount > 0 ? (formatMoney(paycheck.amount) + ' • ') : 'amount varies • ') +
             describePaycheckFrequency(paycheck) +
             ' • next ' +
             nextLabel +
-            (paycheck.allocationPercent > 0
+            (paycheck.allocationPercent > 0 && paycheck.amount > 0
                 ? (' • ' + formatMoney(takeHome) + ' take-home')
                 : '');
 
@@ -9737,6 +9844,15 @@ function switchView(viewId, el) {
         el.classList.add('active');
 
     }
+
+
+    var menuCards = document.querySelectorAll('.menu-card[data-view]');
+
+    menuCards.forEach(function(card) {
+
+        card.classList.toggle('active', card.dataset.view === viewId);
+
+    });
 
 }
 
