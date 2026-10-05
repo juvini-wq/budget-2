@@ -8093,12 +8093,90 @@ function renderDebtList() {
 
         minText.style.color = 'var(--text-muted)';
 
-        minText.innerText = formatMoney(debt.minimumPayment) + ' a month';
+        minText.innerText = (debt.minimumPayment > 0 ? formatMoney(debt.minimumPayment) + ' a month' : 'no minimum set');
+
+
+        var editMinInput = document.createElement('input');
+
+        editMinInput.type = 'number';
+
+        editMinInput.step = '0.01';
+
+        editMinInput.className = 'form-input';
+
+        editMinInput.id = 'debt-edit-min-' + debt.id;
+
+        editMinInput.placeholder = 'Minimum/month';
+
+        editMinInput.style.display = 'none';
+
+        editMinInput.style.maxWidth = '130px';
+
+
+        var saveEditedMin = function() {
+
+            var newMin = parseFloat(editMinInput.value);
+
+            if (isNaN(newMin) || newMin < 0) {
+                return;
+            }
+
+            debt.minimumPayment = newMin;
+
+            saveState();
+
+            renderDebts();
+
+        };
+
+        var editMinBtn = document.createElement('button');
+
+        editMinBtn.className = 'pill-btn';
+
+        editMinBtn.style.padding = '6px 12px';
+
+        editMinBtn.style.fontSize = '12px';
+
+        editMinBtn.innerText = 'Edit minimum';
+
+        editMinBtn.onclick = function() {
+
+            var isOpen = editMinInput.style.display === 'inline-block';
+
+            if (isOpen) {
+
+                saveEditedMin();
+
+            } else {
+
+                editMinInput.style.display = 'inline-block';
+
+                editMinInput.value = debt.minimumPayment || '';
+
+                editMinBtn.innerText = 'Save';
+
+                editMinInput.focus();
+
+            }
+
+        };
+
+        editMinInput.addEventListener('keydown', function(e) {
+
+            if (e.key === 'Enter') {
+                saveEditedMin();
+            }
+
+        });
 
 
         infoRow.appendChild(aprPill);
 
         infoRow.appendChild(minText);
+
+        infoRow.appendChild(editMinBtn);
+
+        infoRow.appendChild(editMinInput);
 
 
         var balanceEl = document.createElement('div');
