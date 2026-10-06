@@ -106,6 +106,72 @@ body {
     text-align: center;
     position: relative;
     z-index: 5;
+
+    padding: 6px 26px;
+    border-radius: 999px;
+
+    background: var(--month-fill, var(--accent-purple-light));
+    color: var(--month-ink, var(--text-primary));
+
+    transition: background 0.25s ease, color 0.25s ease, transform 0.15s ease;
+
+    touch-action: pan-y;
+    user-select: none;
+    -webkit-user-select: none;
+}
+
+.month-title.swiping {
+    transform: scale(0.96);
+}
+
+.month-dots {
+    display: flex;
+    justify-content: center;
+    gap: 5px;
+    margin-top: 8px;
+}
+
+.month-dot {
+    width: 5px;
+    height: 5px;
+    border-radius: 50%;
+    background: var(--input-border);
+    transition: background 0.2s ease, transform 0.2s ease;
+}
+
+.month-dot.active {
+    background: var(--month-fill, var(--accent-purple));
+    transform: scale(1.6);
+}
+
+:root {
+    --month-jan-fill: #cdd9f2; --month-jan-ink: #30405e;
+    --month-feb-fill: #f3cdd6; --month-feb-ink: #5e3340;
+    --month-mar-fill: #cfe8cf; --month-mar-ink: #33502f;
+    --month-apr-fill: #f6ddb8; --month-apr-ink: #5e4a24;
+    --month-may-fill: #fbe7a1; --month-may-ink: #5c5222;
+    --month-jun-fill: #bfe6e0; --month-jun-ink: #2b514c;
+    --month-jul-fill: #cfe0f7; --month-jul-ink: #2f4d6e;
+    --month-aug-fill: #e3cdf0; --month-aug-ink: #4a3159;
+    --month-sep-fill: #f0cdb0; --month-sep-ink: #5c3b24;
+    --month-oct-fill: #f3c3a6; --month-oct-ink: #5e3b26;
+    --month-nov-fill: #d6cdeb; --month-nov-ink: #3c3159;
+    --month-dec-fill: #c2ddf0; --month-dec-ink: #2c4a5e;
+}
+
+[data-theme="dark"] {
+    --month-jan-fill: #3a4866; --month-jan-ink: #d6e0f7;
+    --month-feb-fill: #603c48; --month-feb-ink: #f6dce2;
+    --month-mar-fill: #38513a; --month-mar-ink: #dcf0dc;
+    --month-apr-fill: #5c4a2c; --month-apr-ink: #f7e8cc;
+    --month-may-fill: #5c5428; --month-may-ink: #fbf0bf;
+    --month-jun-fill: #2e524c; --month-jun-ink: #cdf0e9;
+    --month-jul-fill: #334f6e; --month-jul-ink: #dceaf9;
+    --month-aug-fill: #503a5e; --month-aug-ink: #ecdcf5;
+    --month-sep-fill: #5c4028; --month-sep-ink: #f5ddc7;
+    --month-oct-fill: #5e4028; --month-oct-ink: #f7dcc7;
+    --month-nov-fill: #3e345e; --month-nov-ink: #e3dcf5;
+    --month-dec-fill: #2e4a5e; --month-dec-ink: #cfe3f5;
 }
 
 /* =========================
@@ -1206,7 +1272,7 @@ body {
 
     <div class="brand-pill">
 
-        <div class="brand-avatar">
+        <div class="brand-avatar" id="brand-avatar">
             V
         </div>
 
@@ -1217,15 +1283,17 @@ body {
     </div>
 
 
-    <!-- MONTH -->
+    <!-- MONTH (swipe left/right to browse — just a style preview, doesn't change your data) -->
 
-    <div class="month-row">
+    <div class="month-row" style="flex-direction:column; gap:0;">
 
         <h1
             class="month-title"
             id="month-title">
             August
         </h1>
+
+        <div class="month-dots" id="month-dots"></div>
 
     </div>
 
@@ -2560,6 +2628,37 @@ body {
 
         </div>
 
+
+        <div class="form-group" style="margin-bottom:0;">
+
+            <label class="form-label">
+                Seasonal theme
+            </label>
+
+            <div class="toggle-group" style="margin-bottom:0;">
+
+                <button
+                    class="toggle-btn active"
+                    id="btn-season-default"
+                    onclick="applySeasonalTheme('default')">
+
+                    Icy Blue
+
+                </button>
+
+                <button
+                    class="toggle-btn"
+                    id="btn-season-halloween"
+                    onclick="applySeasonalTheme('halloween')">
+
+                    🎃 Halloween
+
+                </button>
+
+            </div>
+
+        </div>
+
     </div>
 
 
@@ -3073,6 +3172,130 @@ body {
    DATE + MONTH
 ========================= */
 
+var MONTH_NAMES = [
+    'January', 'February', 'March', 'April', 'May', 'June',
+    'July', 'August', 'September', 'October', 'November', 'December'
+];
+
+var MONTH_KEYS = [
+    'jan', 'feb', 'mar', 'apr', 'may', 'jun',
+    'jul', 'aug', 'sep', 'oct', 'nov', 'dec'
+];
+
+var currentShownMonthIndex = 0;
+
+
+function applyMonthStyle(index) {
+
+    var titleEl = document.getElementById('month-title');
+
+    var dotsWrap = document.getElementById('month-dots');
+
+    if (!titleEl) {
+        return;
+    }
+
+    var key = MONTH_KEYS[index];
+
+    titleEl.innerText = MONTH_NAMES[index];
+
+    titleEl.style.setProperty('--month-fill', 'var(--month-' + key + '-fill)');
+
+    titleEl.style.setProperty('--month-ink', 'var(--month-' + key + '-ink)');
+
+
+    if (dotsWrap) {
+
+        dotsWrap.innerHTML = '';
+
+        MONTH_NAMES.forEach(function(name, i) {
+
+            var dot = document.createElement('span');
+
+            dot.className = 'month-dot' + (i === index ? ' active' : '');
+
+            dot.style.setProperty('--month-fill', 'var(--month-' + MONTH_KEYS[i] + '-fill)');
+
+            dotsWrap.appendChild(dot);
+
+        });
+
+    }
+
+}
+
+
+function showMonth(index) {
+
+    currentShownMonthIndex = ((index % 12) + 12) % 12;
+
+    applyMonthStyle(currentShownMonthIndex);
+
+}
+
+
+function initMonthSwiper(startIndex) {
+
+    showMonth(startIndex);
+
+
+    var titleEl = document.getElementById('month-title');
+
+    if (!titleEl) {
+        return;
+    }
+
+
+    var startX = 0;
+
+    var dragging = false;
+
+
+    function start(e) {
+
+        dragging = true;
+
+        var point = e.touches ? e.touches[0] : e;
+
+        startX = point.clientX;
+
+        titleEl.classList.add('swiping');
+
+    }
+
+    function end(e) {
+
+        if (!dragging) {
+            return;
+        }
+
+        dragging = false;
+
+        titleEl.classList.remove('swiping');
+
+        var point = e.changedTouches ? e.changedTouches[0] : e;
+
+        var dx = point.clientX - startX;
+
+        if (Math.abs(dx) > 40) {
+
+            showMonth(currentShownMonthIndex + (dx < 0 ? 1 : -1));
+
+        }
+
+    }
+
+    titleEl.addEventListener('touchstart', start, { passive: true });
+
+    titleEl.addEventListener('touchend', end);
+
+    titleEl.addEventListener('mousedown', start);
+
+    titleEl.addEventListener('mouseup', end);
+
+}
+
+
 window.onload = function() {
 
     var today = new Date();
@@ -3087,33 +3310,14 @@ window.onload = function() {
         'SATURDAY'
     ];
 
-    var months = [
-        'January',
-        'February',
-        'March',
-        'April',
-        'May',
-        'June',
-        'July',
-        'August',
-        'September',
-        'October',
-        'November',
-        'December'
-    ];
-
     var dayName = days[today.getDay()];
 
-    var monthName = months[today.getMonth()];
+    var monthName = MONTH_NAMES[today.getMonth()];
 
 
-    /* Month */
+    /* Month (swipeable style preview) */
 
-    var monthEl = document.getElementById('month-title');
-
-    if (monthEl) {
-        monthEl.innerText = monthName;
-    }
+    initMonthSwiper(today.getMonth());
 
 
     /* Date */
@@ -3218,7 +3422,9 @@ function defaultState() {
 
         theme: 'light',
 
-        accentColor: null
+        accentColor: null,
+
+        seasonalTheme: null
 
     };
 
@@ -3467,13 +3673,22 @@ function initMoneyEngine() {
 
     setTheme(plannerState.theme || 'light');
 
-    if (plannerState.accentColor) {
+    if (plannerState.seasonalTheme === 'halloween') {
+
+        applySeasonalTheme('halloween');
+
+    } else if (plannerState.accentColor) {
+
         setAccentColor(plannerState.accentColor);
+
     } else {
+
         var pickerEl = document.getElementById('accent-color-picker');
+
         if (pickerEl) {
             pickerEl.value = DEFAULT_ACCENT;
         }
+
     }
 
     populateSettingsFields();
@@ -10036,6 +10251,52 @@ function resetAccentColor() {
 
         saveState();
 
+    }
+
+}
+
+
+var HALLOWEEN_ACCENT = '#e2793c';
+
+
+function applySeasonalTheme(theme) {
+
+    var avatarEl = document.getElementById('brand-avatar');
+
+    if (plannerState) {
+
+        plannerState.seasonalTheme = (theme === 'halloween') ? 'halloween' : null;
+
+    }
+
+    if (theme === 'halloween') {
+
+        if (avatarEl) {
+            avatarEl.innerText = '🎃';
+        }
+
+        setAccentColor(HALLOWEEN_ACCENT);
+
+    } else {
+
+        if (avatarEl) {
+            avatarEl.innerText = 'V';
+        }
+
+        resetAccentColor();
+
+    }
+
+    var btnDefault = document.getElementById('btn-season-default');
+
+    var btnHalloween = document.getElementById('btn-season-halloween');
+
+    if (btnDefault) {
+        btnDefault.classList.toggle('active', theme !== 'halloween');
+    }
+
+    if (btnHalloween) {
+        btnHalloween.classList.toggle('active', theme === 'halloween');
     }
 
 }
