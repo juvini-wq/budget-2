@@ -7910,23 +7910,17 @@ function addDebtMinimumToCalendar(debtId) {
     }
 
 
-    if (!debt.minimumPayment || debt.minimumPayment <= 0) {
-
-        if (errEl) {
-
-            errEl.style.display = 'block';
-
-            errEl.innerText = 'Add a minimum payment amount for ' + debt.name + ' first (edit it above), then you can put the day on your calendar.';
-
-        }
-
-        return;
-
+    if (errEl) {
+        errEl.style.display = 'none';
     }
 
 
-    if (errEl) {
-        errEl.style.display = 'none';
+    var amountEl = document.getElementById('debt-cal-amount-' + debtId);
+
+    var amount = parseFloat(amountEl.value);
+
+    if (isNaN(amount) || amount < 0) {
+        amount = 0;
     }
 
 
@@ -7951,11 +7945,14 @@ function addDebtMinimumToCalendar(debtId) {
     }
 
 
+    debt.minimumPayment = amount;
+
+
     var bill = {
 
         id: Date.now() + '-' + Math.random().toString(36).slice(2),
 
-        name: debt.name + ' minimum payment',
+        name: debt.name + ' payment',
 
         amount: debt.minimumPayment,
 
@@ -8087,96 +8084,7 @@ function renderDebtList() {
         aprPill.innerText = debt.apr + '% APR';
 
 
-        var minText = document.createElement('span');
-
-        minText.style.fontSize = '13px';
-
-        minText.style.color = 'var(--text-muted)';
-
-        minText.innerText = (debt.minimumPayment > 0 ? formatMoney(debt.minimumPayment) + ' a month' : 'no minimum set');
-
-
-        var editMinInput = document.createElement('input');
-
-        editMinInput.type = 'number';
-
-        editMinInput.step = '0.01';
-
-        editMinInput.className = 'form-input';
-
-        editMinInput.id = 'debt-edit-min-' + debt.id;
-
-        editMinInput.placeholder = 'Minimum/month';
-
-        editMinInput.style.display = 'none';
-
-        editMinInput.style.maxWidth = '130px';
-
-
-        var saveEditedMin = function() {
-
-            var newMin = parseFloat(editMinInput.value);
-
-            if (isNaN(newMin) || newMin < 0) {
-                return;
-            }
-
-            debt.minimumPayment = newMin;
-
-            saveState();
-
-            renderDebts();
-
-        };
-
-        var editMinBtn = document.createElement('button');
-
-        editMinBtn.className = 'pill-btn';
-
-        editMinBtn.style.padding = '6px 12px';
-
-        editMinBtn.style.fontSize = '12px';
-
-        editMinBtn.innerText = 'Edit minimum';
-
-        editMinBtn.onclick = function() {
-
-            var isOpen = editMinInput.style.display === 'inline-block';
-
-            if (isOpen) {
-
-                saveEditedMin();
-
-            } else {
-
-                editMinInput.style.display = 'inline-block';
-
-                editMinInput.value = debt.minimumPayment || '';
-
-                editMinBtn.innerText = 'Save';
-
-                editMinInput.focus();
-
-            }
-
-        };
-
-        editMinInput.addEventListener('keydown', function(e) {
-
-            if (e.key === 'Enter') {
-                saveEditedMin();
-            }
-
-        });
-
-
         infoRow.appendChild(aprPill);
-
-        infoRow.appendChild(minText);
-
-        infoRow.appendChild(editMinBtn);
-
-        infoRow.appendChild(editMinInput);
 
 
         var balanceEl = document.createElement('div');
@@ -8578,7 +8486,7 @@ function renderDebtList() {
             var promptText = document.createElement('div');
 
             promptText.innerText =
-                'Not on your calendar — add the day the minimum comes out.';
+                'Not on your calendar — just add the day it\'s due.';
 
 
             var subText = document.createElement('div');
@@ -8596,6 +8504,21 @@ function renderDebtList() {
             addRow.style.display = 'flex';
 
             addRow.style.gap = '8px';
+
+
+            var amountInput = document.createElement('input');
+
+            amountInput.type = 'number';
+
+            amountInput.step = '0.01';
+
+            amountInput.className = 'form-input';
+
+            amountInput.id = 'debt-cal-amount-' + debt.id;
+
+            amountInput.placeholder = 'Amount (optional)';
+
+            amountInput.value = debt.minimumPayment > 0 ? debt.minimumPayment : '';
 
 
             var dayInput = document.createElement('input');
@@ -8621,7 +8544,7 @@ function renderDebtList() {
 
             addDayBtn.style.padding = '0 16px';
 
-            addDayBtn.innerText = 'Add the day';
+            addDayBtn.innerText = 'Add';
 
             addDayBtn.onclick = function() {
 
@@ -8629,6 +8552,8 @@ function renderDebtList() {
 
             };
 
+
+            addRow.appendChild(amountInput);
 
             addRow.appendChild(dayInput);
 
