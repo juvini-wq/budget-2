@@ -553,6 +553,13 @@ html, body {
         <div class="card-desc" id="debt-glance-note" style="margin:10px 0 0; font-size:11px;"></div>
     </div>
 
+    <div class="card" style="padding:16px 14px;">
+        <div class="card-tag">REAL PAY THIS MONTH</div>
+        <div class="card-desc" style="margin-bottom:6px; font-size:12px;">What you paid vs. what actually reduced your balance — the rest went to interest.</div>
+        <div id="debt-realpay-list"><!-- per-card payment split renders here --></div>
+        <div class="card-desc" style="margin:10px 0 0; font-size:11px;">Interest is estimated as one month of your APR on the balance at the time you paid.</div>
+    </div>
+
     <div class="card">
         <div class="card-tag">PAYOFF ORDER</div>
         <div class="card-desc">Choose how you want to attack it.</div>
@@ -1887,11 +1894,18 @@ function toggleBillPaid(billId, dKey) {
     if (idx === -1) {
         // marking paid: remember exactly what was paid, since a card's minimum changes as its balance does
         var paidAmt = bill.amount;
+        var paySrc = 'checking';
+        if (bill.linkedDebtId) {
+            var srcDebt = plannerState.debts.find(function(d) { return d.id === bill.linkedDebtId; });
+            if (srcDebt && srcDebt.paySource) { paySrc = srcDebt.paySource; }
+        }
         bill.paidOccurrences.push(dKey);
         if (!bill.paidAmounts) { bill.paidAmounts = {}; }
+        if (!bill.paidSources) { bill.paidSources = {}; }
         bill.paidAmounts[dKey] = paidAmt;
+        bill.paidSources[dKey] = paySrc;
 
-        if (!bill.setAside) { plannerState.balance -= paidAmt; }
+        if (!bill.setAside) { applyPaymentSource(paySrc, paidAmt, -1); }
 
         if (bill.linkedDebtId) {
             var debtToReduce = plannerState.debts.find(function(d) { return d.id === bill.linkedDebtId; });
@@ -1905,6 +1919,7 @@ function toggleBillPaid(billId, dKey) {
                     principalApplied: linkedSplit.principalPortion,
                     interestApplied: linkedSplit.interestPortion,
                     date: dKey,
+                    source: paySrc,
                     fromBillId: billId,
                     fromBillOccurrence: dKey
                 });
@@ -1913,10 +1928,12 @@ function toggleBillPaid(billId, dKey) {
         }
     } else {
         var undoAmt = (bill.paidAmounts && bill.paidAmounts[dKey] !== undefined) ? bill.paidAmounts[dKey] : bill.amount;
+        var undoSrc = (bill.paidSources && bill.paidSources[dKey]) ? bill.paidSources[dKey] : 'checking';
         bill.paidOccurrences.splice(idx, 1);
         if (bill.paidAmounts) { delete bill.paidAmounts[dKey]; }
+        if (bill.paidSources) { delete bill.paidSources[dKey]; }
 
-        if (!bill.setAside) { plannerState.balance += undoAmt; }
+        if (!bill.setAside) { applyPaymentSource(undoSrc, undoAmt, +1); }
 
         if (bill.linkedDebtId) {
             var debtToRestore = plannerState.debts.find(function(d) { return d.id === bill.linkedDebtId; });
@@ -1936,6 +1953,7 @@ function toggleBillPaid(billId, dKey) {
 
     saveState();
     populateSettingsFields();
+    renderTransfers();
     renderBills();
     renderDebts();
     renderToday();
@@ -2063,6 +2081,27 @@ function renderBillsUpcomingList() {
             payEarlyLine.style.color = 'var(--text-muted)';
             payEarlyLine.innerText = 'Pay 2 days early by ' + payEarlyLabel + ' to be safe.';
             item.appendChild(payEarlyLine);
+        }
+
+        if (occ.bill.linkedDebtId) {
+            var linkedDebt = plannerState.debts.find(function(d) { return d.id === occ.bill.linkedDebtId; });
+            if (linkedDebt) {
+                var realLine = document.createElement('div');
+                realLine.style.fontSize = '12px';
+                realLine.style.color = 'var(--text-muted)';
+                var done = paid ? (linkedDebt.payments || []).find(function(p) {
+                    return p.fromBillId === occ.bill.id && p.fromBillOccurrence === dKey;
+                }) : null;
+                if (done && done.principalApplied !== undefined) {
+                    realLine.innerText = 'Real pay: ' + formatMoney(done.principalApplied) + ' went to the balance, ' + formatMoney(done.interestApplied) + ' interest.';
+                } else if (!paid) {
+                    var sp = calculateDebtInterestSplit(linkedDebt, occ.bill.amount);
+                    realLine.innerText = sp.principalPortion >= 0
+                        ? 'Real pay: about ' + formatMoney(sp.principalPortion) + ' to the balance, ' + formatMoney(sp.interestPortion) + ' interest.'
+                        : 'Real pay: this won\'t cover the ' + formatMoney(sp.interestPortion) + ' interest.';
+                }
+                if (realLine.innerText) { item.appendChild(realLine); }
+            }
         }
         listEl.appendChild(item);
     });
@@ -2669,14 +2708,55 @@ function updateDebtPayPreview(debtId) {
         return;
     }
     var split = calculateDebtInterestSplit(debt, amount);
+    previewEl.style.fontWeight = '600';
+    previewEl.style.lineHeight = '1.4';
     if (split.principalPortion < 0) {
         previewEl.style.color = 'var(--accent-red)';
-        previewEl.innerText = "This won't cover this period's interest (" + formatMoney(split.interestPortion) +
-            ') — the balance will go up by ' + formatMoney(-split.principalPortion) + '.';
+        previewEl.innerText = "Real pay: $0.00 to your balance. This " + formatMoney(amount) +
+            " doesn't cover this month's interest (" + formatMoney(split.interestPortion) +
+            "), so the balance goes up by " + formatMoney(-split.principalPortion) + '.';
     } else {
-        previewEl.style.color = 'var(--text-muted)';
-        previewEl.innerText = formatMoney(split.principalPortion) + ' goes to your balance, ' + formatMoney(split.interestPortion) + ' is interest.';
+        previewEl.style.color = 'var(--text-primary)';
+        previewEl.innerText = 'Real pay: ' + formatMoney(split.principalPortion) + ' goes to your balance · ' +
+            formatMoney(split.interestPortion) + ' is interest (of ' + formatMoney(amount) + ').';
     }
+}
+
+/* ---------- Where a card payment comes from ---------- */
+var debtPayFlash = {};
+
+function applyPaymentSource(source, amount, sign) {
+    // sign: -1 = money leaves, +1 = money comes back (undo)
+    if (source === 'savings') {
+        plannerState.savingsBalance += sign * amount;
+    } else if (source === 'other') {
+        // paid from somewhere not tracked here — nothing to adjust
+    } else {
+        plannerState.balance += sign * amount;
+    }
+}
+
+function paySourceNote(src) {
+    if (src === 'savings') { return 'Comes out of your savings.'; }
+    if (src === 'other') { return "Paid from somewhere else (not tracked) — your checking and savings stay as they are."; }
+    return 'Comes out of your checking, so Safe to Spend updates.';
+}
+
+function paySourceName(src) {
+    return src === 'savings' ? 'savings' : (src === 'other' ? 'another source' : 'checking');
+}
+
+function setDebtPaySource(debtId, src, wrapEl, noteEl) {
+    var debt = plannerState.debts.find(function(d) { return d.id === debtId; });
+    if (!debt) { return; }
+    debt.paySource = src;
+    saveState();
+    if (wrapEl) {
+        wrapEl.querySelectorAll('.pill-btn').forEach(function(b) {
+            b.classList.toggle('selected', b.dataset.src === src);
+        });
+    }
+    if (noteEl) { noteEl.innerText = paySourceNote(src); }
 }
 
 function logDebtPayment(debtId) {
@@ -2690,20 +2770,58 @@ function logDebtPayment(debtId) {
         return;
     }
 
+    var source = debt.paySource || 'checking';
     var split = calculateDebtInterestSplit(debt, amount);
+
     debt.balance = Math.max(0, debt.balance - split.principalPortion);
     recordDebtBalanceSnapshot(debt);
-    debt.payments.push({
+
+    var payment = {
         id: Date.now() + '-' + Math.random().toString(36).slice(2),
         amount: amount,
         principalApplied: split.principalPortion,
         interestApplied: split.interestPortion,
-        date: todayKey()
-    });
-    plannerState.balance -= amount;
+        date: todayKey(),
+        source: source
+    };
+
+    // If this covers the card's payment on your calendar for this month, tick it off
+    // so Safe to Spend doesn't count it twice (once as money gone, once as a bill still to come).
+    var tickedOff = false;
+    var bill = findLinkedBillForDebt(debt.id);
+    if (bill && amount >= bill.amount - 0.005) {
+        var occs = getBillOccurrences(bill, startOfCurrentMonth(), endOfCurrentMonth());
+        for (var i = 0; i < occs.length; i++) {
+            if (!isOccurrencePaid(bill, occs[i])) {
+                var dKey = dateKey(occs[i]);
+                bill.paidOccurrences.push(dKey);
+                if (!bill.paidAmounts) { bill.paidAmounts = {}; }
+                if (!bill.paidSources) { bill.paidSources = {}; }
+                bill.paidAmounts[dKey] = amount;
+                bill.paidSources[dKey] = source;
+                payment.fromBillId = bill.id;
+                payment.fromBillOccurrence = dKey;
+                tickedOff = true;
+                break;
+            }
+        }
+    }
+
+    debt.payments.push(payment);
+    applyPaymentSource(source, amount, -1);
     saveState();
 
+    var msg = 'Recorded ' + formatMoney(amount) + ' from ' + paySourceName(source) + ': ' +
+        formatMoney(Math.max(split.principalPortion, 0)) + ' to balance, ' +
+        formatMoney(split.interestPortion) + ' interest.';
+    if (tickedOff) { msg += " Ticked off this month's payment."; }
+    if (source === 'checking') { msg += ' Checking is now ' + formatMoney(plannerState.balance) + '.'; }
+    if (source === 'savings') { msg += ' Savings is now ' + formatMoney(plannerState.savingsBalance) + '.'; }
+    debtPayFlash[debtId] = msg;
+
     populateSettingsFields();
+    renderTransfers();
+    renderBills();
     renderDebts();
     renderToday();
     checkDebtPaidMilestone(debt);
@@ -2724,6 +2842,7 @@ function renderDebts() {
     }
     renderDebtTotal();
     renderDebtGlance();
+    renderDebtRealPay();
     renderDebtList();
     updateDebtStrategyButtons();
     renderDebtPlan();
@@ -2896,6 +3015,10 @@ function renderDebtGlance() {
         var c2 = mk('div');
         c2.appendChild(mk('div', 'glance-num', formatMoneyShort(debt.balance)));
         c2.appendChild(mk('div', 'glance-sub', 'min ' + formatMoneyShort(debt.minimumPayment)));
+        if (debt.balance > 0) {
+            var gSplit = calculateDebtInterestSplit(debt, debt.minimumPayment);
+            c2.appendChild(mk('div', 'glance-sub', formatMoneyShort(Math.max(gSplit.principalPortion, 0)) + ' to balance'));
+        }
 
         // utilization
         var c3 = mk('div');
@@ -2969,6 +3092,68 @@ function renderDebtGlance() {
         if (missingLimit) { notes.push('Add a credit limit to see utilization.'); }
         noteEl.innerText = notes.join(' ');
     }
+}
+
+function renderDebtRealPay() {
+    var listEl = document.getElementById('debt-realpay-list');
+    if (!listEl) { return; }
+
+    var cutoff = dateKey(startOfCurrentMonth());
+    var rows = [];
+
+    plannerState.debts.forEach(function(debt) {
+        var paid = 0, toBal = 0, interest = 0, n = 0;
+        (debt.payments || []).forEach(function(p) {
+            if (p.date >= cutoff) {
+                paid += p.amount;
+                toBal += (p.principalApplied !== undefined ? p.principalApplied : p.amount);
+                interest += (p.interestApplied !== undefined ? p.interestApplied : 0);
+                n++;
+            }
+        });
+        if (n > 0) { rows.push({ debt: debt, paid: paid, toBal: toBal, interest: interest }); }
+    });
+
+    listEl.innerHTML = '';
+
+    if (rows.length === 0) {
+        listEl.appendChild(mk('div', 'card-desc', 'No card payments logged this month yet.'));
+        listEl.lastChild.style.margin = '8px 0 0';
+        return;
+    }
+
+    var head = mk('div', 'glance-row glance-head');
+    head.appendChild(mk('div', '', 'Card'));
+    head.appendChild(mk('div', '', 'You paid'));
+    head.appendChild(mk('div', '', 'Interest'));
+    head.appendChild(mk('div', '', 'To balance'));
+    listEl.appendChild(head);
+
+    var tPaid = 0, tInt = 0, tBal = 0;
+
+    rows.forEach(function(r) {
+        tPaid += r.paid; tInt += r.interest; tBal += r.toBal;
+        var row = mk('div', 'glance-row');
+        row.appendChild(mk('div', 'glance-name', r.debt.name));
+        row.appendChild(mk('div', 'glance-num', formatMoney(r.paid)));
+        row.appendChild(mk('div', 'glance-num t-high', formatMoney(r.interest)));
+        var c4 = mk('div');
+        c4.appendChild(mk('div', 'glance-num t-low', formatMoney(r.toBal)));
+        var pct = r.paid > 0 ? Math.round((r.toBal / r.paid) * 100) : 0;
+        c4.appendChild(mk('div', 'glance-sub', pct + '% of payment'));
+        row.appendChild(c4);
+        listEl.appendChild(row);
+    });
+
+    var total = mk('div', 'glance-row glance-total');
+    total.appendChild(mk('div', 'glance-name', 'All cards'));
+    total.appendChild(mk('div', 'glance-num', formatMoney(tPaid)));
+    total.appendChild(mk('div', 'glance-num t-high', formatMoney(tInt)));
+    var t4 = mk('div');
+    t4.appendChild(mk('div', 'glance-num t-low', formatMoney(tBal)));
+    t4.appendChild(mk('div', 'glance-sub', (tPaid > 0 ? Math.round((tBal / tPaid) * 100) : 0) + '% of payment'));
+    total.appendChild(t4);
+    listEl.appendChild(total);
 }
 
 function updateDebtStrategyButtons() {
@@ -3177,6 +3362,16 @@ function renderDebtList() {
         card.appendChild(balanceEl);
         card.appendChild(editBalanceRow);
 
+        if (debt.balance > 0) {
+            var minSplit = calculateDebtInterestSplit(debt, debt.minimumPayment);
+            var minBox = document.createElement('div');
+            minBox.style.cssText = 'font-size:12px; color:var(--text-muted); line-height:1.4;';
+            minBox.innerText = 'Your minimum ' + formatMoney(debt.minimumPayment) + ' = ' +
+                formatMoney(minSplit.interestPortion) + ' interest + ' +
+                formatMoney(Math.max(minSplit.principalPortion, 0)) + ' that actually goes to the balance.';
+            card.appendChild(minBox);
+        }
+
         if (debt.creditLimit && debt.creditLimit > 0) {
             var usagePct = Math.min(100, (debt.balance / debt.creditLimit) * 100);
             var usageTier = utilTier(usagePct);
@@ -3361,6 +3556,31 @@ function renderDebtList() {
         }
         card.appendChild(callout);
 
+        var srcLabel = document.createElement('div');
+        srcLabel.style.fontSize = '12px';
+        srcLabel.style.fontWeight = '600';
+        srcLabel.innerText = 'Paid from';
+
+        var srcWrap = document.createElement('div');
+        srcWrap.className = 'category-pill-row';
+        var srcNote = document.createElement('div');
+        srcNote.style.fontSize = '12px';
+        srcNote.style.color = 'var(--text-muted)';
+        srcNote.innerText = paySourceNote(debt.paySource || 'checking');
+
+        [['checking', 'Checking'], ['savings', 'Savings'], ['other', 'Other']].forEach(function(o) {
+            var b = document.createElement('button');
+            b.className = 'pill-btn' + ((debt.paySource || 'checking') === o[0] ? ' selected' : '');
+            b.dataset.src = o[0];
+            b.innerText = o[1];
+            b.onclick = function() { setDebtPaySource(debt.id, o[0], srcWrap, srcNote); };
+            srcWrap.appendChild(b);
+        });
+
+        card.appendChild(srcLabel);
+        card.appendChild(srcWrap);
+        card.appendChild(srcNote);
+
         var payRow = document.createElement('div');
         payRow.style.display = 'flex';
         payRow.style.gap = '8px';
@@ -3391,21 +3611,51 @@ function renderDebtList() {
         previewLine.style.minHeight = '16px';
         card.appendChild(previewLine);
 
+        if (debtPayFlash[debt.id]) {
+            var flashEl = document.createElement('div');
+            flashEl.style.cssText = 'font-size:12px; font-weight:600; background:var(--accent-green-bg); color:var(--accent-green); border-radius:12px; padding:10px 12px; line-height:1.4;';
+            flashEl.innerText = debtPayFlash[debt.id];
+            card.appendChild(flashEl);
+        }
+
         var historyLabel = document.createElement('div');
         historyLabel.style.fontSize = '12px';
         historyLabel.style.color = 'var(--text-muted)';
+        historyLabel.style.lineHeight = '1.5';
 
         if (debt.payments.length === 0) {
             historyLabel.innerText = 'No payments logged yet';
         } else {
-            var last = debt.payments[debt.payments.length - 1];
-            var d = parseDateInput(last.date);
-            var dateLabel = d.toLocaleDateString(undefined, { month: 'short', day: 'numeric' });
-            var splitNote = (last.principalApplied !== undefined)
-                ? (' (' + formatMoney(last.principalApplied) + ' to balance, ' + formatMoney(last.interestApplied) + ' interest)')
-                : '';
-            historyLabel.innerText = debt.payments.length + (debt.payments.length === 1 ? ' payment' : ' payments') +
-                ' logged • last ' + formatMoney(last.amount) + splitNote + ' on ' + dateLabel;
+            var paidAll = 0, toBalAll = 0, interestAll = 0;
+            debt.payments.forEach(function(p) {
+                if (p.principalApplied !== undefined) {
+                    paidAll += p.amount;
+                    toBalAll += Math.max(p.principalApplied, 0);
+                    interestAll += p.interestApplied;
+                }
+            });
+
+            var totalsLine = document.createElement('div');
+            totalsLine.style.color = 'var(--text-primary)';
+            totalsLine.style.fontWeight = '600';
+            totalsLine.innerText = 'Paid so far ' + formatMoney(paidAll) + ' → ' +
+                formatMoney(toBalAll) + ' to balance, ' + formatMoney(interestAll) + ' interest';
+            historyLabel.appendChild(totalsLine);
+
+            debt.payments.slice(-5).reverse().forEach(function(p) {
+                var d = parseDateInput(p.date);
+                var dLabel = d.toLocaleDateString(undefined, { month: 'short', day: 'numeric' });
+                var line = document.createElement('div');
+                if (p.principalApplied !== undefined) {
+                    line.innerText = dLabel + ' · ' + formatMoney(p.amount) + ' → ' +
+                        formatMoney(Math.max(p.principalApplied, 0)) + ' to balance · ' +
+                        formatMoney(p.interestApplied) + ' interest' +
+                        (p.source && p.source !== 'checking' ? ' · from ' + paySourceName(p.source) : '');
+                } else {
+                    line.innerText = dLabel + ' · ' + formatMoney(p.amount);
+                }
+                historyLabel.appendChild(line);
+            });
         }
         card.appendChild(historyLabel);
 
