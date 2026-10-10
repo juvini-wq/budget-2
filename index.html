@@ -2,7 +2,7 @@
 <html lang="en">
 <head>
 <meta charset="UTF-8">
-<meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
+<meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no, viewport-fit=cover">
 <title>Vicky's Planner</title>
 <link rel="preconnect" href="https://fonts.googleapis.com">
 <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
@@ -54,7 +54,7 @@ html, body {
     color: var(--text-primary);
     font-family: 'Inter', -apple-system, sans-serif;
     min-height: 100vh;
-    padding-bottom: 30px;
+    padding-bottom: 110px;
 }
 .serif { font-family: 'Instrument Serif', Georgia, serif; }
 
@@ -284,6 +284,27 @@ html, body {
 .t-overdue { color: var(--accent-red); font-weight: 700; }
 .t-soon { color: #b7791f; font-weight: 700; }
 .t-paid { color: var(--accent-green); font-weight: 700; }
+
+/* QUICK ACTIONS */
+.quick-actions { display: grid; grid-template-columns: repeat(3,1fr); gap: 10px; }
+.quick-action { background: var(--bg-card); border: 1px solid var(--bg-card-border); border-radius: 18px; padding: 14px 6px; color: var(--text-primary); font-size: 13px; font-weight: 600; display: flex; flex-direction: column; align-items: center; gap: 8px; cursor: pointer; }
+.quick-action:active { transform: scale(0.97); }
+.qa-ico { width: 38px; height: 38px; border-radius: 50%; background: var(--accent-purple-light); color: var(--accent-purple); display: flex; align-items: center; justify-content: center; font-size: 22px; font-weight: 700; line-height: 1; }
+
+/* ACCORDIONS */
+.acc { border-top: 1px solid var(--input-border); }
+.acc-head { width: 100%; display: flex; justify-content: space-between; align-items: center; background: none; border: none; color: var(--text-primary); font-size: 15px; font-weight: 600; padding: 14px 0; cursor: pointer; text-align: left; }
+.acc .chev, .debt-top-row .chev { color: var(--text-muted); font-size: 18px; transition: transform 0.2s ease; }
+.acc.open > .acc-head .chev { transform: rotate(90deg); }
+.acc-body { display: none; padding: 2px 0 14px; }
+.acc.open > .acc-body { display: block; }
+
+/* BOTTOM NAV */
+.bottom-nav { position: fixed; left: 0; right: 0; bottom: 0; z-index: 250; background: var(--nav-bg); border-top: 1px solid var(--bg-card-border); padding: 6px 8px calc(6px + env(safe-area-inset-bottom)); }
+.bottom-nav-inner { max-width: 500px; margin: 0 auto; display: flex; }
+.nav-item { flex: 1; background: none; border: none; display: flex; flex-direction: column; align-items: center; gap: 2px; color: var(--text-muted); font-size: 11px; font-weight: 600; padding: 6px 0; cursor: pointer; }
+.nav-item .nav-ico { font-size: 21px; line-height: 1.2; }
+.nav-item.active { color: var(--accent-purple); }
 </style>
 </head>
 <body data-theme="light">
@@ -317,27 +338,73 @@ html, body {
 <!-- TODAY -->
 <div id="view-today" class="view-section active-view">
 
-    <div class="card" id="next-bill-card-wrap" style="display:none;">
-        <div class="card-tag" style="margin-bottom:0;">NEXT BILL DUE</div>
-        <div id="next-bill-content" style="margin-top:10px;"><!-- soonest unpaid bill renders here --></div>
+    <div class="card" style="background:linear-gradient(135deg, #ffd9e8 0%, #d9f2ff 35%, #e2ffe6 68%, #fff6cc 100%); border-color:rgba(255,255,255,0.6);">
+        <div class="card-tag">SAFE TO SPEND TODAY</div>
+        <div class="card-title serif" id="safe-to-spend-amount" style="font-size:42px;margin-top:4px;">$0.00</div>
+        <div class="card-desc" id="safe-to-spend-subtitle">of today's starting balance</div>
+        <div class="card-desc" id="payday-not-counted-note" style="display:none; margin-top:10px;"></div>
+        <button class="breakdown-toggle" onclick="toggleBreakdownPanel()">How is this worked out?</button>
+        <div class="breakdown-panel" id="breakdown-panel">
+        <div class="info-pill-row">
+            <div class="info-pill"><span class="info-pill-label">UNTIL</span><span id="pill-until-date">—</span></div>
+            <div class="info-pill"><span class="info-pill-label">REMAINING</span><span id="pill-remaining-amount">$0.00</span></div>
+        </div>
+
+            <div class="breakdown-row"><span>In checking</span><span id="breakdown-checking">$0.00</span></div>
+            <div class="breakdown-row"><span>In savings (not counted below)</span><span id="breakdown-savings">$0.00</span></div>
+            <div class="breakdown-row"><span>Arrived after that balance</span><span id="breakdown-arrived">+$0.00</span></div>
+            <div class="breakdown-row"><span>Bills still to land</span><span id="breakdown-bills">-$0.00</span></div>
+            <div class="breakdown-row"><span>Paid and spent after that balance</span><span id="breakdown-spent">-$0.00</span></div>
+            <div class="breakdown-row"><span>Already set aside</span><span id="breakdown-setaside">-$0.00</span></div>
+            <div class="breakdown-row"><span>Safe until payday</span><span id="breakdown-total">$0.00</span></div>
+        </div>
+        <div class="safe-progress-track"><div class="safe-progress-fill" id="today-progress-fill" style="width:0%;"></div></div>
+        <div class="card-desc" id="today-progress-caption" style="margin-top:6px; margin-bottom:0;">$0.00 of today's starting $0.00</div>
+    </div>
+
+    <div class="quick-actions">
+        <button class="quick-action" onclick="openLogSpendModal()"><span class="qa-ico">−</span>Log spend</button>
+        <button class="quick-action" onclick="openQuickIncomeModal()"><span class="qa-ico">+</span>Got paid</button>
+        <button class="quick-action" onclick="openMoveMoneyModal()"><span class="qa-ico">⇄</span>Move money</button>
+    </div>
+
+    <div class="card">
+        <div class="card-tag">COMING UP</div>
+        <div class="card-desc" id="coming-up-note" style="display:none; color:var(--accent-red);">Heads up — these bills are more than what's safe to spend right now.</div>
+        <div class="upcoming-list" id="coming-up-list" style="margin-top:0;"><!-- next bills render here --></div>
     </div>
 
     <div class="card">
         <div style="display:flex; justify-content:space-between; align-items:center;">
-            <div class="card-tag" style="margin-bottom:0;">LOG A SPEND</div>
+            <div class="card-tag" style="margin-bottom:0;">SPENT TODAY</div>
             <span class="card-desc" id="today-logged-count" style="margin-bottom:0;">0 logged today</span>
         </div>
-        <button class="action-btn-primary" style="margin-top:14px;" onclick="openLogSpendModal()">+ Log a spend</button>
-        <div class="upcoming-list" id="today-spends-list" style="margin-top:14px;"><!-- today's logged spends render here --></div>
+        <div class="upcoming-list" id="today-spends-list" style="margin-top:12px;"><!-- today's logged spends render here --></div>
     </div>
 
     <div class="card">
-        <div style="display:flex; justify-content:space-between; align-items:center;">
-            <div class="card-tag" style="margin-bottom:0;">GOT PAID?</div>
-            <span class="card-desc" id="today-income-count" style="margin-bottom:0;">0 logged today</span>
+        <div class="card-tag">RUN TO PAYDAY</div>
+        <div class="card-desc" id="run-days-left" style="margin-bottom:0;">No payday set up yet</div>
+        <div id="quick-payday-update" style="display:none; margin-top:10px;">
+            <div style="display:flex; gap:8px; align-items:center;">
+                <input type="number" min="1" step="1" class="form-input" id="quick-days-to-payday" placeholder="Days away" style="max-width:110px;">
+                <button class="action-btn-primary" style="width:auto; padding:0 16px;" onclick="updateQuickDaysToPayday()">Update</button>
+            </div>
+            <div class="card-desc" style="margin-top:6px; margin-bottom:0;">Pay varies? Just update this whenever your estimate changes — no fixed schedule needed.</div>
         </div>
-        <div class="card-desc" style="margin-top:6px;">Since your pay varies, log the real amount the moment it lands.</div>
-        <button class="action-btn-primary" onclick="openQuickIncomeModal()">+ Add income</button>
+        <button class="breakdown-toggle" id="run-details-toggle" onclick="toggleRunDetails()">Show details</button>
+        <div id="run-details-panel" style="display:none; margin-top:10px;">
+            <div class="payday-track" id="payday-track"><!-- day-by-day segments render here --></div>
+            <div class="payday-labels">
+                <span id="payday-label-start">—</span>
+                <span id="payday-label-today">today</span>
+                <span id="payday-label-end">payday</span>
+            </div>
+            <div id="payday-bills-list" style="margin-top:14px;"><!-- bills due before payday render here --></div>
+            <div class="breakdown-row" style="margin-top:14px;"><span>Left to last</span><span id="run-left-to-last">$0.00</span></div>
+            <div class="breakdown-row"><span>Each day from here</span><span id="run-each-day">about $0/day</span></div>
+            <div class="breakdown-row" style="border-bottom:none;"><span>Logged so far this period</span><span id="run-logged-so-far">nothing yet</span></div>
+        </div>
     </div>
 
     <div class="more-modal" id="quick-income-modal" onclick="closeQuickIncomeModal()">
@@ -382,8 +449,17 @@ html, body {
                 <button class="pill-btn" data-category="Coffee" onclick="selectSpendCategory('Coffee')">Coffee</button>
                 <button class="pill-btn" data-category="Transport" onclick="selectSpendCategory('Transport')">Transport</button>
             </div>
+            <div class="card-desc" style="margin-top:14px; margin-bottom:6px;">Paid from</div>
+            <div class="category-pill-row" id="spend-source-pills">
+                <button class="pill-btn selected" data-src="checking" onclick="selectSpendSource('checking')">Checking</button>
+                <button class="pill-btn" data-src="savings" onclick="selectSpendSource('savings')">Savings</button>
+                <button class="pill-btn" id="spend-source-card-btn" data-src="card" style="display:none;" onclick="selectSpendSource('card')">Card</button>
+                <button class="pill-btn" data-src="other" onclick="selectSpendSource('other')">Other</button>
+            </div>
+            <div class="card-desc" id="spend-source-note" style="margin-top:6px; margin-bottom:0; font-size:12px;"></div>
+
             <div id="card-option-section" style="display:none;">
-                <div class="card-desc" style="margin-top:14px; margin-bottom:6px;">On a card?</div>
+                <div class="card-desc" style="margin-top:14px; margin-bottom:6px;">Which card?</div>
                 <div class="category-pill-row" id="card-option-pills"><!-- your debts/cards render here as selectable pills --></div>
             </div>
             <button class="breakdown-toggle" id="spend-details-toggle" onclick="toggleSpendDetails()">+ Add details</button>
@@ -392,16 +468,6 @@ html, body {
             </div>
             <button class="action-btn-primary" style="margin-top:18px;" onclick="logCustomSpend()">Add to today</button>
         </div>
-    </div>
-
-    <div class="card">
-        <div style="display:flex; justify-content:space-between; align-items:center;">
-            <div class="card-tag" style="margin-bottom:0;">MOVE MONEY</div>
-            <span class="card-desc" id="savings-balance-display" style="margin-bottom:0;">Savings: $0.00</span>
-        </div>
-        <div class="card-desc" style="margin-top:6px;">When a check comes in, decide what goes where.</div>
-        <button class="action-btn-primary" onclick="openMoveMoneyModal()">+ Move money</button>
-        <div class="upcoming-list" id="transfers-list" style="margin-top:14px;"><!-- recent transfers render here --></div>
     </div>
 
     <div class="more-modal" id="move-money-modal" onclick="closeMoveMoneyModal()">
@@ -422,66 +488,13 @@ html, body {
                 <input type="text" class="form-input" id="transfer-note" placeholder="Rent fund, Visa payoff...">
             </div>
             <button class="action-btn-primary" onclick="logTransfer()">Move it</button>
-        </div>
-    </div>
-
-    <div class="card card-large">
-        <div class="card-tag">COMING UP</div>
-        <div class="card-desc" id="coming-up-note" style="display:none;">not all of this is covered yet</div>
-        <div id="coming-up-list" style="display:flex; gap:16px; flex-wrap:wrap;"><!-- next couple of upcoming bills render here --></div>
-    </div>
-
-    <div class="card" style="background:linear-gradient(135deg, #ffd9e8 0%, #d9f2ff 35%, #e2ffe6 68%, #fff6cc 100%); border-color:rgba(255,255,255,0.6);">
-        <div class="card-tag">SAFE TO SPEND TODAY</div>
-        <div class="card-title serif" id="safe-to-spend-amount" style="font-size:42px;margin-top:4px;">$0.00</div>
-        <div class="card-desc" id="safe-to-spend-subtitle">of today's starting balance</div>
-        <div class="info-pill-row">
-            <div class="info-pill"><span class="info-pill-label">UNTIL</span><span id="pill-until-date">—</span></div>
-            <div class="info-pill"><span class="info-pill-label">REMAINING</span><span id="pill-remaining-amount">$0.00</span></div>
-        </div>
-        <div class="card-desc" id="payday-not-counted-note" style="display:none; margin-top:10px;"></div>
-        <button class="breakdown-toggle" onclick="toggleBreakdownPanel()">How is this worked out?</button>
-        <div class="breakdown-panel" id="breakdown-panel">
-            <div class="breakdown-row"><span>In checking</span><span id="breakdown-checking">$0.00</span></div>
-            <div class="breakdown-row"><span>In savings (not counted below)</span><span id="breakdown-savings">$0.00</span></div>
-            <div class="breakdown-row"><span>Arrived after that balance</span><span id="breakdown-arrived">+$0.00</span></div>
-            <div class="breakdown-row"><span>Bills still to land</span><span id="breakdown-bills">-$0.00</span></div>
-            <div class="breakdown-row"><span>Paid and spent after that balance</span><span id="breakdown-spent">-$0.00</span></div>
-            <div class="breakdown-row"><span>Already set aside</span><span id="breakdown-setaside">-$0.00</span></div>
-            <div class="breakdown-row"><span>Safe until payday</span><span id="breakdown-total">$0.00</span></div>
-        </div>
-        <div class="safe-progress-track"><div class="safe-progress-fill" id="today-progress-fill" style="width:0%;"></div></div>
-        <div class="card-desc" id="today-progress-caption" style="margin-top:6px; margin-bottom:0;">$0.00 of today's starting $0.00</div>
-    </div>
-
-    <div class="card">
-        <div class="card-tag">RUN TO PAYDAY</div>
-        <div class="card-desc" id="run-days-left" style="margin-bottom:0;">No payday set up yet</div>
-        <div id="quick-payday-update" style="display:none; margin-top:10px;">
-            <div style="display:flex; gap:8px; align-items:center;">
-                <input type="number" min="1" step="1" class="form-input" id="quick-days-to-payday" placeholder="Days away" style="max-width:110px;">
-                <button class="action-btn-primary" style="width:auto; padding:0 16px;" onclick="updateQuickDaysToPayday()">Update</button>
-            </div>
-            <div class="card-desc" style="margin-top:6px; margin-bottom:0;">Pay varies? Just update this whenever your estimate changes — no fixed schedule needed.</div>
-        </div>
-        <button class="breakdown-toggle" id="run-details-toggle" onclick="toggleRunDetails()">Show details</button>
-        <div id="run-details-panel" style="display:none; margin-top:10px;">
-            <div class="payday-track" id="payday-track"><!-- day-by-day segments render here --></div>
-            <div class="payday-labels">
-                <span id="payday-label-start">—</span>
-                <span id="payday-label-today">today</span>
-                <span id="payday-label-end">payday</span>
-            </div>
-            <div id="payday-bills-list" style="margin-top:14px;"><!-- bills due before payday render here --></div>
-            <div class="breakdown-row" style="margin-top:14px;"><span>Left to last</span><span id="run-left-to-last">$0.00</span></div>
-            <div class="breakdown-row"><span>Each day from here</span><span id="run-each-day">about $0/day</span></div>
-            <div class="breakdown-row" style="border-bottom:none;"><span>Logged so far this period</span><span id="run-logged-so-far">nothing yet</span></div>
+            <div class="card-desc" id="savings-balance-display" style="margin:16px 0 0; font-weight:600;">Savings: $0.00</div>
+            <div class="upcoming-list" id="transfers-list" style="margin-top:10px;"></div>
         </div>
     </div>
 
 </div>
 
-<!-- BILLS -->
 <div id="view-bills" class="view-section">
 
     <div class="card">
@@ -497,48 +510,51 @@ html, body {
     </div>
 
     <div class="card">
-        <div class="card-title serif" style="font-size:24px;">Add a bill</div>
-        <div class="card-desc">Pick how it comes round — the planner works out the dates.</div>
-        <div class="form-group">
-            <label class="form-label">Bill name</label>
-            <input type="text" class="form-input" id="bill-name" placeholder="Internet, Rent, Car insurance...">
+        <div class="acc" style="border-top:none;">
+            <button class="acc-head" onclick="toggleAcc(this)"><span>+ Add a bill</span><span class="chev">›</span></button>
+            <div class="acc-body">
+                <div class="form-group">
+                    <label class="form-label">Bill name</label>
+                    <input type="text" class="form-input" id="bill-name" placeholder="Internet, Rent, Car insurance...">
+                </div>
+                <div class="form-group">
+                    <label class="form-label">Amount</label>
+                    <input type="number" step="0.01" class="form-input" id="bill-amount" placeholder="0.00">
+                </div>
+                <div class="form-group">
+                    <label class="form-label">How often</label>
+                    <select class="form-input" id="bill-recurrence-type" onchange="onBillRecurrenceTypeChanged()">
+                        <option value="monthly">Once a month</option>
+                        <option value="biweekly">Every 2 weeks</option>
+                    </select>
+                </div>
+                <div id="field-group-monthly" class="form-group">
+                    <label class="form-label">Day of the month (31 = last day)</label>
+                    <input type="number" min="1" max="31" class="form-input" id="bill-day-monthly" placeholder="e.g. 1">
+                    <div class="form-error" id="bill-day-monthly-error">Add a day between 1 and 31 so this bill can show up on your calendar.</div>
+                </div>
+                <div id="field-group-biweekly" class="form-group" style="display:none;">
+                    <label class="form-label">A recent or upcoming due date</label>
+                    <input type="date" class="form-input" id="bill-anchor-biweekly">
+                    <div class="form-error" id="bill-anchor-biweekly-error">Pick a date so this bill knows when to repeat.</div>
+                </div>
+                <div class="form-group" style="flex-direction:row; align-items:center; gap:8px;">
+                    <input type="checkbox" id="bill-set-aside" style="width:18px; height:18px;">
+                    <label class="form-label" for="bill-set-aside" style="margin:0;">Set a bit aside each month for this one</label>
+                </div>
+                <button class="action-btn-primary" onclick="addBill()">Add bill</button>
+            </div>
         </div>
-        <div class="form-group">
-            <label class="form-label">Amount when it lands</label>
-            <input type="number" step="0.01" class="form-input" id="bill-amount" placeholder="0.00">
+        <div class="acc">
+            <button class="acc-head" onclick="toggleAcc(this)"><span>Manage my bills</span><span class="chev">›</span></button>
+            <div class="acc-body">
+                <div class="upcoming-list" id="bills-list" style="margin-top:0;"><!-- all bills render here --></div>
+            </div>
         </div>
-        <div class="form-group">
-            <label class="form-label">How often</label>
-            <select class="form-input" id="bill-recurrence-type" onchange="onBillRecurrenceTypeChanged()">
-                <option value="monthly">Once a month</option>
-                <option value="biweekly">Every 2 weeks</option>
-            </select>
-        </div>
-        <div id="field-group-monthly" class="form-group">
-            <label class="form-label">Day of the month (31 = last day)</label>
-            <input type="number" min="1" max="31" class="form-input" id="bill-day-monthly" placeholder="e.g. 1">
-            <div class="form-error" id="bill-day-monthly-error">Add a day between 1 and 31 so this bill can show up on your calendar.</div>
-        </div>
-        <div id="field-group-biweekly" class="form-group" style="display:none;">
-            <label class="form-label">First (or a recent) date it's due</label>
-            <input type="date" class="form-input" id="bill-anchor-biweekly">
-            <div class="form-error" id="bill-anchor-biweekly-error">Pick a date so this bill knows when to repeat.</div>
-        </div>
-        <div class="form-group" style="flex-direction:row; align-items:center; gap:8px;">
-            <input type="checkbox" id="bill-set-aside" style="width:18px; height:18px;">
-            <label class="form-label" for="bill-set-aside" style="margin:0;">Put a bit aside each month for this one</label>
-        </div>
-        <button class="action-btn-primary" onclick="addBill()">Add bill</button>
-    </div>
-
-    <div class="card">
-        <div class="card-tag">YOUR BILLS</div>
-        <div class="upcoming-list" id="bills-list"><!-- all bills render here --></div>
     </div>
 
 </div>
 
-<!-- DEBT (credit cards, payoff, and credit score tracking) -->
 <div id="view-debt" class="view-section">
 
     <div class="card">
@@ -553,63 +569,72 @@ html, body {
         <div class="card-desc" id="debt-glance-note" style="margin:10px 0 0; font-size:11px;"></div>
     </div>
 
+
     <div class="card" style="padding:16px 14px;">
         <div class="card-tag">REAL PAY THIS MONTH</div>
         <div class="card-desc" style="margin-bottom:6px; font-size:12px;">What you paid vs. what actually reduced your balance — the rest went to interest.</div>
         <div id="debt-realpay-list"><!-- per-card payment split renders here --></div>
         <div class="card-desc" style="margin:10px 0 0; font-size:11px;">Interest is estimated as one month of your APR on the balance at the time you paid.</div>
     </div>
-
     <div class="card">
-        <div class="card-tag">PAYOFF ORDER</div>
-        <div class="card-desc">Choose how you want to attack it.</div>
-        <div class="toggle-group">
-            <button class="toggle-btn active" id="btn-strategy-avalanche" onclick="setDebtStrategy('avalanche')">Highest rate first</button>
-            <button class="toggle-btn" id="btn-strategy-snowball" onclick="setDebtStrategy('snowball')">Smallest balance first</button>
-        </div>
-        <div class="upcoming-list" id="debts-list"><!-- debts render here, in payoff order --></div>
+        <div class="card-tag">YOUR CARDS</div>
+        <div class="card-desc" style="margin-bottom:0;">Tap a card to pay it or see the details.</div>
+        <div class="upcoming-list" id="debts-list"><!-- cards render here --></div>
     </div>
 
     <div class="card">
-        <div class="card-title serif" style="font-size:24px;">Add a debt</div>
-        <div class="form-group">
-            <label class="form-label">Name</label>
-            <input type="text" class="form-input" id="debt-name" placeholder="Visa, Car loan, Student loan...">
+        <div class="acc" style="border-top:none;">
+            <button class="acc-head" onclick="toggleAcc(this)"><span>+ Add a card or loan</span><span class="chev">›</span></button>
+            <div class="acc-body">
+                <div class="form-group">
+                    <label class="form-label">Name</label>
+                    <input type="text" class="form-input" id="debt-name" placeholder="Visa, Car loan, Student loan...">
+                </div>
+                <div class="form-group">
+                    <label class="form-label">Current balance</label>
+                    <input type="number" step="0.01" class="form-input" id="debt-balance" placeholder="0.00">
+                </div>
+                <div class="form-group">
+                    <label class="form-label">Interest rate (APR %)</label>
+                    <input type="number" step="0.01" class="form-input" id="debt-apr" placeholder="0.0">
+                </div>
+                <div class="form-group">
+                    <label class="form-label">Due day of the month (optional)</label>
+                    <input type="number" min="1" max="31" class="form-input" id="debt-due-day" placeholder="e.g. 15">
+                </div>
+                <div class="form-group">
+                    <label class="form-label">Credit limit (optional — cards only)</label>
+                    <input type="number" step="0.01" class="form-input" id="debt-credit-limit" placeholder="0.00">
+                    <div class="card-desc" style="margin-bottom:0;">Your minimum payment is worked out for you automatically.</div>
+                </div>
+                <button class="action-btn-primary" onclick="addDebt()">Add</button>
+            </div>
         </div>
-        <div class="form-group">
-            <label class="form-label">Current balance</label>
-            <input type="number" step="0.01" class="form-input" id="debt-balance" placeholder="0.00">
-        </div>
-        <div class="form-group">
-            <label class="form-label">Interest rate (APR %)</label>
-            <input type="number" step="0.01" class="form-input" id="debt-apr" placeholder="0.0">
-        </div>
-        <div class="form-group">
-            <label class="form-label">Due day of the month (optional)</label>
-            <input type="number" min="1" max="31" class="form-input" id="debt-due-day" placeholder="e.g. 15">
-            <div class="card-desc" style="margin-bottom:0;">Shows its due date in your cards overview. Your minimum payment is worked out for you automatically.</div>
-        </div>
-        <div class="form-group">
-            <label class="form-label">Credit limit (optional — cards only)</label>
-            <input type="number" step="0.01" class="form-input" id="debt-credit-limit" placeholder="0.00">
-        </div>
-        <button class="action-btn-primary" onclick="addDebt()">Add debt</button>
     </div>
 
     <div class="card">
-        <div class="card-tag">MONTHLY DEBT PLAN</div>
-        <div class="card-desc">Say how much you can put toward debts this month and it'll split it across your cards — minimums first, then the rest toward your focus debt.</div>
-        <div class="form-group">
-            <label class="form-label">Total to put toward debts this month</label>
-            <input type="number" step="0.01" class="form-input" id="plan-debt-budget" placeholder="0.00" oninput="renderDebtPlan()">
+        <div class="card-tag">MORE TOOLS</div>
+        <div class="acc">
+            <button class="acc-head" onclick="toggleAcc(this)"><span>Which card to pay off first</span><span class="chev">›</span></button>
+            <div class="acc-body">
+                <div class="toggle-group">
+                    <button class="toggle-btn active" id="btn-strategy-avalanche" onclick="setDebtStrategy('avalanche')">Highest rate first</button>
+                    <button class="toggle-btn" id="btn-strategy-snowball" onclick="setDebtStrategy('snowball')">Smallest balance first</button>
+                </div>
+                <div class="card-desc" style="margin-bottom:0;">Sets the focus card in the monthly plan below.</div>
+            </div>
         </div>
-        <div class="upcoming-list" id="debt-plan-list"><!-- planned per-debt allocations render here --></div>
-    </div>
-
-    <div class="card">
-        <div class="card-tag">CREDIT SCORES & BUREAUS</div>
-        <div class="card-title serif" style="font-size:24px;">Monthly Bureau Updates</div>
-        <div class="card-desc">Track scores & trend growth for Experian, TransUnion, and Equifax.</div>
+        <div class="acc">
+            <button class="acc-head" onclick="toggleAcc(this)"><span>Monthly payment plan</span><span class="chev">›</span></button>
+            <div class="acc-body">
+                <div class="card-desc">Enter what you can put toward debts this month and it splits it up — minimums first, the rest to your focus card.</div>
+                <div class="form-group">
+                    <input type="number" step="0.01" class="form-input" id="plan-debt-budget" placeholder="Total this month, e.g. 500" oninput="renderDebtPlan()">
+                </div>
+                <div class="upcoming-list" id="debt-plan-list" style="margin-top:0;"><!-- planned allocations render here --></div>
+            </div>
+        </div>
+        <div class="acc"><button class="acc-head" onclick="toggleAcc(this)"><span>Credit scores</span><span class="chev">›</span></button><div class="acc-body">
         <div class="bureau-grid">
             <div class="bureau-card">
                 <span class="bureau-name">Experian</span>
@@ -650,45 +675,12 @@ html, body {
             </div>
             <div class="card-desc" id="credit-trend-empty" style="margin-top:8px; margin-bottom:0;">Add at least two monthly updates to see a trend.</div>
         </div>
+    </div></div>
     </div>
 
 </div>
 
-<!-- SETTINGS -->
 <div id="view-settings" class="view-section">
-
-    <div class="card">
-        <div class="card-tag">APPEARANCE</div>
-        <div class="card-desc">Choose your preferred workspace theme.</div>
-        <div class="toggle-group">
-            <button class="toggle-btn active" id="btn-light" onclick="setTheme('light')">White / Light</button>
-            <button class="toggle-btn" id="btn-dark" onclick="setTheme('dark')">Midnight Dark</button>
-        </div>
-        <div class="form-group" style="margin-top:4px;">
-            <label class="form-label">Accent color</label>
-            <div style="display:flex; align-items:center; gap:12px;">
-                <input type="color" id="accent-color-picker" value="#5cc2ec" oninput="setAccentColor(this.value)" style="width:56px; height:44px; padding:2px; border-radius:12px; border:1px solid var(--input-border); background:var(--input-bg); cursor:pointer;">
-                <button class="action-btn-primary" style="width:auto; padding:0 16px; background:var(--input-bg); color:var(--text-primary); border:1px solid var(--input-border);" onclick="resetAccentColor()">Reset to default</button>
-            </div>
-            <div class="card-desc" style="margin-bottom:0; margin-top:6px;">Tap the swatch to open your device's color picker and tint buttons, badges, and highlights throughout the app.</div>
-        </div>
-        <div class="form-group" style="margin-bottom:0;">
-            <label class="form-label">Seasonal theme</label>
-            <div class="toggle-group" style="margin-bottom:0;">
-                <button class="toggle-btn active" id="btn-season-default" onclick="applySeasonalTheme('default')">Icy Blue</button>
-                <button class="toggle-btn" id="btn-season-halloween" onclick="applySeasonalTheme('halloween')">🎃 Halloween</button>
-            </div>
-        </div>
-    </div>
-
-    <div class="card">
-        <div class="card-tag">BACKUP</div>
-        <div class="card-desc">A file you keep — download it after making changes, restore it any time. Useful on its own, essential if your browser isn't saving automatically.</div>
-        <button class="action-btn-primary" onclick="downloadBackup()">Download a backup</button>
-        <input type="file" accept="application/json" id="restore-backup-input" style="display:none;" onchange="restoreBackup(event)">
-        <button class="action-btn-primary" style="margin-top:10px; background:var(--input-bg); color:var(--text-primary); border:1px solid var(--input-border); box-shadow:none;" onclick="document.getElementById('restore-backup-input').click()">Restore from a backup</button>
-        <div class="card-desc" id="restore-backup-status" style="margin-top:10px; margin-bottom:0;"></div>
-    </div>
 
     <div class="card">
         <div class="card-tag">YOUR MONEY</div>
@@ -766,57 +758,50 @@ html, body {
         <button class="action-btn-primary" onclick="addPaycheck()">Add payday</button>
     </div>
 
+    <div class="card">
+        <div class="card-tag">EXTRAS</div>
+        <div class="acc"><button class="acc-head" onclick="toggleAcc(this)"><span>Look &amp; feel</span><span class="chev">›</span></button><div class="acc-body">
+        <div class="toggle-group">
+            <button class="toggle-btn active" id="btn-light" onclick="setTheme('light')">White / Light</button>
+            <button class="toggle-btn" id="btn-dark" onclick="setTheme('dark')">Midnight Dark</button>
+        </div>
+        <div class="form-group" style="margin-top:4px;">
+            <label class="form-label">Accent color</label>
+            <div style="display:flex; align-items:center; gap:12px;">
+                <input type="color" id="accent-color-picker" value="#5cc2ec" oninput="setAccentColor(this.value)" style="width:56px; height:44px; padding:2px; border-radius:12px; border:1px solid var(--input-border); background:var(--input-bg); cursor:pointer;">
+                <button class="action-btn-primary" style="width:auto; padding:0 16px; background:var(--input-bg); color:var(--text-primary); border:1px solid var(--input-border);" onclick="resetAccentColor()">Reset to default</button>
+            </div>
+            <div class="card-desc" style="margin-bottom:0; margin-top:6px;">Tap the swatch to open your device's color picker and tint buttons, badges, and highlights throughout the app.</div>
+        </div>
+        <div class="form-group" style="margin-bottom:0;">
+            <label class="form-label">Seasonal theme</label>
+            <div class="toggle-group" style="margin-bottom:0;">
+                <button class="toggle-btn active" id="btn-season-default" onclick="applySeasonalTheme('default')">Icy Blue</button>
+                <button class="toggle-btn" id="btn-season-halloween" onclick="applySeasonalTheme('halloween')">🎃 Halloween</button>
+            </div>
+        </div>
+    </div></div>
+        <div class="acc"><button class="acc-head" onclick="toggleAcc(this)"><span>Backup &amp; restore</span><span class="chev">›</span></button><div class="acc-body">
+        <button class="action-btn-primary" onclick="downloadBackup()">Download a backup</button>
+        <input type="file" accept="application/json" id="restore-backup-input" style="display:none;" onchange="restoreBackup(event)">
+        <button class="action-btn-primary" style="margin-top:10px; background:var(--input-bg); color:var(--text-primary); border:1px solid var(--input-border); box-shadow:none;" onclick="document.getElementById('restore-backup-input').click()">Restore from a backup</button>
+        <div class="card-desc" id="restore-backup-status" style="margin-top:10px; margin-bottom:0;"></div>
+    </div></div>
+    </div>
+
 </div>
 
 </div>
 
 <!-- NAV -->
-<button class="menu-fab" onclick="openMoreModal()" aria-label="Menu">☰</button>
-
-<!-- MORE MODAL -->
-<div class="more-modal" id="moreModal" onclick="closeMoreModal()">
-    <div class="more-content" onclick="event.stopPropagation()">
-        <div style="display:flex;justify-content:space-between;align-items:center;">
-            <div class="card-title serif" style="font-size:22px;">Menu</div>
-            <button class="action-btn-primary" style="width:auto;padding:6px 14px;" onclick="closeMoreModal()">Close</button>
-        </div>
-        <div class="menu-list">
-            <div class="menu-section-label">Every day</div>
-            <div class="menu-card" data-view="today" onclick="switchView('today',null);closeMoreModal();">
-                <div>
-                    <div style="font-weight:600;">Today</div>
-                    <div style="font-size:12px;color:var(--text-muted);">safe to spend</div>
-                </div>
-                <span>›</span>
-            </div>
-            <button class="action-btn-primary" style="text-align:left; display:flex; flex-direction:column; align-items:flex-start; gap:2px; padding:16px;" onclick="openSpendLoggerFromMenu()">
-                <span style="font-weight:600; font-size:15px;">Log a spend</span>
-                <span style="font-size:12px; opacity:0.85; font-weight:400;">quick logger</span>
-            </button>
-            <div class="menu-card" data-view="bills" onclick="switchView('bills',null);closeMoreModal();">
-                <div>
-                    <div style="font-weight:600;">Bills</div>
-                    <div style="font-size:12px;color:var(--text-muted);">what's due</div>
-                </div>
-                <span>›</span>
-            </div>
-            <div class="menu-card" data-view="debt" onclick="switchView('debt',null);closeMoreModal();">
-                <div>
-                    <div style="font-weight:600;">Debt</div>
-                    <div style="font-size:12px;color:var(--text-muted);">cards, payoff & credit score</div>
-                </div>
-                <span>›</span>
-            </div>
-            <div class="menu-card" data-view="settings" onclick="switchView('settings',null);closeMoreModal();">
-                <div>
-                    <div style="font-weight:600;">Settings</div>
-                    <div style="font-size:12px;color:var(--text-muted);">money & preferences</div>
-                </div>
-                <span>›</span>
-            </div>
-        </div>
+<nav class="bottom-nav">
+    <div class="bottom-nav-inner">
+        <button class="nav-item active" data-view="today" onclick="switchView('today')"><span class="nav-ico">🏠</span><span>Today</span></button>
+        <button class="nav-item" data-view="bills" onclick="switchView('bills')"><span class="nav-ico">🧾</span><span>Bills</span></button>
+        <button class="nav-item" data-view="debt" onclick="switchView('debt')"><span class="nav-ico">💳</span><span>Cards</span></button>
+        <button class="nav-item" data-view="settings" onclick="switchView('settings')"><span class="nav-ico">⚙️</span><span>Settings</span></button>
     </div>
-</div>
+</nav>
 
 <script>
 /* =========================
@@ -1090,8 +1075,25 @@ function calculateTotalSpent() {
     return plannerState.spends.reduce(function(sum, spend) { return sum + spend.amount; }, 0);
 }
 
+// Spends already taken out of checking/savings must NOT be subtracted again from the pool.
+// Only older spends (logged before sources existed) and card charges still reduce it directly.
+function spendReducesPoolDirectly(spend) {
+    return !spend.source || spend.source === 'card';
+}
+
+// Spends that count toward "today's" safe-to-spend bar
+function spendAffectsSafe(spend) {
+    return !spend.source || spend.source === 'checking' || spend.source === 'card';
+}
+
+function calculatePoolSpent() {
+    return plannerState.spends.reduce(function(sum, spend) {
+        return sum + (spendReducesPoolDirectly(spend) ? spend.amount : 0);
+    }, 0);
+}
+
 function calculateAvailablePool() {
-    var totalSpent = calculateTotalSpent();
+    var totalSpent = calculatePoolSpent();
     var unpaidBills = calculateUnpaidRegularBillsTotal();
     var billsReserve = calculateBillsReserveMonthly();
     return plannerState.balance - plannerState.setAside - totalSpent - unpaidBills - billsReserve;
@@ -1117,15 +1119,25 @@ function formatMoneyShort(amount) {
     return (negative ? '-$' : '$') + formatted;
 }
 
-function logSpend(amount, note, cardDebtId, category) {
+function logSpend(amount, note, cardDebtId, category, source) {
+    var spendSource = cardDebtId ? 'card' : (source || 'checking');
+
     plannerState.spends.push({
         id: Date.now() + '-' + Math.random().toString(36).slice(2),
         amount: amount,
         note: note || '',
         category: category || null,
         date: todayKey(),
-        cardDebtId: cardDebtId || null
+        cardDebtId: cardDebtId || null,
+        source: spendSource
     });
+
+    if (spendSource === 'checking') {
+        plannerState.balance -= amount;
+    } else if (spendSource === 'savings') {
+        plannerState.savingsBalance -= amount;
+    }
+
     if (cardDebtId) {
         var chargedDebt = plannerState.debts.find(function(d) { return d.id === cardDebtId; });
         if (chargedDebt) {
@@ -1134,6 +1146,8 @@ function logSpend(amount, note, cardDebtId, category) {
         }
     }
     saveState();
+    populateSettingsFields();
+    renderTransfers();
     renderToday();
     renderDebts();
     checkBlackMilestone();
@@ -1149,26 +1163,64 @@ function selectSpendCategory(name) {
     });
 }
 
+var selectedSpendSource = 'checking';
+
+function updateSpendSourceNote() {
+    var noteEl = document.getElementById('spend-source-note');
+    if (!noteEl) { return; }
+    noteEl.style.color = '';
+    if (selectedSpendSource === 'card') {
+        noteEl.innerText = selectedCardDebtId
+            ? "Charged to the card — your checking and savings aren't touched."
+            : 'Pick which card below.';
+    } else if (selectedSpendSource === 'savings') {
+        noteEl.innerText = 'Comes out of your savings.';
+    } else if (selectedSpendSource === 'other') {
+        noteEl.innerText = 'Not tracked — your checking and savings stay as they are.';
+    } else {
+        noteEl.innerText = 'Comes out of your checking, so Safe to Spend updates.';
+    }
+}
+
+function selectSpendSource(src) {
+    selectedSpendSource = src;
+    if (src !== 'card') {
+        selectedCardDebtId = null;
+        if (plannerState) {
+            plannerState.spendSource = src;
+            saveState();
+        }
+    }
+    var hasCards = plannerState.debts.length > 0;
+    if (src === 'card' && plannerState.debts.length === 1 && !selectedCardDebtId) {
+        selectedCardDebtId = plannerState.debts[0].id;
+    }
+    document.querySelectorAll('#spend-source-pills .pill-btn').forEach(function(btn) {
+        btn.classList.toggle('selected', btn.dataset.src === src);
+    });
+    var cardBtn = document.getElementById('spend-source-card-btn');
+    if (cardBtn) { cardBtn.style.display = hasCards ? '' : 'none'; }
+    var sec = document.getElementById('card-option-section');
+    if (sec) { sec.style.display = (src === 'card' && hasCards) ? 'block' : 'none'; }
+    renderCardOptionPills();
+    updateSpendSourceNote();
+}
+
 function selectCardOption(debtId) {
     selectedCardDebtId = (selectedCardDebtId === debtId) ? null : debtId;
     document.querySelectorAll('#card-option-pills .pill-btn').forEach(function(btn) {
         btn.classList.toggle('selected', btn.dataset.debtId === selectedCardDebtId);
     });
+    updateSpendSourceNote();
 }
 
 function renderCardOptionPills() {
-    var sectionEl = document.getElementById('card-option-section');
     var listEl = document.getElementById('card-option-pills');
-    if (!sectionEl || !listEl) { return; }
-    if (plannerState.debts.length === 0) {
-        sectionEl.style.display = 'none';
-        return;
-    }
-    sectionEl.style.display = 'block';
+    if (!listEl) { return; }
     listEl.innerHTML = '';
     plannerState.debts.forEach(function(debt) {
         var btn = document.createElement('button');
-        btn.className = 'pill-btn';
+        btn.className = 'pill-btn' + (selectedCardDebtId === debt.id ? ' selected' : '');
         btn.dataset.debtId = debt.id;
         btn.innerText = debt.name;
         btn.onclick = function() { selectCardOption(debt.id); };
@@ -1177,6 +1229,8 @@ function renderCardOptionPills() {
 }
 
 function openLogSpendModal() {
+    selectedCardDebtId = null;
+    selectSpendSource((plannerState && plannerState.spendSource) || 'checking');
     renderCardOptionPills();
     var modal = document.getElementById('log-spend-modal');
     if (modal) { modal.classList.add('open'); }
@@ -1195,7 +1249,15 @@ function logCustomSpend() {
         amountEl.focus();
         return;
     }
-    logSpend(amount, noteEl.value.trim(), selectedCardDebtId, selectedSpendCategory);
+    if (selectedSpendSource === 'card' && !selectedCardDebtId) {
+        var pickNote = document.getElementById('spend-source-note');
+        if (pickNote) {
+            pickNote.innerText = 'Pick which card first.';
+            pickNote.style.color = 'var(--accent-red)';
+        }
+        return;
+    }
+    logSpend(amount, noteEl.value.trim(), selectedCardDebtId, selectedSpendCategory, selectedSpendSource);
     amountEl.value = '';
     noteEl.value = '';
     selectedSpendCategory = null;
@@ -1207,6 +1269,11 @@ function logCustomSpend() {
 
 function deleteSpend(id) {
     var spend = plannerState.spends.find(function(s) { return s.id === id; });
+    if (spend && spend.source === 'checking') {
+        plannerState.balance += spend.amount;
+    } else if (spend && spend.source === 'savings') {
+        plannerState.savingsBalance += spend.amount;
+    }
     if (spend && spend.cardDebtId) {
         var chargedDebt = plannerState.debts.find(function(d) { return d.id === spend.cardDebtId; });
         if (chargedDebt) {
@@ -1216,6 +1283,8 @@ function deleteSpend(id) {
     }
     plannerState.spends = plannerState.spends.filter(function(s) { return s.id !== id; });
     saveState();
+    populateSettingsFields();
+    renderTransfers();
     renderToday();
     renderDebts();
     checkBlackMilestone();
@@ -1272,7 +1341,10 @@ function renderToday() {
             : (spend.note || 'Spend');
         title.innerText = baseLabel + (cardDebt ? ' (on ' + cardDebt.name + ')' : '');
         var amountSpan = document.createElement('span');
-        amountSpan.innerText = formatMoney(spend.amount);
+        var fromLabel = spend.source === 'savings' ? ' · from savings'
+            : (spend.source === 'checking' ? ' · from checking'
+            : (spend.source === 'other' ? ' · other source' : ''));
+        amountSpan.innerText = formatMoney(spend.amount) + fromLabel;
         info.appendChild(title);
         info.appendChild(amountSpan);
         var deleteBtn = document.createElement('button');
@@ -1352,7 +1424,7 @@ function renderSafeToSpendBreakdown() {
         savingsEl.innerText = formatMoney(plannerState.savingsBalance);
         arrivedEl.innerText = '+' + formatMoney(0);
         billsEl.innerText = '-' + formatMoney(calculateUnpaidRegularBillsTotal() + calculateBillsReserveMonthly());
-        spentEl.innerText = '-' + formatMoney(calculateTotalSpent());
+        spentEl.innerText = '-' + formatMoney(calculatePoolSpent());
         setAsideEl.innerText = '-' + formatMoney(plannerState.setAside);
         totalEl.innerText = formatMoney(pool);
     }
@@ -1361,7 +1433,7 @@ function renderSafeToSpendBreakdown() {
     var captionEl = document.getElementById('today-progress-caption');
     if (fillEl) {
         var todaySpentTotal = plannerState.spends
-            .filter(function(spend) { return spend.date === todayKey(); })
+            .filter(function(spend) { return spend.date === todayKey() && spendAffectsSafe(spend); })
             .reduce(function(sum, spend) { return sum + spend.amount; }, 0);
         var safeToday = calculateSafeToday();
         var startingToday = safeToday + todaySpentTotal;
@@ -1387,10 +1459,10 @@ function renderComingUp() {
     });
 
     items.sort(function(a, b) { return a.date - b.date; });
-    items = items.slice(0, 2);
+    items = items.slice(0, 3);
 
     if (items.length === 0) {
-        listEl.innerHTML = '<div class="card-desc" style="margin:0;">Nothing due soon — all clear</div>';
+        listEl.innerHTML = '<div class="card-desc" style="margin:0;">Nothing due soon — all clear 🎉</div>';
         if (noteEl) { noteEl.style.display = 'none'; }
         return;
     }
@@ -1403,28 +1475,44 @@ function renderComingUp() {
         var displayAmount = occ.bill.setAside ? getBillMonthlyEquivalent(occ.bill) : occ.bill.amount;
         shownTotal += displayAmount;
 
-        var wrap = document.createElement('div');
-        wrap.style.flex = '1';
-        wrap.style.minWidth = '120px';
+        var dKey = dateKey(occ.date);
+        var daysAway = Math.round((occ.date - today) / 86400000);
+        var dayLabel = daysAway === 0 ? 'today' : (daysAway === 1 ? 'tomorrow' : 'in ' + daysAway + ' days');
+        var dateLabel = occ.date.toLocaleDateString(undefined, { weekday: 'short', month: 'short', day: 'numeric' });
 
-        var name = document.createElement('div');
-        name.style.fontWeight = '600';
-        name.innerText = occ.bill.name;
+        var item = document.createElement('div');
+        item.className = 'upcoming-item';
 
-        var dateLabel = document.createElement('div');
-        dateLabel.style.fontSize = '12px';
-        dateLabel.style.color = 'var(--text-muted)';
-        dateLabel.innerText = occ.date.toLocaleDateString(undefined, { weekday: 'short', month: 'short', day: 'numeric' });
+        var info = document.createElement('div');
+        info.className = 'upcoming-info';
+        var title = document.createElement('h4');
+        title.innerText = occ.bill.name;
+        var span = document.createElement('span');
+        span.innerText = dateLabel + ' · ' + dayLabel;
+        if (daysAway <= 2) {
+            span.style.color = 'var(--accent-red)';
+            span.style.fontWeight = '600';
+        }
+        info.appendChild(title);
+        info.appendChild(span);
 
-        var amountEl = document.createElement('div');
-        amountEl.className = 'serif';
-        amountEl.style.fontSize = '32px';
-        amountEl.innerText = formatMoney(displayAmount);
+        var right = document.createElement('div');
+        right.style.cssText = 'display:flex; flex-direction:column; align-items:flex-end; gap:6px; flex-shrink:0;';
+        var amt = document.createElement('div');
+        amt.className = 'serif';
+        amt.style.fontSize = '22px';
+        amt.innerText = formatMoney(displayAmount);
+        var btn = document.createElement('button');
+        btn.className = 'action-btn-primary';
+        btn.style.cssText = 'width:auto; padding:6px 12px; font-size:12px;';
+        btn.innerText = 'Mark paid';
+        btn.onclick = function() { toggleBillPaid(occ.bill.id, dKey); };
+        right.appendChild(amt);
+        right.appendChild(btn);
 
-        wrap.appendChild(name);
-        wrap.appendChild(dateLabel);
-        wrap.appendChild(amountEl);
-        listEl.appendChild(wrap);
+        item.appendChild(info);
+        item.appendChild(right);
+        listEl.appendChild(item);
     });
 
     if (noteEl) { noteEl.style.display = shownTotal > pool ? 'block' : 'none'; }
@@ -3251,6 +3339,8 @@ function removeDebtFromCalendar(debtId) {
     renderDebts();
 }
 
+var openDebtCards = {};
+
 function renderDebtList() {
     var listEl = document.getElementById('debts-list');
     if (!listEl) { return; }
@@ -3282,11 +3372,15 @@ function renderDebtList() {
 
         var statusPill = document.createElement('span');
         statusPill.className = 'pill' + (debt.balance <= 0 ? ' green' : '');
-        statusPill.innerText = debt.balance <= 0 ? 'PAID OFF' : 'IN USE';
+        statusPill.innerText = debt.balance <= 0 ? 'PAID OFF' : formatMoney(debt.balance);
 
-        topRow.appendChild(badge);
+        var chev = document.createElement('span');
+        chev.className = 'chev';
+        chev.innerText = '›';
+
         topRow.appendChild(nameEl);
         topRow.appendChild(statusPill);
+        topRow.appendChild(chev);
 
         var infoRow = document.createElement('div');
         infoRow.style.display = 'flex';
@@ -3667,6 +3761,23 @@ function renderDebtList() {
         removeBtn.onclick = function() { deleteDebt(debt.id); };
         card.appendChild(removeBtn);
 
+        // everything under the header folds away until you tap the card
+        var bodyWrap = document.createElement('div');
+        bodyWrap.style.cssText = 'display:flex; flex-direction:column; gap:12px;';
+        while (card.children.length > 1) { bodyWrap.appendChild(card.children[1]); }
+        card.appendChild(bodyWrap);
+
+        var isOpenCard = !!openDebtCards[debt.id];
+        bodyWrap.style.display = isOpenCard ? 'flex' : 'none';
+        chev.style.transform = isOpenCard ? 'rotate(90deg)' : '';
+        topRow.style.cursor = 'pointer';
+        topRow.onclick = function() {
+            var opening = bodyWrap.style.display === 'none';
+            bodyWrap.style.display = opening ? 'flex' : 'none';
+            chev.style.transform = opening ? 'rotate(90deg)' : '';
+            openDebtCards[debt.id] = opening;
+        };
+
         listEl.appendChild(card);
     });
 }
@@ -3809,21 +3920,20 @@ function checkDebtPaidMilestone(debt) {
 /* =========================
    VIEW SWITCHING
 ========================= */
-function switchView(viewId, el) {
+function switchView(viewId) {
     var sections = document.querySelectorAll('.view-section');
     for (var i = 0; i < sections.length; i++) { sections[i].classList.remove('active-view'); }
     var target = document.getElementById('view-' + viewId);
     if (target) { target.classList.add('active-view'); }
-
-    if (el) {
-        var navItems = document.querySelectorAll('.nav-item');
-        for (var j = 0; j < navItems.length; j++) { navItems[j].classList.remove('active'); }
-        el.classList.add('active');
-    }
-
-    document.querySelectorAll('.menu-card[data-view]').forEach(function(card) {
-        card.classList.toggle('active', card.dataset.view === viewId);
+    document.querySelectorAll('.nav-item').forEach(function(n) {
+        n.classList.toggle('active', n.dataset.view === viewId);
     });
+    window.scrollTo(0, 0);
+}
+
+function toggleAcc(btn) {
+    var acc = btn.parentElement;
+    if (acc) { acc.classList.toggle('open'); }
 }
 
 /* =========================
