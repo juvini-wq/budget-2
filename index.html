@@ -305,6 +305,33 @@ html, body {
 .nav-item { flex: 1; background: none; border: none; display: flex; flex-direction: column; align-items: center; gap: 2px; color: var(--text-muted); font-size: 11px; font-weight: 600; padding: 6px 0; cursor: pointer; }
 .nav-item .nav-ico { font-size: 21px; line-height: 1.2; }
 .nav-item.active { color: var(--accent-purple); }
+
+/* SEGMENTED DAY/WEEK SWITCH */
+.seg { display: flex; background: var(--input-bg); border: 1px solid var(--input-border); border-radius: 999px; padding: 2px; }
+.seg-btn { background: none; border: none; color: var(--text-muted); font-size: 12px; font-weight: 600; padding: 5px 14px; border-radius: 999px; cursor: pointer; }
+.seg-btn.active { background: var(--accent-purple-light); color: var(--accent-purple); }
+.spend-nav { display: flex; align-items: center; justify-content: space-between; margin: 12px 0 6px; }
+.spend-nav-btn { width: 34px; height: 34px; border-radius: 50%; border: 1px solid var(--input-border); background: var(--input-bg); color: var(--text-primary); font-size: 20px; line-height: 1; cursor: pointer; }
+.spend-nav-btn:disabled { opacity: 0.3; cursor: default; }
+.spend-nav-label { font-size: 14px; font-weight: 600; text-align: center; }
+.week-bar { width: 100%; height: 4px; border-radius: 2px; background: var(--input-border); overflow: hidden; margin-top: 6px; }
+.week-bar > div { height: 100%; background: var(--accent-purple); border-radius: 2px; }
+
+/* BUBBLE NAV ICONS (pure blocks, no emoji) */
+.nav-bubble { width: 56px; height: 32px; border-radius: 16px; display: flex; align-items: center; justify-content: center; transition: background 0.2s ease; }
+.nav-item.active .nav-bubble { background: var(--accent-purple-light); }
+.nav-label { font-size: 11px; font-weight: 600; }
+.g i { display: block; background: currentColor; }
+.g-today { display: grid; grid-template-columns: 8px 8px; gap: 3px; }
+.g-today i { width: 8px; height: 8px; border-radius: 3px; }
+.g-bills { display: flex; flex-direction: column; gap: 3px; }
+.g-bills i { height: 4px; border-radius: 2px; width: 18px; }
+.g-bills i:nth-child(2) { width: 13px; }
+.g-bills i:nth-child(3) { width: 16px; }
+.g-cards { position: relative; width: 22px; height: 15px; border: 2px solid currentColor; border-radius: 5px; }
+.g-cards i { position: absolute; left: 0; right: 0; top: 3px; height: 3px; }
+.g-set { width: 18px; height: 18px; border: 2px solid currentColor; border-radius: 6px; display: flex; align-items: center; justify-content: center; }
+.g-set i { width: 6px; height: 6px; border-radius: 2px; }
 </style>
 </head>
 <body data-theme="light">
@@ -376,12 +403,21 @@ html, body {
 
     <div class="card">
         <div style="display:flex; justify-content:space-between; align-items:center;">
-            <div class="card-tag" style="margin-bottom:0;">SPENT TODAY</div>
-            <span class="card-desc" id="today-logged-count" style="margin-bottom:0;">0 logged today</span>
+            <div class="card-tag" style="margin-bottom:0;">SPENDING</div>
+            <div class="seg">
+                <button class="seg-btn active" id="btn-spendview-day" onclick="setSpendView('day')">Day</button>
+                <button class="seg-btn" id="btn-spendview-week" onclick="setSpendView('week')">Week</button>
+            </div>
         </div>
-        <div class="upcoming-list" id="today-spends-list" style="margin-top:12px;"><!-- today's logged spends render here --></div>
+        <div class="spend-nav">
+            <button class="spend-nav-btn" onclick="shiftSpendView(1)" aria-label="Earlier">‹</button>
+            <div class="spend-nav-label" id="spend-view-label">Today</div>
+            <button class="spend-nav-btn" id="spend-next" onclick="shiftSpendView(-1)" aria-label="Later">›</button>
+        </div>
+        <div class="serif" id="spend-view-total" style="font-size:36px; line-height:1.1;">$0.00</div>
+        <div class="card-desc" id="today-logged-count" style="margin:2px 0 0;">0 spends</div>
+        <div class="upcoming-list" id="today-spends-list" style="margin-top:12px;"><!-- spends for the chosen day / days of the chosen week --></div>
     </div>
-
     <div class="card">
         <div class="card-tag">RUN TO PAYDAY</div>
         <div class="card-desc" id="run-days-left" style="margin-bottom:0;">No payday set up yet</div>
@@ -667,7 +703,7 @@ html, body {
         <div class="card-desc" style="margin-top:8px; margin-bottom:0;">One entry per month — updating again this month replaces this month's number rather than adding a new point.</div>
         <div class="chart-container" style="height:auto; padding-bottom:14px;">
             <div class="card-tag" style="margin-bottom:4px;font-size:9px;">SCORE GROWTH TREND</div>
-            <svg id="credit-trend-svg" viewBox="0 0 300 60" style="width:100%;height:60px;"><!-- trend lines render here --></svg>
+            <svg id="credit-trend-svg" viewBox="0 0 300 130" style="width:100%;height:auto;"><!-- trend lines render here --></svg>
             <div class="debt-legend" id="credit-trend-legend" style="margin-top:6px;">
                 <span><span class="debt-legend-dot" style="background:#a78bfa;"></span>Experian</span>
                 <span><span class="debt-legend-dot" style="background:#5fb88a;"></span>TransUnion</span>
@@ -796,10 +832,22 @@ html, body {
 <!-- NAV -->
 <nav class="bottom-nav">
     <div class="bottom-nav-inner">
-        <button class="nav-item active" data-view="today" onclick="switchView('today')"><span class="nav-ico">🏠</span><span>Today</span></button>
-        <button class="nav-item" data-view="bills" onclick="switchView('bills')"><span class="nav-ico">🧾</span><span>Bills</span></button>
-        <button class="nav-item" data-view="debt" onclick="switchView('debt')"><span class="nav-ico">💳</span><span>Cards</span></button>
-        <button class="nav-item" data-view="settings" onclick="switchView('settings')"><span class="nav-ico">⚙️</span><span>Settings</span></button>
+        <button class="nav-item active" data-view="today" onclick="switchView('today')">
+            <span class="nav-bubble"><span class="g g-today"><i></i><i></i><i></i><i></i></span></span>
+            <span class="nav-label">Today</span>
+        </button>
+        <button class="nav-item" data-view="bills" onclick="switchView('bills')">
+            <span class="nav-bubble"><span class="g g-bills"><i></i><i></i><i></i></span></span>
+            <span class="nav-label">Bills</span>
+        </button>
+        <button class="nav-item" data-view="debt" onclick="switchView('debt')">
+            <span class="nav-bubble"><span class="g g-cards"><i></i></span></span>
+            <span class="nav-label">Cards</span>
+        </button>
+        <button class="nav-item" data-view="settings" onclick="switchView('settings')">
+            <span class="nav-bubble"><span class="g g-set"><i></i></span></span>
+            <span class="nav-label">Settings</span>
+        </button>
     </div>
 </nav>
 
@@ -1317,48 +1365,168 @@ function renderToday() {
     renderComingUp();
     renderRunToPayday();
 
-    var todaysSpends = plannerState.spends.filter(function(spend) { return spend.date === todayKey(); });
-    var countEl = document.getElementById('today-logged-count');
-    if (countEl) { countEl.innerText = todaysSpends.length + ' logged today'; }
     renderTodayIncomeCount();
+    renderSpendingView();
+}
 
-    if (todaysSpends.length === 0) {
-        listEl.innerHTML = '<div class="card-desc" style="margin:0;">Nothing logged yet today</div>';
+/* ---------- Spending view: one day at a time, or a whole week ---------- */
+var spendViewMode = 'day';
+var spendViewOffset = 0;
+
+function setSpendView(mode) {
+    spendViewMode = mode;
+    spendViewOffset = 0;
+    renderSpendingView();
+}
+
+function shiftSpendView(delta) {
+    spendViewOffset = Math.max(0, spendViewOffset + delta);
+    renderSpendingView();
+}
+
+function jumpToSpendDay(date) {
+    var today = startOfDay(new Date());
+    spendViewMode = 'day';
+    spendViewOffset = Math.max(0, Math.round((today - date) / 86400000));
+    renderSpendingView();
+}
+
+function spendFromLabel(spend) {
+    return spend.source === 'savings' ? ' · from savings'
+        : (spend.source === 'checking' ? ' · from checking'
+        : (spend.source === 'card' ? ' · on card'
+        : (spend.source === 'other' ? ' · other source' : '')));
+}
+
+function sumSpendsOn(key) {
+    return plannerState.spends
+        .filter(function(sp) { return sp.date === key; })
+        .reduce(function(sum, sp) { return sum + sp.amount; }, 0);
+}
+
+function renderSpendingView() {
+    var listEl = document.getElementById('today-spends-list');
+    var totalEl = document.getElementById('spend-view-total');
+    var labelEl = document.getElementById('spend-view-label');
+    var countEl = document.getElementById('today-logged-count');
+    if (!listEl || !totalEl || !labelEl) { return; }
+
+    document.getElementById('btn-spendview-day').classList.toggle('active', spendViewMode === 'day');
+    document.getElementById('btn-spendview-week').classList.toggle('active', spendViewMode === 'week');
+    var nextBtn = document.getElementById('spend-next');
+    if (nextBtn) { nextBtn.disabled = spendViewOffset === 0; }
+
+    var today = startOfDay(new Date());
+    var shortFmt = { month: 'short', day: 'numeric' };
+    listEl.innerHTML = '';
+
+    if (spendViewMode === 'day') {
+        var day = addDays(today, -spendViewOffset);
+        var key = dateKey(day);
+        var daySpends = plannerState.spends.filter(function(sp) { return sp.date === key; });
+        var dayTotal = daySpends.reduce(function(sum, sp) { return sum + sp.amount; }, 0);
+
+        labelEl.innerText = spendViewOffset === 0 ? 'Today'
+            : (spendViewOffset === 1 ? 'Yesterday'
+            : day.toLocaleDateString(undefined, { weekday: 'short', month: 'short', day: 'numeric' }));
+        totalEl.innerText = formatMoney(dayTotal);
+        if (countEl) { countEl.innerText = daySpends.length + (daySpends.length === 1 ? ' spend' : ' spends'); }
+
+        if (daySpends.length === 0) {
+            listEl.innerHTML = '<div class="card-desc" style="margin:0;">Nothing logged ' + (spendViewOffset === 0 ? 'yet today' : 'this day') + '</div>';
+            return;
+        }
+
+        daySpends.slice().reverse().forEach(function(spend) {
+            var item = document.createElement('div');
+            item.className = 'upcoming-item';
+
+            var info = document.createElement('div');
+            info.className = 'upcoming-info';
+            var title = document.createElement('h4');
+            var cardDebt = spend.cardDebtId
+                ? plannerState.debts.find(function(d) { return d.id === spend.cardDebtId; })
+                : null;
+            var baseLabel = spend.category
+                ? (spend.note ? spend.category + ' — ' + spend.note : spend.category)
+                : (spend.note || 'Spend');
+            title.innerText = baseLabel + (cardDebt ? ' (' + cardDebt.name + ')' : '');
+            var amountSpan = document.createElement('span');
+            amountSpan.innerText = formatMoney(spend.amount) + spendFromLabel(spend);
+            info.appendChild(title);
+            info.appendChild(amountSpan);
+
+            var deleteBtn = document.createElement('button');
+            deleteBtn.className = 'action-btn-primary';
+            deleteBtn.style.cssText = 'width:auto; padding:8px 14px; font-size:13px; background:var(--accent-red);';
+            deleteBtn.innerText = 'Delete';
+            deleteBtn.onclick = function() { deleteSpend(spend.id); };
+
+            item.appendChild(info);
+            item.appendChild(deleteBtn);
+            listEl.appendChild(item);
+        });
         return;
     }
-    listEl.innerHTML = '';
-    todaysSpends.forEach(function(spend) {
+
+    // ----- week view (Monday to Sunday) -----
+    var dow = (today.getDay() + 6) % 7;
+    var monday = addDays(today, -dow - 7 * spendViewOffset);
+    var sunday = addDays(monday, 6);
+    var days = [];
+    var weekTotal = 0;
+    var maxDay = 0;
+    for (var i = 0; i < 7; i++) {
+        var d = addDays(monday, i);
+        var future = d > today;
+        var amt = future ? 0 : sumSpendsOn(dateKey(d));
+        weekTotal += amt;
+        if (amt > maxDay) { maxDay = amt; }
+        days.push({ date: d, amount: amt, future: future });
+    }
+
+    var rangeText = monday.toLocaleDateString(undefined, shortFmt) + ' – ' + sunday.toLocaleDateString(undefined, shortFmt);
+    labelEl.innerText = (spendViewOffset === 0 ? 'This week' : (spendViewOffset === 1 ? 'Last week' : 'Week of')) + ' · ' + rangeText;
+    totalEl.innerText = formatMoney(weekTotal);
+
+    var daysCounted = spendViewOffset === 0 ? dow + 1 : 7;
+    if (countEl) { countEl.innerText = 'about ' + formatMoney(weekTotal / daysCounted) + ' a day'; }
+
+    days.forEach(function(dd) {
         var item = document.createElement('div');
         item.className = 'upcoming-item';
+        item.style.cursor = dd.future ? 'default' : 'pointer';
+        if (dd.future) { item.style.opacity = '0.45'; }
+
         var info = document.createElement('div');
         info.className = 'upcoming-info';
+        info.style.flex = '1';
+        info.style.marginRight = '12px';
         var title = document.createElement('h4');
-        var cardDebt = spend.cardDebtId
-            ? plannerState.debts.find(function(d) { return d.id === spend.cardDebtId; })
-            : null;
-        var baseLabel = spend.category
-            ? (spend.note ? spend.category + ' — ' + spend.note : spend.category)
-            : (spend.note || 'Spend');
-        title.innerText = baseLabel + (cardDebt ? ' (on ' + cardDebt.name + ')' : '');
-        var amountSpan = document.createElement('span');
-        var fromLabel = spend.source === 'savings' ? ' · from savings'
-            : (spend.source === 'checking' ? ' · from checking'
-            : (spend.source === 'other' ? ' · other source' : ''));
-        amountSpan.innerText = formatMoney(spend.amount) + fromLabel;
+        title.innerText = dd.date.toLocaleDateString(undefined, { weekday: 'short', month: 'short', day: 'numeric' });
         info.appendChild(title);
-        info.appendChild(amountSpan);
-        var deleteBtn = document.createElement('button');
-        deleteBtn.className = 'action-btn-primary';
-        deleteBtn.style.width = 'auto';
-        deleteBtn.style.padding = '8px 14px';
-        deleteBtn.style.fontSize = '13px';
-        deleteBtn.style.background = 'var(--accent-red)';
-        deleteBtn.innerText = 'Delete';
-        deleteBtn.onclick = function() { deleteSpend(spend.id); };
+        var bar = document.createElement('div');
+        bar.className = 'week-bar';
+        var fill = document.createElement('div');
+        fill.style.width = (maxDay > 0 ? (dd.amount / maxDay) * 100 : 0) + '%';
+        bar.appendChild(fill);
+        info.appendChild(bar);
+
+        var amountEl = document.createElement('div');
+        amountEl.style.cssText = 'font-size:14px; font-weight:600; flex-shrink:0;';
+        amountEl.innerText = dd.future ? '—' : formatMoney(dd.amount);
+
         item.appendChild(info);
-        item.appendChild(deleteBtn);
+        item.appendChild(amountEl);
+        if (!dd.future) { item.onclick = function() { jumpToSpendDay(dd.date); }; }
         listEl.appendChild(item);
     });
+
+    var hint = document.createElement('div');
+    hint.className = 'card-desc';
+    hint.style.cssText = 'margin:0; font-size:11px;';
+    hint.innerText = 'Tap a day to see what you spent.';
+    listEl.appendChild(hint);
 }
 
 function toggleSpendDetails() {
@@ -4115,44 +4283,144 @@ function pointsToPolyline(points) {
     return points.map(function(p) { return p.x + ',' + p.y; }).join(' ');
 }
 
-function renderCreditTrendChart(anyHasTwo) {
+function monthKeyToNum(k) {
+    var p = k.split('-');
+    return parseInt(p[0], 10) * 12 + parseInt(p[1], 10) - 1;
+}
+
+// One shared scale for all three bureaus, so the lines are comparable and the ups and downs show.
+function renderCreditTrendChart() {
     var svg = document.getElementById('credit-trend-svg');
     var legend = document.getElementById('credit-trend-legend');
     var emptyNote = document.getElementById('credit-trend-empty');
     if (!svg) { return; }
     svg.innerHTML = '';
 
-    if (!anyHasTwo) {
+    var NS = 'http://www.w3.org/2000/svg';
+    var bureaus = ['exp', 'tu', 'eq'];
+    var all = [];
+    var anyHasTwo = false;
+
+    bureaus.forEach(function(b) {
+        var h = plannerState.creditScores[b].history;
+        if (h.length >= 2) { anyHasTwo = true; }
+        h.forEach(function(e) { all.push({ n: monthKeyToNum(e.monthKey), score: e.score }); });
+    });
+
+    if (all.length === 0) {
+        svg.style.display = 'none';
         if (legend) { legend.style.display = 'none'; }
-        if (emptyNote) { emptyNote.style.display = 'block'; }
+        if (emptyNote) {
+            emptyNote.style.display = 'block';
+            emptyNote.innerText = 'Add a score above to start your chart.';
+        }
         return;
     }
-    if (legend) { legend.style.display = 'flex'; }
-    if (emptyNote) { emptyNote.style.display = 'none'; }
+    svg.style.display = 'block';
 
-    ['exp', 'tu', 'eq'].forEach(function(bureau) {
-        var history = plannerState.creditScores[bureau].history;
-        if (history.length < 2) { return; }
+    // legend shows each bureau with its latest score
+    if (legend) {
+        legend.style.display = 'flex';
+        legend.innerHTML = '';
+        bureaus.forEach(function(b) {
+            var h = plannerState.creditScores[b].history;
+            var wrap = document.createElement('span');
+            var dot = document.createElement('span');
+            dot.className = 'debt-legend-dot';
+            dot.style.background = BUREAU_COLORS[b];
+            wrap.appendChild(dot);
+            wrap.appendChild(document.createTextNode(BUREAU_NAMES[b] + ' ' + (h.length ? h[h.length - 1].score : '—')));
+            legend.appendChild(wrap);
+        });
+    }
+    if (emptyNote) {
+        emptyNote.style.display = anyHasTwo ? 'none' : 'block';
+        emptyNote.innerText = 'Update again next month and the lines will start to move.';
+    }
 
-        var values = history.map(function(entry) { return entry.score; });
-        var points = buildSparklinePoints(values, 300, 60, 8);
+    var W = 300, H = 130, padL = 30, padR = 12, padT = 10, padB = 22;
 
-        var polyline = document.createElementNS('http://www.w3.org/2000/svg', 'polyline');
-        polyline.setAttribute('points', pointsToPolyline(points));
-        polyline.setAttribute('fill', 'none');
-        polyline.setAttribute('stroke', BUREAU_COLORS[bureau]);
-        polyline.setAttribute('stroke-width', '2.5');
-        polyline.setAttribute('stroke-linecap', 'round');
-        polyline.setAttribute('stroke-linejoin', 'round');
-        svg.appendChild(polyline);
+    var scores = all.map(function(p) { return p.score; });
+    var lo = Math.floor((Math.min.apply(null, scores) - 10) / 10) * 10;
+    var hi = Math.ceil((Math.max.apply(null, scores) + 10) / 10) * 10;
+    if (hi - lo < 40) {
+        var mid = (hi + lo) / 2;
+        lo = Math.floor((mid - 20) / 10) * 10;
+        hi = lo + 40;
+    }
 
-        var lastPoint = points[points.length - 1];
-        var dot = document.createElementNS('http://www.w3.org/2000/svg', 'circle');
-        dot.setAttribute('cx', lastPoint.x);
-        dot.setAttribute('cy', lastPoint.y);
-        dot.setAttribute('r', '3.5');
-        dot.setAttribute('fill', BUREAU_COLORS[bureau]);
-        svg.appendChild(dot);
+    var nums = all.map(function(p) { return p.n; });
+    var minN = Math.min.apply(null, nums);
+    var maxN = Math.max.apply(null, nums);
+
+    function xOf(n) {
+        if (maxN === minN) { return padL + (W - padL - padR) / 2; }
+        return padL + ((n - minN) / (maxN - minN)) * (W - padL - padR);
+    }
+    function yOf(v) { return padT + ((hi - v) / (hi - lo)) * (H - padT - padB); }
+
+    function addText(txt, x, y, anchor) {
+        var t = document.createElementNS(NS, 'text');
+        t.setAttribute('x', x);
+        t.setAttribute('y', y);
+        t.setAttribute('text-anchor', anchor);
+        t.setAttribute('font-size', '9');
+        t.style.fill = 'var(--text-muted)';
+        t.textContent = txt;
+        svg.appendChild(t);
+    }
+
+    // horizontal guide lines with score labels
+    [hi, (hi + lo) / 2, lo].forEach(function(v) {
+        var y = yOf(v);
+        var line = document.createElementNS(NS, 'line');
+        line.setAttribute('x1', padL);
+        line.setAttribute('x2', W - padR);
+        line.setAttribute('y1', y);
+        line.setAttribute('y2', y);
+        line.setAttribute('stroke-width', '1');
+        line.style.stroke = 'var(--input-border)';
+        svg.appendChild(line);
+        addText(Math.round(v), padL - 5, y + 3, 'end');
+    });
+
+    // month labels along the bottom
+    var monthNums = [];
+    all.forEach(function(p) { if (monthNums.indexOf(p.n) === -1) { monthNums.push(p.n); } });
+    monthNums.sort(function(a, b) { return a - b; });
+    var every = Math.ceil(monthNums.length / 6);
+    monthNums.forEach(function(n, i) {
+        if (i % every !== 0 && i !== monthNums.length - 1) { return; }
+        addText(MONTH_NAMES[n % 12].substring(0, 3), xOf(n), H - 6, 'middle');
+    });
+
+    // one line (and a dot per month) for each bureau
+    bureaus.forEach(function(b) {
+        var h = plannerState.creditScores[b].history.slice().sort(function(a, c) {
+            return a.monthKey < c.monthKey ? -1 : 1;
+        });
+        if (h.length === 0) { return; }
+
+        var pts = h.map(function(e) { return { x: xOf(monthKeyToNum(e.monthKey)), y: yOf(e.score) }; });
+
+        if (pts.length >= 2) {
+            var poly = document.createElementNS(NS, 'polyline');
+            poly.setAttribute('points', pointsToPolyline(pts));
+            poly.setAttribute('fill', 'none');
+            poly.setAttribute('stroke', BUREAU_COLORS[b]);
+            poly.setAttribute('stroke-width', '2.5');
+            poly.setAttribute('stroke-linecap', 'round');
+            poly.setAttribute('stroke-linejoin', 'round');
+            svg.appendChild(poly);
+        }
+        pts.forEach(function(p, i) {
+            var dot = document.createElementNS(NS, 'circle');
+            dot.setAttribute('cx', p.x);
+            dot.setAttribute('cy', p.y);
+            dot.setAttribute('r', i === pts.length - 1 ? '4' : '3');
+            dot.setAttribute('fill', BUREAU_COLORS[b]);
+            svg.appendChild(dot);
+        });
     });
 }
 </script>
