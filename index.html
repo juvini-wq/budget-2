@@ -1042,7 +1042,21 @@ function hideStorageWarning() {
     if (banner) { banner.style.display = 'none'; }
 }
 
+function roundCents(x) {
+    var r = Math.round((Number(x) || 0) * 100) / 100;
+    return r === 0 ? 0 : r;
+}
+
+function normalizeMoney() {
+    if (!plannerState) { return; }
+    plannerState.balance = roundCents(plannerState.balance);
+    plannerState.savingsBalance = roundCents(plannerState.savingsBalance);
+    plannerState.setAside = roundCents(plannerState.setAside);
+    (plannerState.debts || []).forEach(function(d) { d.balance = roundCents(d.balance); });
+}
+
 function saveState() {
+    normalizeMoney();
     try {
         localStorage.setItem(STORAGE_KEY, JSON.stringify(plannerState));
         hideStorageWarning();
@@ -1095,9 +1109,9 @@ function populateSettingsFields() {
     var savingsEl = document.getElementById('setting-savings');
     var setAsideEl = document.getElementById('setting-setaside');
     var daysEl = document.getElementById('setting-daystopayday');
-    if (balanceEl) { balanceEl.value = plannerState.balance; }
-    if (savingsEl) { savingsEl.value = plannerState.savingsBalance; }
-    if (setAsideEl) { setAsideEl.value = plannerState.setAside; }
+    if (balanceEl) { balanceEl.value = roundCents(plannerState.balance).toFixed(2); }
+    if (savingsEl) { savingsEl.value = roundCents(plannerState.savingsBalance).toFixed(2); }
+    if (setAsideEl) { setAsideEl.value = roundCents(plannerState.setAside).toFixed(2); }
     if (daysEl) {
         daysEl.value = plannerState.daysToPayday;
         var hasPaychecks = plannerState.paychecks.length > 0;
@@ -1116,7 +1130,12 @@ function onMoneySettingChanged() {
     var savings = parseFloat(document.getElementById('setting-savings').value);
     var setAside = parseFloat(document.getElementById('setting-setaside').value);
     var days = parseInt(document.getElementById('setting-daystopayday').value, 10);
-    plannerState.balance = isNaN(balance) ? 0 : balance;
+    var newBalance = isNaN(balance) ? 0 : balance;
+    if (newBalance !== plannerState.balance) {
+        // you've just synced to your real balance, so spends logged the old way are already in it
+        plannerState.spends.forEach(function(sp) { if (!sp.source) { sp.source = 'counted'; } });
+    }
+    plannerState.balance = newBalance;
     plannerState.savingsBalance = isNaN(savings) ? 0 : savings;
     plannerState.setAside = isNaN(setAside) ? 0 : setAside;
     plannerState.daysToPayday = (isNaN(days) || days < 1) ? 1 : days;
@@ -3255,6 +3274,8 @@ function logDebtPayment(debtId) {
     }
 
     debt.payments.push(payment);
+    var checkingBefore = plannerState.balance;
+    var savingsBefore = plannerState.savingsBalance;
     applyPaymentSource(source, amount, -1);
     saveState();
 
@@ -3262,8 +3283,9 @@ function logDebtPayment(debtId) {
         formatMoney(Math.max(split.principalPortion, 0)) + ' to balance, ' +
         formatMoney(split.interestPortion) + ' interest.';
     if (tickedOff) { msg += " Ticked off this month's payment."; }
-    if (source === 'checking') { msg += ' Checking is now ' + formatMoney(plannerState.balance) + '.'; }
-    if (source === 'savings') { msg += ' Savings is now ' + formatMoney(plannerState.savingsBalance) + '.'; }
+    if (source === 'checking') { msg += ' Checking: ' + formatMoney(checkingBefore) + ' → ' + formatMoney(plannerState.balance) + '.'; }
+    if (source === 'savings') { msg += ' Savings: ' + formatMoney(savingsBefore) + ' → ' + formatMoney(plannerState.savingsBalance) + '.'; }
+    if (!debt.apr) { msg += ' No interest rate is set for this card, so interest shows $0 — tap the APR badge above to add it.'; }
     debtPayFlash[debtId] = msg;
 
     populateSettingsFields();
@@ -3396,6 +3418,18 @@ function setDebtDueDay(debtId) {
     renderBills();
     renderDebts();
     renderToday();
+}
+
+function setDebtApr(debtId) {
+    var debt = plannerState.debts.find(function(d) { return d.id === debtId; });
+    if (!debt) { return; }
+    var v = prompt('Interest rate (APR %) for ' + debt.name + '?', debt.apr || '');
+    if (v === null) { return; }
+    var apr = parseFloat(String(v).replace('%', ''));
+    if (isNaN(apr) || apr < 0) { return; }
+    debt.apr = apr;
+    saveState();
+    renderDebts();
 }
 
 function setDebtLimit(debtId) {
@@ -3779,9 +3813,11 @@ function renderDebtList() {
         infoRow.style.alignItems = 'center';
         infoRow.style.flexWrap = 'wrap';
 
-        var aprPill = document.createElement('span');
+        var aprPill = document.createElement('button');
         aprPill.className = 'pill muted';
-        aprPill.innerText = debt.apr + '% APR';
+        aprPill.style.cursor = 'pointer';
+        aprPill.innerText = debt.apr ? (debt.apr + '% APR') : 'Add APR';
+        aprPill.onclick = function() { setDebtApr(debt.id); };
 
         var minPill = document.createElement('span');
         minPill.className = 'pill muted';
