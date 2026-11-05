@@ -377,11 +377,13 @@ html, body {
             <div class="info-pill"><span class="info-pill-label">REMAINING</span><span id="pill-remaining-amount">$0.00</span></div>
         </div>
 
+            <div class="card-desc" style="margin:12px 0 4px; font-size:12px;">Your checking, minus bills due before your next payday, minus a little put aside each day for bills coming later, spread over the days until payday.</div>
             <div class="breakdown-row"><span>In checking</span><span id="breakdown-checking">$0.00</span></div>
-            <div class="breakdown-row"><span>In savings (not counted below)</span><span id="breakdown-savings">$0.00</span></div>
-            <div class="breakdown-row"><span>Arrived after that balance</span><span id="breakdown-arrived">+$0.00</span></div>
-            <div class="breakdown-row"><span>Bills still to land</span><span id="breakdown-bills">-$0.00</span></div>
-            <div class="breakdown-row"><span>Paid and spent after that balance</span><span id="breakdown-spent">-$0.00</span></div>
+            <div class="breakdown-row"><span>In savings (not counted)</span><span id="breakdown-savings">$0.00</span></div>
+            <div class="breakdown-row"><span>Bills due before payday</span><span id="breakdown-bills">-$0.00</span></div>
+            <div class="breakdown-row"><span>Saving up for later bills</span><span id="breakdown-holdback">-$0.00</span></div>
+            <div id="breakdown-upcoming" style="display:none; font-size:11px; color:var(--text-muted); line-height:1.5; padding:2px 0 8px;"></div>
+            <div class="breakdown-row"><span>Spent, not yet out of checking</span><span id="breakdown-spent">-$0.00</span></div>
             <div class="breakdown-row"><span>Already set aside</span><span id="breakdown-setaside">-$0.00</span></div>
             <div class="breakdown-row"><span>Safe until payday</span><span id="breakdown-total">$0.00</span></div>
         </div>
@@ -574,10 +576,6 @@ html, body {
                     <input type="date" class="form-input" id="bill-anchor-biweekly">
                     <div class="form-error" id="bill-anchor-biweekly-error">Pick a date so this bill knows when to repeat.</div>
                 </div>
-                <div class="form-group" style="flex-direction:row; align-items:center; gap:8px;">
-                    <input type="checkbox" id="bill-set-aside" style="width:18px; height:18px;">
-                    <label class="form-label" for="bill-set-aside" style="margin:0;">Set a bit aside each month for this one</label>
-                </div>
                 <button class="action-btn-primary" onclick="addBill()">Add bill</button>
             </div>
         </div>
@@ -750,9 +748,19 @@ html, body {
             <input type="text" class="form-input" id="pc-name" placeholder="Main job, Benefit, Side gig...">
         </div>
         <div class="form-group">
-            <label class="form-label">Usual amount (optional)</label>
-            <input type="number" step="0.01" class="form-input" id="pc-amount" placeholder="Leave blank if it varies">
-            <div class="card-desc" style="margin-bottom:0;">Just for reference — your real pay still gets logged separately each time via "Got paid."</div>
+            <label class="form-label">What do you usually get paid? (optional)</label>
+            <div style="display:flex; gap:8px;">
+                <input type="number" step="0.01" class="form-input" id="pc-amount-low" placeholder="Low, e.g. 500">
+                <input type="number" step="0.01" class="form-input" id="pc-amount-high" placeholder="High, e.g. 680">
+            </div>
+            <div class="card-desc" style="margin-bottom:0;">If it varies, give a range. Safe to Spend only leans on the low end, and only for bills due just after payday. Your real pay still gets logged with "Got paid."</div>
+        </div>
+        <div class="form-group" style="flex-direction:row; align-items:center; gap:8px; margin-bottom:8px;">
+            <input type="checkbox" id="pc-commission" style="width:18px; height:18px;" onchange="document.getElementById('pc-commission-amount-group').style.display = this.checked ? 'flex' : 'none';">
+            <label class="form-label" for="pc-commission" style="margin:0;">Commission comes with the 2nd payday of each month</label>
+        </div>
+        <div class="form-group" id="pc-commission-amount-group" style="display:none;">
+            <input type="number" step="0.01" class="form-input" id="pc-commission-amount" placeholder="Rough commission, low end is fine (optional)">
         </div>
         <div class="form-group">
             <label class="form-label">How often</label>
@@ -775,8 +783,16 @@ html, body {
             </div>
         </div>
         <div id="pc-field-group-weekly" class="form-group" style="display:none;">
-            <label class="form-label">A recent or upcoming payday</label>
-            <input type="date" class="form-input" id="pc-anchor-weekly">
+            <label class="form-label">Which day are you paid?</label>
+            <select class="form-input" id="pc-weekday">
+                <option value="1">Monday</option>
+                <option value="2">Tuesday</option>
+                <option value="3">Wednesday</option>
+                <option value="4">Thursday</option>
+                <option value="5" selected>Friday</option>
+                <option value="6">Saturday</option>
+                <option value="0">Sunday</option>
+            </select>
         </div>
         <div id="pc-field-group-biweekly" class="form-group" style="display:none;">
             <label class="form-label">A recent or upcoming payday</label>
@@ -1054,6 +1070,8 @@ function initMoneyEngine() {
     var initialMenuCard = document.querySelector('.menu-card[data-view="today"]');
     if (initialMenuCard) { initialMenuCard.classList.add('active'); }
     plannerState = loadState();
+    // bills are now all planned for automatically — retire the old per-bill "set aside" switch
+    plannerState.bills.forEach(function(b) { b.setAside = false; });
     refreshMinimums();
     setTheme(plannerState.theme || 'light');
     if (plannerState.seasonalTheme === 'halloween') {
@@ -1140,11 +1158,163 @@ function calculatePoolSpent() {
     }, 0);
 }
 
+/* ---------- Pay plan: what's coming in, and what has to be covered before it lands ---------- */
+function incomeLoggedToday() {
+    return plannerState.income.some(function(e) { return e.date === todayKey(); });
+}
+
+// Next payday for one paycheck. If today is payday and you've already logged income today,
+// look to the following one instead.
+function getNextPaydayDateFor(paycheck) {
+    var today = startOfDay(new Date());
+    var d = getNextPaycheckDate(paycheck, today);
+    if (d && d.getTime() === today.getTime() && incomeLoggedToday()) {
+        d = getNextPaycheckDate(paycheck, addDays(today, 1));
+    }
+    return d;
+}
+
+// Upcoming paydays across all paychecks, grouped by date (two paychecks on the same day = one group)
+function getPaydayGroups(count) {
+    var events = [];
+    plannerState.paychecks.forEach(function(pc) {
+        var d = getNextPaydayDateFor(pc);
+        var guard = 0;
+        while (d && guard < 6) {
+            events.push({ date: d, paycheck: pc });
+            d = getNextPaycheckDate(pc, addDays(d, 1));
+            guard++;
+        }
+    });
+    events.sort(function(a, b) { return a.date - b.date; });
+    var groups = [];
+    events.forEach(function(ev) {
+        var k = dateKey(ev.date);
+        var last = groups[groups.length - 1];
+        if (last && last.key === k) {
+            last.items.push(ev);
+        } else {
+            groups.push({ key: k, date: ev.date, items: [ev] });
+        }
+    });
+    return groups.slice(0, count);
+}
+
+function paycheckLow(pc) {
+    return (pc.amountLow !== undefined && pc.amountLow !== null) ? pc.amountLow : (pc.amount || 0);
+}
+
+function paycheckHigh(pc) {
+    return (pc.amountHigh !== undefined && pc.amountHigh !== null) ? pc.amountHigh : (pc.amount || 0);
+}
+
+// Expected pay for one payday. The commission rides with the 2nd payday of the month (days 8–14).
+function expectedPayRange(pc, date) {
+    var low = paycheckLow(pc);
+    var high = paycheckHigh(pc);
+    var commission = false;
+    if (pc.commissionSecond && Math.ceil(date.getDate() / 7) === 2) {
+        commission = true;
+        var c = pc.commissionAmount || 0;
+        low += c;
+        high += c;
+    }
+    return { low: low, high: high, commission: commission };
+}
+
+function formatPayRange(low, high) {
+    if (!(high > 0)) { return 'amount varies'; }
+    if (high > low + 0.5) { return formatMoneyShort(low) + '–' + formatMoneyShort(high); }
+    return formatMoneyShort(high);
+}
+
+function payRangeText(pc) {
+    return formatPayRange(paycheckLow(pc), paycheckHigh(pc));
+}
+
+function sumUnpaidBills(start, end) {
+    var total = 0;
+    plannerState.bills.forEach(function(bill) {
+        if (bill.setAside) { return; }
+        getBillOccurrences(bill, start, end).forEach(function(date) {
+            if (!isOccurrencePaid(bill, date)) { total += bill.amount; }
+        });
+    });
+    return total;
+}
+
+// The bill's previous due date (when you finished paying the last one) — saving for the next one starts there
+function prevOccurrenceDate(bill, due) {
+    var occ = getBillOccurrences(bill, addDays(due, -400), addDays(due, -1));
+    return occ.length ? occ[occ.length - 1] : addDays(due, -30);
+}
+
+// How much of the next bill you "should" have put aside by today: it builds up evenly
+// from the last due date to the next one, so a big bill never arrives all at once.
+function accruedShare(bill, due, today) {
+    var prev = prevOccurrenceDate(bill, due);
+    var span = Math.max(Math.round((due - prev) / 86400000), 1);
+    var elapsed = Math.round((today - prev) / 86400000);
+    return Math.min(Math.max(elapsed / span, 0), 1);
+}
+
+function getPayPlan() {
+    var today = startOfDay(new Date());
+    var groups = getPaydayGroups(2);
+    var plan = {
+        hasPaycheck: groups.length > 0,
+        nextDate: null,
+        followDate: null,
+        lowNext: 0,
+        highNext: 0,
+        commission: false,
+        billsBefore: 0,
+        holdback: 0,
+        upcoming: []
+    };
+
+    if (groups.length === 0) {
+        plan.nextDate = addDays(today, Math.max(plannerState.daysToPayday, 1));
+    } else {
+        plan.nextDate = groups[0].date;
+        if (groups[1]) { plan.followDate = groups[1].date; }
+        groups[0].items.forEach(function(it) {
+            var r = expectedPayRange(it.paycheck, plan.nextDate);
+            plan.lowNext += r.low;
+            plan.highNext += r.high;
+            if (r.commission) { plan.commission = true; }
+        });
+    }
+
+    // 1) Everything due on or before the next payday (including anything already overdue this month): in full
+    plan.billsBefore = sumUnpaidBills(startOfCurrentMonth(), plan.nextDate);
+
+    // 2) Every bill due after that: a growing share is put aside a little each day
+    plannerState.bills.forEach(function(bill) {
+        var occs = getBillOccurrences(bill, addDays(plan.nextDate, 1), addDays(plan.nextDate, 400));
+        for (var i = 0; i < occs.length; i++) {
+            if (isOccurrencePaid(bill, occs[i])) { continue; }
+            var share = accruedShare(bill, occs[i], today);
+            var reserved = bill.amount * share;
+            if (reserved > 0.004) {
+                plan.holdback += reserved;
+                plan.upcoming.push({ bill: bill, date: occs[i], reserved: reserved });
+            }
+            break;
+        }
+    });
+    plan.upcoming.sort(function(a, b) { return a.date - b.date; });
+    return plan;
+}
+
 function calculateAvailablePool() {
-    var totalSpent = calculatePoolSpent();
-    var unpaidBills = calculateUnpaidRegularBillsTotal();
-    var billsReserve = calculateBillsReserveMonthly();
-    return plannerState.balance - plannerState.setAside - totalSpent - unpaidBills - billsReserve;
+    var plan = getPayPlan();
+    return plannerState.balance
+        - plannerState.setAside
+        - calculatePoolSpent()
+        - plan.billsBefore
+        - plan.holdback
+        - calculateBillsReserveMonthly();
 }
 
 function calculateSafeToday() {
@@ -1558,44 +1728,63 @@ function renderSafeToSpendBreakdown() {
     var noteEl = document.getElementById('payday-not-counted-note');
     if (!untilEl) { return; }
 
-    var days = computeDaysToPayday();
-    var untilDate = addDays(startOfDay(new Date()), days);
-    var nextPayday = getOverallNextPayday();
-    if (nextPayday) { untilDate = nextPayday.date; }
-
-    untilEl.innerText = untilDate.toLocaleDateString(undefined, { weekday: 'short', month: 'short', day: 'numeric' });
-
+    var plan = getPayPlan();
     var pool = calculateAvailablePool();
+
+    untilEl.innerText = plan.nextDate.toLocaleDateString(undefined, { weekday: 'short', month: 'short', day: 'numeric' });
     remainingEl.innerText = formatMoney(pool);
 
     if (noteEl) {
-        if (nextPayday) {
-            var dateLabel = nextPayday.date.toLocaleDateString(undefined, { weekday: 'short', month: 'short', day: 'numeric' });
-            noteEl.style.display = 'block';
-            var amountPhrase = nextPayday.paycheck.amount > 0 ? (' around ' + formatMoney(nextPayday.paycheck.amount)) : '';
-            noteEl.innerText = 'A ' + nextPayday.paycheck.name + ' payday' + amountPhrase + ' is expected ' + dateLabel + ' — not counted here until you log it in Got paid.';
+        noteEl.style.display = 'block';
+        noteEl.innerText = '';
+        if (plan.hasPaycheck) {
+            var dateLabel = plan.nextDate.toLocaleDateString(undefined, { weekday: 'short', month: 'short', day: 'numeric' });
+            var txt = 'Next pay: ' + dateLabel;
+            if (plan.highNext > 0) { txt += ' · about ' + formatPayRange(plan.lowNext, plan.highNext); }
+            if (plan.commission) { txt += ' (commission week)'; }
+            txt += ' — not counted until you log it in Got paid.';
+            noteEl.innerText = txt;
         } else {
-            noteEl.style.display = 'none';
+            noteEl.appendChild(document.createTextNode('No payday set up yet, so this is a guess from "days until payday". '));
+            var addBtn = document.createElement('button');
+            addBtn.className = 'glance-link';
+            addBtn.innerText = 'Add your payday';
+            addBtn.onclick = function() { switchView('settings'); };
+            noteEl.appendChild(addBtn);
         }
     }
 
-    var checkingEl = document.getElementById('breakdown-checking');
-    var savingsEl = document.getElementById('breakdown-savings');
-    var arrivedEl = document.getElementById('breakdown-arrived');
-    var billsEl = document.getElementById('breakdown-bills');
-    var spentEl = document.getElementById('breakdown-spent');
-    var setAsideEl = document.getElementById('breakdown-setaside');
-    var totalEl = document.getElementById('breakdown-total');
-
-    if (checkingEl) {
-        checkingEl.innerText = formatMoney(plannerState.balance);
-        savingsEl.innerText = formatMoney(plannerState.savingsBalance);
-        arrivedEl.innerText = '+' + formatMoney(0);
-        billsEl.innerText = '-' + formatMoney(calculateUnpaidRegularBillsTotal() + calculateBillsReserveMonthly());
-        spentEl.innerText = '-' + formatMoney(calculatePoolSpent());
-        setAsideEl.innerText = '-' + formatMoney(plannerState.setAside);
-        totalEl.innerText = formatMoney(pool);
+    function setText(id, text) {
+        var el = document.getElementById(id);
+        if (el) { el.innerText = text; }
     }
+    function setRow(id, value) {
+        var el = document.getElementById(id);
+        if (!el) { return; }
+        el.innerText = '-' + formatMoney(value);
+        if (el.parentElement) { el.parentElement.style.display = value > 0.004 ? 'flex' : 'none'; }
+    }
+
+    setText('breakdown-checking', formatMoney(plannerState.balance));
+    setText('breakdown-savings', formatMoney(plannerState.savingsBalance));
+    setText('breakdown-bills', '-' + formatMoney(plan.billsBefore));
+    setRow('breakdown-holdback', plan.holdback);
+
+    var upEl = document.getElementById('breakdown-upcoming');
+    if (upEl) {
+        upEl.innerHTML = '';
+        plan.upcoming.slice(0, 6).forEach(function(u) {
+            var line = document.createElement('div');
+            line.innerText = u.bill.name + ' · due ' +
+                u.date.toLocaleDateString(undefined, { month: 'short', day: 'numeric' }) + ' · ' +
+                formatMoney(u.reserved) + ' of ' + formatMoney(u.bill.amount) + ' put aside so far';
+            upEl.appendChild(line);
+        });
+        upEl.style.display = plan.upcoming.length ? 'block' : 'none';
+    }
+    setRow('breakdown-spent', calculatePoolSpent());
+    setText('breakdown-setaside', '-' + formatMoney(plannerState.setAside));
+    setText('breakdown-total', formatMoney(pool));
 
     var fillEl = document.getElementById('today-progress-fill');
     var captionEl = document.getElementById('today-progress-caption');
@@ -1989,7 +2178,6 @@ function addBill() {
     var nameEl = document.getElementById('bill-name');
     var amountEl = document.getElementById('bill-amount');
     var typeEl = document.getElementById('bill-recurrence-type');
-    var setAsideEl = document.getElementById('bill-set-aside');
     clearBillErrors();
 
     var name = nameEl.value.trim();
@@ -2006,7 +2194,7 @@ function addBill() {
         name: name,
         amount: amount,
         recurrenceType: type,
-        setAside: setAsideEl.checked,
+        setAside: false,
         paidOccurrences: []
     };
 
@@ -2037,7 +2225,6 @@ function addBill() {
 
     nameEl.value = '';
     amountEl.value = '';
-    setAsideEl.checked = false;
 
     renderBills();
     renderToday();
@@ -2386,7 +2573,7 @@ function renderBillsList() {
         var span = document.createElement('span');
         span.innerText = formatMoney(bill.amount) + ' • ' + describeBillRecurrence(bill) +
             (bill.linkedDebtId ? ' • auto minimum' : '') +
-            (bill.setAside ? ' • set aside' : '');
+            '';
 
         info.appendChild(title);
         info.appendChild(span);
@@ -2482,10 +2669,9 @@ function getNextPaycheckDate(paycheck, fromDate) {
 }
 
 function getOverallNextPayday() {
-    var today = startOfDay(new Date());
     var best = null;
     plannerState.paychecks.forEach(function(paycheck) {
-        var date = getNextPaycheckDate(paycheck, today);
+        var date = getNextPaydayDateFor(paycheck);
         if (date && (!best || date < best.date)) { best = { date: date, paycheck: paycheck }; }
     });
     return best;
@@ -2504,7 +2690,7 @@ function describePaycheckFrequency(paycheck) {
     switch (paycheck.frequency) {
         case 'monthly': return 'monthly on day ' + paycheck.day;
         case 'twice-monthly': return 'monthly on days ' + paycheck.dayA + ' & ' + paycheck.dayB;
-        case 'weekly': return 'every week';
+        case 'weekly': return paycheck.weekday !== undefined ? 'every ' + ['Sunday','Monday','Tuesday','Wednesday','Thursday','Friday','Saturday'][paycheck.weekday] : 'every week';
         case 'biweekly': return 'every 2 weeks';
         default: return '';
     }
@@ -2512,17 +2698,29 @@ function describePaycheckFrequency(paycheck) {
 
 function addPaycheck() {
     var nameEl = document.getElementById('pc-name');
-    var amountEl = document.getElementById('pc-amount');
+    var lowEl = document.getElementById('pc-amount-low');
+    var highEl = document.getElementById('pc-amount-high');
+    var commissionEl = document.getElementById('pc-commission');
+    var commissionAmtEl = document.getElementById('pc-commission-amount');
     var typeEl = document.getElementById('pc-frequency');
     var weekendEl = document.getElementById('pc-weekend-shift');
     var allocationEl = document.getElementById('pc-allocation-percent');
 
     var name = nameEl.value.trim();
-    var amount = parseFloat(amountEl.value);
     var type = typeEl.value;
     var allocationPercent = parseFloat(allocationEl.value);
 
-    if (isNaN(amount) || amount < 0) { amount = 0; }
+    var low = parseFloat(lowEl.value);
+    var high = parseFloat(highEl.value);
+    if (isNaN(low) || low < 0) { low = null; }
+    if (isNaN(high) || high < 0) { high = null; }
+    if (low === null && high !== null) { low = high; }
+    if (high === null && low !== null) { high = low; }
+    if (low !== null && high !== null && low > high) { var swap = low; low = high; high = swap; }
+    var amount = (low !== null) ? (low + high) / 2 : 0;
+    var commissionAmount = parseFloat(commissionAmtEl.value);
+    if (isNaN(commissionAmount) || commissionAmount < 0) { commissionAmount = 0; }
+
     if (!name) {
         nameEl.focus();
         return;
@@ -2532,6 +2730,10 @@ function addPaycheck() {
         id: Date.now() + '-' + Math.random().toString(36).slice(2),
         name: name,
         amount: amount,
+        amountLow: low === null ? 0 : low,
+        amountHigh: high === null ? 0 : high,
+        commissionSecond: commissionEl.checked,
+        commissionAmount: commissionEl.checked ? commissionAmount : 0,
         frequency: type,
         weekendShift: weekendEl.checked,
         allocationPercent: isNaN(allocationPercent) ? 0 : allocationPercent
@@ -2548,9 +2750,10 @@ function addPaycheck() {
         paycheck.dayA = dayA;
         paycheck.dayB = dayB;
     } else if (type === 'weekly') {
-        var anchorW = document.getElementById('pc-anchor-weekly').value;
-        if (!anchorW) { return; }
-        paycheck.anchorDate = anchorW;
+        var wd = parseInt(document.getElementById('pc-weekday').value, 10);
+        var todayW = startOfDay(new Date());
+        paycheck.weekday = wd;
+        paycheck.anchorDate = dateKey(addDays(todayW, (wd - todayW.getDay() + 7) % 7));
     } else if (type === 'biweekly') {
         var anchorB = document.getElementById('pc-anchor-biweekly').value;
         if (!anchorB) { return; }
@@ -2561,7 +2764,11 @@ function addPaycheck() {
     saveState();
 
     nameEl.value = '';
-    amountEl.value = '';
+    lowEl.value = '';
+    highEl.value = '';
+    commissionEl.checked = false;
+    commissionAmtEl.value = '';
+    document.getElementById('pc-commission-amount-group').style.display = 'none';
     weekendEl.checked = false;
     allocationEl.value = '';
 
@@ -2606,7 +2813,7 @@ function renderPaychecks() {
         var takeHome = paycheck.amount * (1 - (paycheck.allocationPercent || 0) / 100);
 
         span.innerText =
-            (paycheck.amount > 0 ? (formatMoney(paycheck.amount) + ' • ') : 'amount varies • ') +
+            payRangeText(paycheck) + (paycheck.commissionSecond ? ' + commission' : '') + ' • ' +
             describePaycheckFrequency(paycheck) + ' • next ' + nextLabel +
             (paycheck.allocationPercent > 0 && paycheck.amount > 0 ? (' • ' + formatMoney(takeHome) + ' take-home') : '');
 
@@ -3113,15 +3320,43 @@ function mk(tag, cls, text) {
     return e;
 }
 
-// Balance on the last day of the previous month, from the snapshots logged so far
+// Balance recorded during the previous calendar month (the latest one logged in that month).
+// If nothing was recorded last month we return null rather than guess — carrying an old balance
+// forward would just repeat today's number.
 function getPrevMonthBalance(debt) {
     var hist = debt.balanceHistory || [];
-    var cutoff = dateKey(startOfCurrentMonth());
+    var start = startOfCurrentMonth();
+    var from = dateKey(new Date(start.getFullYear(), start.getMonth() - 1, 1));
+    var to = dateKey(start);
     var found = null;
     hist.forEach(function(h) {
-        if (h.date < cutoff) { found = h.balance; }
+        if (h.date >= from && h.date < to) { found = h.balance; }
     });
     return found;
+}
+
+// Lets you type in what the card's balance was at the end of last month (e.g. from your statement)
+function setPrevMonthBalance(debtId) {
+    var debt = plannerState.debts.find(function(d) { return d.id === debtId; });
+    if (!debt) { return; }
+    var start = startOfCurrentMonth();
+    var prevStart = new Date(start.getFullYear(), start.getMonth() - 1, 1);
+    var existing = getPrevMonthBalance(debt);
+    var v = prompt('What was ' + debt.name + "'s balance at the end of " + MONTH_NAMES[prevStart.getMonth()] + '?',
+        existing !== null ? existing : '');
+    if (v === null) { return; }
+    var val = parseFloat(String(v).replace(/[$,]/g, ''));
+    if (isNaN(val) || val < 0) { return; }
+
+    var from = dateKey(prevStart);
+    var to = dateKey(start);
+    debt.balanceHistory = (debt.balanceHistory || []).filter(function(h) {
+        return !(h.date >= from && h.date < to);
+    });
+    debt.balanceHistory.push({ date: dateKey(addDays(start, -1)), balance: val });
+    debt.balanceHistory.sort(function(a, b) { return a.date < b.date ? -1 : (a.date > b.date ? 1 : 0); });
+    saveState();
+    renderDebts();
 }
 
 function utilTier(pct) {
@@ -3297,6 +3532,8 @@ function renderDebtGlance() {
         // last month
         var c4 = mk('div');
         if (r.prev !== null) {
+            c4.style.cursor = 'pointer';
+            c4.onclick = function() { setPrevMonthBalance(debt.id); };
             c4.appendChild(mk('div', 'glance-num', formatMoneyShort(r.prev)));
             if (prevPct !== null) {
                 c4.appendChild(mk('div', 'glance-sub t-' + utilTier(prevPct), Math.round(prevPct) + '% used'));
@@ -3304,8 +3541,10 @@ function renderDebtGlance() {
                 c4.appendChild(mk('div', 'glance-sub', '—'));
             }
         } else {
+            var addPrevBtn = mk('button', 'glance-link', 'add');
+            addPrevBtn.onclick = function() { setPrevMonthBalance(debt.id); };
             c4.appendChild(mk('div', 'glance-num', '—'));
-            c4.appendChild(mk('div', 'glance-sub', 'no history yet'));
+            c4.appendChild(addPrevBtn);
         }
 
         row.appendChild(c1);
@@ -3329,9 +3568,9 @@ function renderDebtGlance() {
         t3.appendChild(mk('div', 'glance-num', '—'));
     }
     var t4 = mk('div');
-    if (anyPrev) {
+    if (anyPrev && !missingPrev) {
         t4.appendChild(mk('div', 'glance-num', formatMoneyShort(totPrev)));
-        if (totLimit > 0 && !missingPrev) {
+        if (totLimit > 0) {
             var prevAll = (totPrevLimited / totLimit) * 100;
             t4.appendChild(mk('div', 'glance-sub t-' + utilTier(prevAll), Math.round(prevAll) + '% used'));
         }
@@ -3344,7 +3583,7 @@ function renderDebtGlance() {
     listEl.appendChild(total);
 
     if (noteEl) {
-        var notes = ['"Last month" is your balance on the last day of the previous month, from what you\'ve logged here.'];
+        var notes = ['"Last month" is the balance recorded last month. Tap "add" (or the number) to enter it from your statement.'];
         if (missingLimit) { notes.push('Add a credit limit to see utilization.'); }
         noteEl.innerText = notes.join(' ');
     }
