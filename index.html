@@ -372,19 +372,16 @@ html, body {
         <div class="card-desc" id="payday-not-counted-note" style="display:none; margin-top:10px;"></div>
         <button class="breakdown-toggle" onclick="toggleBreakdownPanel()">How is this worked out?</button>
         <div class="breakdown-panel" id="breakdown-panel">
-        <div class="info-pill-row">
+        <div class="info-pill-row" style="display:none;">
             <div class="info-pill"><span class="info-pill-label">UNTIL</span><span id="pill-until-date">—</span></div>
             <div class="info-pill"><span class="info-pill-label">REMAINING</span><span id="pill-remaining-amount">$0.00</span></div>
         </div>
 
-            <div class="card-desc" style="margin:12px 0 4px; font-size:12px;">Your checking, minus bills due before your next payday, minus a little put aside each day for bills coming later, spread over the days until payday.</div>
             <div class="breakdown-row"><span>In checking</span><span id="breakdown-checking">$0.00</span></div>
-            <div class="breakdown-row"><span>In savings (not counted)</span><span id="breakdown-savings">$0.00</span></div>
-            <div class="breakdown-row"><span>Bills due before payday</span><span id="breakdown-bills">-$0.00</span></div>
-            <div class="breakdown-row"><span>Saving up for later bills</span><span id="breakdown-holdback">-$0.00</span></div>
-            <div id="breakdown-upcoming" style="display:none; font-size:11px; color:var(--text-muted); line-height:1.5; padding:2px 0 8px;"></div>
-            <div class="breakdown-row"><span>Spent, not yet out of checking</span><span id="breakdown-spent">-$0.00</span></div>
-            <div class="breakdown-row"><span>Already set aside</span><span id="breakdown-setaside">-$0.00</span></div>
+            <div class="breakdown-row"><span>Bills before payday</span><span id="breakdown-bills">-$0.00</span></div>
+            <div class="breakdown-row"><span>Saved for later bills</span><span id="breakdown-holdback">-$0.00</span></div>
+            <div class="breakdown-row"><span>Spent</span><span id="breakdown-spent">-$0.00</span></div>
+            <div class="breakdown-row"><span>Set aside</span><span id="breakdown-setaside">-$0.00</span></div>
             <div class="breakdown-row"><span>Safe until payday</span><span id="breakdown-total">$0.00</span></div>
         </div>
         <div class="safe-progress-track"><div class="safe-progress-fill" id="today-progress-fill" style="width:0%;"></div></div>
@@ -399,7 +396,7 @@ html, body {
 
     <div class="card">
         <div class="card-tag">COMING UP</div>
-        <div class="card-desc" id="coming-up-note" style="display:none; color:var(--accent-red);">Heads up — these bills are more than what's safe to spend right now.</div>
+        <div class="card-desc" id="coming-up-note" style="display:none; color:var(--accent-red);">Not fully covered yet.</div>
         <div class="upcoming-list" id="coming-up-list" style="margin-top:0;"><!-- next bills render here --></div>
     </div>
 
@@ -1525,9 +1522,9 @@ function renderToday() {
         var nextPayday = getOverallNextPayday();
         if (nextPayday) {
             var dateLabel = nextPayday.date.toLocaleDateString(undefined, { weekday: 'short', month: 'short', day: 'numeric' });
-            subtitleEl.innerText = 'per day, ' + dayLabel + ' to ' + nextPayday.paycheck.name + ' (' + dateLabel + ')';
+            subtitleEl.innerText = 'per day until ' + dateLabel;
         } else {
-            subtitleEl.innerText = 'per day, ' + dayLabel + ' to payday';
+            subtitleEl.innerText = 'per day until payday';
         }
     }
 
@@ -1739,13 +1736,12 @@ function renderSafeToSpendBreakdown() {
         noteEl.innerText = '';
         if (plan.hasPaycheck) {
             var dateLabel = plan.nextDate.toLocaleDateString(undefined, { weekday: 'short', month: 'short', day: 'numeric' });
-            var txt = 'Next pay: ' + dateLabel;
-            if (plan.highNext > 0) { txt += ' · about ' + formatPayRange(plan.lowNext, plan.highNext); }
-            if (plan.commission) { txt += ' (commission week)'; }
-            txt += ' — not counted until you log it in Got paid.';
+            var txt = 'Next pay ' + dateLabel;
+            if (plan.highNext > 0) { txt += ' · ~' + formatPayRange(plan.lowNext, plan.highNext); }
+            if (plan.commission) { txt += ' + commission'; }
             noteEl.innerText = txt;
         } else {
-            noteEl.appendChild(document.createTextNode('No payday set up yet, so this is a guess from "days until payday". '));
+            noteEl.appendChild(document.createTextNode('No payday set. '));
             var addBtn = document.createElement('button');
             addBtn.className = 'glance-link';
             addBtn.innerText = 'Add your payday';
@@ -1770,18 +1766,6 @@ function renderSafeToSpendBreakdown() {
     setText('breakdown-bills', '-' + formatMoney(plan.billsBefore));
     setRow('breakdown-holdback', plan.holdback);
 
-    var upEl = document.getElementById('breakdown-upcoming');
-    if (upEl) {
-        upEl.innerHTML = '';
-        plan.upcoming.slice(0, 6).forEach(function(u) {
-            var line = document.createElement('div');
-            line.innerText = u.bill.name + ' · due ' +
-                u.date.toLocaleDateString(undefined, { month: 'short', day: 'numeric' }) + ' · ' +
-                formatMoney(u.reserved) + ' of ' + formatMoney(u.bill.amount) + ' put aside so far';
-            upEl.appendChild(line);
-        });
-        upEl.style.display = plan.upcoming.length ? 'block' : 'none';
-    }
     setRow('breakdown-spent', calculatePoolSpent());
     setText('breakdown-setaside', '-' + formatMoney(plannerState.setAside));
     setText('breakdown-total', formatMoney(pool));
