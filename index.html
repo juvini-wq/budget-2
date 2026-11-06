@@ -2369,6 +2369,7 @@ function toggleBillPaid(billId, dKey) {
                     fromBillId: billId,
                     fromBillOccurrence: dKey
                 });
+                consumeScheduledPayment(debtToReduce);
                 checkDebtPaidMilestone(debtToReduce);
             }
         }
@@ -2393,6 +2394,7 @@ function toggleBillPaid(billId, dKey) {
                 debtToRestore.payments = debtToRestore.payments.filter(function(p) {
                     return !(p.fromBillId === billId && p.fromBillOccurrence === dKey);
                 });
+                restoreScheduledPayment(debtToRestore);
             }
         }
     }
@@ -3058,8 +3060,52 @@ function minFor(balance, apr) {
     return Math.ceil(est * 100) / 100;
 }
 
+// What this debt asks for each month: a fixed amount you set (installment loans like Affirm or a
+// payment plan), with an optional smaller final payment — otherwise the automatic card minimum.
+function scheduledPayment(debt) {
+    if (!debt || debt.balance <= 0) { return 0; }
+    if (debt.fixedPayment > 0) {
+        var interest = debt.balance * ((debt.apr || 0) / 100 / 12);
+        var owed = debt.balance + interest;
+        var p = debt.fixedPayment;
+        if (debt.paymentsLeft === 1 && debt.finalPayment > 0) { p = debt.finalPayment; }
+        return Math.round(Math.min(p, owed) * 100) / 100;
+    }
+    return minFor(debt.balance, debt.apr);
+}
+
 function estimateMinimum(debt) {
-    return debt ? minFor(debt.balance, debt.apr) : 0;
+    return scheduledPayment(debt);
+}
+
+function consumeScheduledPayment(debt) {
+    if (debt.paymentsLeft !== null && debt.paymentsLeft !== undefined && debt.paymentsLeft > 0) {
+        debt.paymentsLeft -= 1;
+    }
+}
+
+function restoreScheduledPayment(debt) {
+    if (debt.fixedPayment > 0 && debt.paymentsLeft !== null && debt.paymentsLeft !== undefined) {
+        debt.paymentsLeft += 1;
+    }
+}
+
+function setDebtPlan(debtId, amount, left, last) {
+    var debt = plannerState.debts.find(function(d) { return d.id === debtId; });
+    if (!debt) { return; }
+    if (amount > 0) {
+        debt.fixedPayment = amount;
+        debt.paymentsLeft = (left > 0) ? left : null;
+        debt.finalPayment = (left > 0 && last > 0) ? last : null;
+    } else {
+        debt.fixedPayment = null;
+        debt.paymentsLeft = null;
+        debt.finalPayment = null;
+    }
+    saveState();
+    renderBills();
+    renderDebts();
+    renderToday();
 }
 
 function refreshMinimums() {
@@ -3274,6 +3320,7 @@ function logDebtPayment(debtId) {
     }
 
     debt.payments.push(payment);
+    if (tickedOff) { consumeScheduledPayment(debt); }
     var checkingBefore = plannerState.balance;
     var savingsBefore = plannerState.savingsBalance;
     applyPaymentSource(source, amount, -1);
@@ -3285,7 +3332,7 @@ function logDebtPayment(debtId) {
     if (tickedOff) { msg += " Ticked off this month's payment."; }
     if (source === 'checking') { msg += ' Checking: ' + formatMoney(checkingBefore) + ' → ' + formatMoney(plannerState.balance) + '.'; }
     if (source === 'savings') { msg += ' Savings: ' + formatMoney(savingsBefore) + ' → ' + formatMoney(plannerState.savingsBalance) + '.'; }
-    if (!debt.apr) { msg += ' No interest rate is set for this card, so interest shows $0 — tap the APR badge above to add it.'; }
+    if (!debt.apr && !(debt.fixedPayment > 0)) { msg += ' No interest rate is set for this card, so interest shows $0 — tap the APR badge above to add it.'; }
     debtPayFlash[debtId] = msg;
 
     populateSettingsFields();
@@ -3523,7 +3570,7 @@ function renderDebtGlance() {
         // balance (+ minimum)
         var c2 = mk('div');
         c2.appendChild(mk('div', 'glance-num', formatMoneyShort(debt.balance)));
-        c2.appendChild(mk('div', 'glance-sub', 'min ' + formatMoneyShort(debt.minimumPayment)));
+        c2.appendChild(mk('div', 'glance-sub', (debt.fixedPayment > 0 ? 'pays ' : 'min ') + formatMoneyShort(debt.minimumPayment)));
         if (debt.balance > 0) {
             var gSplit = calculateDebtInterestSplit(debt, debt.minimumPayment);
             c2.appendChild(mk('div', 'glance-sub', formatMoneyShort(Math.max(gSplit.principalPortion, 0)) + ' to balance'));
@@ -3692,7 +3739,15 @@ function renderDebtTotal() {
         ' • ' + formatMoney(calculateTotalDebtMinimums()) + '/mo in minimums';
 }
 
-// Payoff if you only pay the (shrinking) minimum each month
+function payoffPaymentFor(debt, remaining, monthIndex) {
+    if (!(debt.fixedPayment > 0)) { return minFor(remaining, debt.apr); }
+    var rate = (debt.apr || 0) / 100 / 12;
+    var clearsIt = remaining * (1 + rate);
+    if (debt.paymentsLeft > 0 && monthIndex + 1 >= debt.paymentsLeft) { return clearsIt; }
+    return Math.min(debt.fixedPayment, clearsIt);
+}
+
+// Payoff if you only make the scheduled payment each month
 function calculateDebtPayoff(debt) {
     var remaining = debt.balance;
     var monthlyRate = (debt.apr || 0) / 100 / 12;
@@ -3707,7 +3762,7 @@ function calculateDebtPayoff(debt) {
 
     while (remaining > 0.005 && months < maxMonths) {
         var interest = remaining * monthlyRate;
-        var payment = minFor(remaining, debt.apr);
+        var payment = payoffPaymentFor(debt, remaining, months);
         var principalPayment = payment - interest;
         if (principalPayment <= 0) {
             return { months: null, totalInterest: null, payoffDate: null, neverPaysOff: true };
@@ -3821,7 +3876,7 @@ function renderDebtList() {
 
         var minPill = document.createElement('span');
         minPill.className = 'pill muted';
-        minPill.innerText = 'min ' + formatMoney(debt.minimumPayment) + ' (auto)';
+        minPill.innerText = (debt.fixedPayment > 0 ? 'pays ' : 'min ') + formatMoney(debt.minimumPayment) + (debt.fixedPayment > 0 ? '' : ' (auto)');
 
         infoRow.appendChild(aprPill);
         infoRow.appendChild(minPill);
@@ -3885,13 +3940,73 @@ function renderDebtList() {
 
         if (debt.balance > 0) {
             var minSplit = calculateDebtInterestSplit(debt, debt.minimumPayment);
+            var isFixedPlan = debt.fixedPayment > 0;
             var minBox = document.createElement('div');
             minBox.style.cssText = 'font-size:12px; color:var(--text-muted); line-height:1.4;';
-            minBox.innerText = 'Your minimum ' + formatMoney(debt.minimumPayment) + ' = ' +
+            var boxText = 'Your ' + (isFixedPlan ? 'payment ' : 'minimum ') + formatMoney(debt.minimumPayment) + ' = ' +
                 formatMoney(minSplit.interestPortion) + ' interest + ' +
                 formatMoney(Math.max(minSplit.principalPortion, 0)) + ' that actually goes to the balance.';
+            if (isFixedPlan && debt.paymentsLeft > 0) {
+                boxText += ' ' + debt.paymentsLeft + (debt.paymentsLeft === 1 ? ' payment' : ' payments') + ' left' +
+                    (debt.finalPayment > 0 && debt.paymentsLeft > 1 ? ', last one ' + formatMoney(debt.finalPayment) : '') + '.';
+            }
+            minBox.innerText = boxText;
             card.appendChild(minBox);
         }
+
+        // payment plan: automatic minimum, or a fixed amount (installment loans, payment plans)
+        var planBox = document.createElement('div');
+        planBox.style.cssText = 'display:flex; flex-direction:column; gap:8px;';
+        var planPills = document.createElement('div');
+        planPills.className = 'category-pill-row';
+        var autoBtn = document.createElement('button');
+        autoBtn.className = 'pill-btn' + (debt.fixedPayment > 0 ? '' : ' selected');
+        autoBtn.innerText = 'Auto minimum';
+        var fixedBtn = document.createElement('button');
+        fixedBtn.className = 'pill-btn' + (debt.fixedPayment > 0 ? ' selected' : '');
+        fixedBtn.innerText = 'Fixed payment';
+        planPills.appendChild(autoBtn);
+        planPills.appendChild(fixedBtn);
+
+        var planForm = document.createElement('div');
+        planForm.style.cssText = 'display:' + (debt.fixedPayment > 0 ? 'flex' : 'none') + '; flex-direction:column; gap:8px;';
+        function planField(labelText, placeholder, value) {
+            var wrap = document.createElement('div');
+            var lab = document.createElement('div');
+            lab.style.cssText = 'font-size:12px; color:var(--text-muted); margin-bottom:4px;';
+            lab.innerText = labelText;
+            var inp = document.createElement('input');
+            inp.type = 'number';
+            inp.step = '0.01';
+            inp.className = 'form-input';
+            inp.placeholder = placeholder;
+            inp.value = (value === null || value === undefined) ? '' : value;
+            wrap.appendChild(lab);
+            wrap.appendChild(inp);
+            planForm.appendChild(wrap);
+            return inp;
+        }
+        var planAmt = planField('Pays this much every time', 'e.g. 235.03', debt.fixedPayment > 0 ? debt.fixedPayment : '');
+        var planLeft = planField('Payments left (optional)', 'e.g. 3', debt.paymentsLeft);
+        var planLast = planField('Last payment, if smaller (optional)', 'e.g. 216.79', debt.finalPayment);
+        var planSave = document.createElement('button');
+        planSave.className = 'action-btn-primary';
+        planSave.innerText = 'Save';
+        planSave.onclick = function() {
+            setDebtPlan(debt.id, parseFloat(planAmt.value), parseInt(planLeft.value, 10), parseFloat(planLast.value));
+        };
+        planForm.appendChild(planSave);
+
+        autoBtn.onclick = function() { setDebtPlan(debt.id, 0, 0, 0); };
+        fixedBtn.onclick = function() {
+            planForm.style.display = 'flex';
+            autoBtn.classList.remove('selected');
+            fixedBtn.classList.add('selected');
+        };
+
+        planBox.appendChild(planPills);
+        planBox.appendChild(planForm);
+        card.appendChild(planBox);
 
         if (debt.creditLimit && debt.creditLimit > 0) {
             var usagePct = Math.min(100, (debt.balance / debt.creditLimit) * 100);
