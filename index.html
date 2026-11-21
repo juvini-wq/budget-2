@@ -332,6 +332,25 @@ html, body {
 .g-cards i { position: absolute; left: 0; right: 0; top: 3px; height: 3px; }
 .g-set { width: 18px; height: 18px; border: 2px solid currentColor; border-radius: 6px; display: flex; align-items: center; justify-content: center; }
 .g-set i { width: 6px; height: 6px; border-radius: 2px; }
+
+/* PLAN TAB */
+.plan-stats { display: grid; grid-template-columns: 1fr 1fr; gap: 10px; }
+.plan-stat { background: var(--input-bg); border-radius: 14px; padding: 12px 14px; }
+.plan-stat-label { font-size: 12px; color: var(--text-muted); }
+.plan-stat-val { font-size: 28px; line-height: 1.15; }
+.plan-spend-row { display: flex; align-items: center; justify-content: space-between; gap: 12px; font-size: 13px; font-weight: 600; margin-bottom: 4px; }
+.plan-spend-row .form-input { width: 100px; text-align: right; }
+.plan-week { background: var(--input-bg); border: 1px solid var(--input-border); border-radius: 16px; padding: 14px; margin-top: 12px; }
+.plan-week-title { font-size: 14px; font-weight: 700; margin-bottom: 6px; }
+.plan-line { display: flex; justify-content: space-between; gap: 10px; font-size: 13px; padding: 4px 0; }
+.plan-line.strong { font-weight: 700; font-size: 14px; border-top: 1px solid var(--input-border); margin-top: 6px; padding-top: 8px; }
+.plan-sub { font-size: 11px; color: var(--text-muted); }
+.plan-bill { display: flex; align-items: center; gap: 10px; padding: 5px 0; font-size: 13px; }
+.plan-bill-name { flex: 1; min-width: 0; }
+.plan-check { width: 24px; height: 24px; border-radius: 50%; border: 2px solid var(--accent-purple); background: transparent; flex-shrink: 0; cursor: pointer; }
+.plan-check:active { background: var(--accent-purple-light); }
+.plan-card-row { display: flex; justify-content: space-between; align-items: flex-start; gap: 10px; padding: 10px 0; border-bottom: 1px solid var(--input-border); }
+.plan-card-row:last-child { border-bottom: none; }
 </style>
 </head>
 <body data-theme="light">
@@ -417,32 +436,7 @@ html, body {
         <div class="card-desc" id="today-logged-count" style="margin:2px 0 0;">0 spends</div>
         <div class="upcoming-list" id="today-spends-list" style="margin-top:12px;"><!-- spends for the chosen day / days of the chosen week --></div>
     </div>
-    <div class="card">
-        <div class="card-tag">RUN TO PAYDAY</div>
-        <div class="card-desc" id="run-days-left" style="margin-bottom:0;">No payday set up yet</div>
-        <div id="quick-payday-update" style="display:none; margin-top:10px;">
-            <div style="display:flex; gap:8px; align-items:center;">
-                <input type="number" min="1" step="1" class="form-input" id="quick-days-to-payday" placeholder="Days away" style="max-width:110px;">
-                <button class="action-btn-primary" style="width:auto; padding:0 16px;" onclick="updateQuickDaysToPayday()">Update</button>
-            </div>
-            <div class="card-desc" style="margin-top:6px; margin-bottom:0;">Pay varies? Just update this whenever your estimate changes — no fixed schedule needed.</div>
-        </div>
-        <button class="breakdown-toggle" id="run-details-toggle" onclick="toggleRunDetails()">Show details</button>
-        <div id="run-details-panel" style="display:none; margin-top:10px;">
-            <div class="payday-track" id="payday-track"><!-- day-by-day segments render here --></div>
-            <div class="payday-labels">
-                <span id="payday-label-start">—</span>
-                <span id="payday-label-today">today</span>
-                <span id="payday-label-end">payday</span>
-            </div>
-            <div id="payday-bills-list" style="margin-top:14px;"><!-- bills due before payday render here --></div>
-            <div class="breakdown-row" style="margin-top:14px;"><span>Left to last</span><span id="run-left-to-last">$0.00</span></div>
-            <div class="breakdown-row"><span>Each day from here</span><span id="run-each-day">about $0/day</span></div>
-            <div class="breakdown-row" style="border-bottom:none;"><span>Logged so far this period</span><span id="run-logged-so-far">nothing yet</span></div>
-        </div>
-    </div>
-
-    <div class="more-modal" id="quick-income-modal" onclick="closeQuickIncomeModal()">
+        <div class="more-modal" id="quick-income-modal" onclick="closeQuickIncomeModal()">
         <div class="more-content" onclick="event.stopPropagation()">
             <div style="display:flex; justify-content:space-between; align-items:center;">
                 <div class="card-title serif" style="font-size:22px;">Add income</div>
@@ -533,15 +527,33 @@ html, body {
 <div id="view-bills" class="view-section">
 
     <div class="card">
-        <div class="card-tag">STILL TO GO OUT</div>
-        <div class="card-title serif" id="bills-still-to-go-amount" style="font-size:36px;color:var(--accent-purple);">$0.00</div>
-        <div class="card-desc" id="bills-still-to-go-subtitle">all clear for now</div>
+        <div class="card-tag">BILLS THIS MONTH</div>
+        <div class="plan-stats">
+            <div class="plan-stat"><div class="plan-stat-label">Paid</div><div class="serif plan-stat-val" id="plan-paid-total">$0</div></div>
+            <div class="plan-stat"><div class="plan-stat-label">Still to pay</div><div class="serif plan-stat-val" id="plan-unpaid-total">$0</div></div>
+        </div>
+        <div class="acc" style="margin-top:10px;">
+            <button class="acc-head" onclick="toggleAcc(this)"><span>What I've paid</span><span class="chev">›</span></button>
+            <div class="acc-body"><div class="upcoming-list" id="plan-paid-list" style="margin-top:0;"></div></div>
+        </div>
     </div>
 
     <div class="card">
-        <div class="card-tag">MUST-PAYS</div>
-        <div class="card-desc">Soonest first. Tick one off when it's paid.</div>
-        <div class="upcoming-list" id="bills-upcoming-list"><!-- upcoming bill occurrences render here --></div>
+        <div class="card-tag">YOUR WEEKS</div>
+        <div class="plan-spend-row">
+            <span>Spending money each week</span>
+            <input type="number" step="1" class="form-input" id="plan-weekly-spend" placeholder="100" onchange="setWeeklySpending(this.value)">
+        </div>
+        <div id="plan-weeks"><!-- week-by-week plan renders here --></div>
+    </div>
+
+    <div class="card">
+        <div class="card-tag">PAYING OFF YOUR CARDS</div>
+        <div class="toggle-group" style="margin-bottom:10px;">
+            <button class="toggle-btn" id="btn-strategy-snowball" onclick="setDebtStrategy('snowball')">Smallest first</button>
+            <button class="toggle-btn" id="btn-strategy-avalanche" onclick="setDebtStrategy('avalanche')">Highest interest first</button>
+        </div>
+        <div id="plan-payoff"><!-- payoff projection renders here --></div>
     </div>
 
     <div class="card">
@@ -601,13 +613,7 @@ html, body {
     </div>
 
 
-    <div class="card" style="padding:16px 14px;">
-        <div class="card-tag">REAL PAY THIS MONTH</div>
-        <div class="card-desc" style="margin-bottom:6px; font-size:12px;">What you paid vs. what actually reduced your balance — the rest went to interest.</div>
-        <div id="debt-realpay-list"><!-- per-card payment split renders here --></div>
-        <div class="card-desc" style="margin:10px 0 0; font-size:11px;">Interest is estimated as one month of your APR on the balance at the time you paid.</div>
-    </div>
-    <div class="card">
+        <div class="card">
         <div class="card-tag">YOUR CARDS</div>
         <div class="card-desc" style="margin-bottom:0;">Tap a card to pay it or see the details.</div>
         <div class="upcoming-list" id="debts-list"><!-- cards render here --></div>
@@ -644,25 +650,12 @@ html, body {
     </div>
 
     <div class="card">
-        <div class="card-tag">MORE TOOLS</div>
+        <div class="card-tag">MORE</div>
         <div class="acc">
-            <button class="acc-head" onclick="toggleAcc(this)"><span>Which card to pay off first</span><span class="chev">›</span></button>
+            <button class="acc-head" onclick="toggleAcc(this)"><span>Real pay this month</span><span class="chev">›</span></button>
             <div class="acc-body">
-                <div class="toggle-group">
-                    <button class="toggle-btn active" id="btn-strategy-avalanche" onclick="setDebtStrategy('avalanche')">Highest rate first</button>
-                    <button class="toggle-btn" id="btn-strategy-snowball" onclick="setDebtStrategy('snowball')">Smallest balance first</button>
-                </div>
-                <div class="card-desc" style="margin-bottom:0;">Sets the focus card in the monthly plan below.</div>
-            </div>
-        </div>
-        <div class="acc">
-            <button class="acc-head" onclick="toggleAcc(this)"><span>Monthly payment plan</span><span class="chev">›</span></button>
-            <div class="acc-body">
-                <div class="card-desc">Enter what you can put toward debts this month and it splits it up — minimums first, the rest to your focus card.</div>
-                <div class="form-group">
-                    <input type="number" step="0.01" class="form-input" id="plan-debt-budget" placeholder="Total this month, e.g. 500" oninput="renderDebtPlan()">
-                </div>
-                <div class="upcoming-list" id="debt-plan-list" style="margin-top:0;"><!-- planned allocations render here --></div>
+                <div class="card-desc" style="margin-bottom:6px; font-size:12px;">What you paid vs. what actually reduced your balance — the rest went to interest.</div>
+                <div id="debt-realpay-list"><!-- per-card payment split renders here --></div>
             </div>
         </div>
         <div class="acc"><button class="acc-head" onclick="toggleAcc(this)"><span>Credit scores</span><span class="chev">›</span></button><div class="acc-body">
@@ -707,8 +700,8 @@ html, body {
             <div class="card-desc" id="credit-trend-empty" style="margin-top:8px; margin-bottom:0;">Add at least two monthly updates to see a trend.</div>
         </div>
     </div></div>
+    
     </div>
-
 </div>
 
 <div id="view-settings" class="view-section">
@@ -851,7 +844,7 @@ html, body {
         </button>
         <button class="nav-item" data-view="bills" onclick="switchView('bills')">
             <span class="nav-bubble"><span class="g g-bills"><i></i><i></i><i></i></span></span>
-            <span class="nav-label">Bills</span>
+            <span class="nav-label">Plan</span>
         </button>
         <button class="nav-item" data-view="debt" onclick="switchView('debt')">
             <span class="nav-bubble"><span class="g g-cards"><i></i></span></span>
@@ -1553,6 +1546,7 @@ function renderToday() {
 
     renderTodayIncomeCount();
     renderSpendingView();
+    renderPlan();
 }
 
 /* ---------- Spending view: one day at a time, or a whole week ---------- */
@@ -2419,7 +2413,287 @@ function describeBillRecurrence(bill) {
     }
 }
 
+/* =====================================================
+   PLAN TAB: week-by-week money plan + card payoff
+===================================================== */
+function unpaidBillItems(start, end) {
+    var items = [];
+    plannerState.bills.forEach(function(bill) {
+        getBillOccurrences(bill, start, end).forEach(function(date) {
+            if (!isOccurrencePaid(bill, date)) {
+                items.push({ bill: bill, date: date, key: dateKey(date), amount: bill.amount });
+            }
+        });
+    });
+    items.sort(function(a, b) { return a.date - b.date; });
+    return items;
+}
+
+function weeklySpendingAmount() {
+    return (plannerState.weeklySpending === undefined || plannerState.weeklySpending === null) ? 100 : plannerState.weeklySpending;
+}
+
+function setWeeklySpending(v) {
+    var n = parseFloat(v);
+    plannerState.weeklySpending = (isNaN(n) || n < 0) ? 0 : n;
+    saveState();
+    renderPlan();
+}
+
+// Walk forward payday by payday: what you have, what's due, what's left for cards.
+function computePlan() {
+    var today = startOfDay(new Date());
+    var groups = getPaydayGroups(4);
+    var weekly = weeklySpendingAmount();
+    var plan = { hasPaycheck: groups.length > 0, periods: [], extraPerWeek: 0 };
+    if (!groups.length) { return plan; }
+
+    var startMoney = plannerState.balance - plannerState.setAside - calculatePoolSpent();
+    var items0 = unpaidBillItems(startOfCurrentMonth(), groups[0].date);
+    var bills0 = items0.reduce(function(sum, it) { return sum + it.amount; }, 0);
+    var days0 = Math.max(Math.round((groups[0].date - today) / 86400000), 1);
+    var spend0 = weekly * days0 / 7;
+    var net0 = startMoney - bills0 - spend0;
+    plan.periods.push({
+        start: today, end: groups[0].date, carry: 0, money: startMoney, income: 0, incomeHigh: 0,
+        items: items0, bills: bills0, spend: spend0, net: net0, extra: Math.max(0, net0)
+    });
+    var carry = Math.min(0, net0);
+
+    for (var k = 1; k < groups.length; k++) {
+        var prev = groups[k - 1];
+        var cur = groups[k];
+        var low = 0, high = 0;
+        prev.items.forEach(function(it) {
+            var r = expectedPayRange(it.paycheck, prev.date);
+            low += r.low;
+            high += r.high;
+        });
+        var items = unpaidBillItems(addDays(prev.date, 1), cur.date);
+        var bills = items.reduce(function(sum, it) { return sum + it.amount; }, 0);
+        var spend = weekly * ((cur.date - prev.date) / 86400000) / 7;
+        var money = carry + low;
+        var net = money - bills - spend;
+        plan.periods.push({
+            start: prev.date, end: cur.date, carry: carry, money: money, income: low, incomeHigh: high,
+            items: items, bills: bills, spend: spend, net: net, extra: Math.max(0, net)
+        });
+        carry = Math.min(0, net);
+    }
+
+    var later = plan.periods.slice(1);
+    if (later.length) {
+        plan.extraPerWeek = later.reduce(function(sum, p) { return sum + p.extra; }, 0) / later.length;
+    } else {
+        plan.extraPerWeek = plan.periods[0].extra;
+    }
+    return plan;
+}
+
+// Month-by-month: every card makes its normal payment; the extra (and payments freed by cleared cards) goes
+// to the first card in your payoff order, then the next.
+function simulatePayoff(extraPerMonth, useExtra) {
+    var sim = getSortedDebts().filter(function(d) { return d.balance > 0; }).map(function(d) {
+        return {
+            id: d.id, name: d.name, bal: d.balance, rate: (d.apr || 0) / 100 / 12,
+            fixed: d.fixedPayment > 0 ? d.fixedPayment : 0,
+            left: (d.fixedPayment > 0 && d.paymentsLeft > 0) ? d.paymentsLeft : null,
+            done: false, month: null, std: 0
+        };
+    });
+    var rolled = 0;
+    for (var m = 1; m <= 360; m++) {
+        var active = sim.filter(function(x) { return !x.done; });
+        if (!active.length) { break; }
+        var pool = useExtra ? extraPerMonth + rolled : 0;
+        active.forEach(function(x) {
+            var before = x.bal;
+            var interest = before * x.rate;
+            x.bal += interest;
+            var pay;
+            if (x.fixed) {
+                pay = (x.left !== null && x.left <= 1) ? x.bal : Math.min(x.fixed, x.bal);
+                x.std = x.fixed;
+                if (x.left !== null) { x.left -= 1; }
+            } else {
+                pay = Math.min(Math.max(25, before * 0.01 + interest), x.bal);
+                x.std = pay;
+            }
+            x.bal -= pay;
+        });
+        for (var i = 0; i < sim.length && pool > 0.005; i++) {
+            if (sim[i].done || sim[i].bal <= 0.005) { continue; }
+            var p = Math.min(pool, sim[i].bal);
+            sim[i].bal -= p;
+            pool -= p;
+        }
+        sim.forEach(function(x) {
+            if (!x.done && x.bal <= 0.005) {
+                x.done = true;
+                x.month = m;
+                if (useExtra) { rolled += x.std; }
+            }
+        });
+    }
+    return sim;
+}
+
+function monthsFromNowLabel(m) {
+    if (m === null || m === undefined) { return '30+ years'; }
+    return addMonths(startOfDay(new Date()), m).toLocaleDateString(undefined, { month: 'short', year: 'numeric' });
+}
+
+function renderPlan() {
+    var paidTotalEl = document.getElementById('plan-paid-total');
+    var unpaidTotalEl = document.getElementById('plan-unpaid-total');
+    var paidListEl = document.getElementById('plan-paid-list');
+    var weeksEl = document.getElementById('plan-weeks');
+    var payoffEl = document.getElementById('plan-payoff');
+    var spendInput = document.getElementById('plan-weekly-spend');
+    if (!weeksEl || !payoffEl) { return; }
+
+    if (spendInput && document.activeElement !== spendInput) { spendInput.value = weeklySpendingAmount(); }
+
+    // ----- this month: paid vs still to pay -----
+    var mStart = startOfCurrentMonth();
+    var mEnd = endOfCurrentMonth();
+    var paid = [];
+    var paidSum = 0;
+    var unpaidSum = 0;
+    plannerState.bills.forEach(function(bill) {
+        getBillOccurrences(bill, mStart, mEnd).forEach(function(date) {
+            var k = dateKey(date);
+            if (isOccurrencePaid(bill, date)) {
+                var amt = (bill.paidAmounts && bill.paidAmounts[k] !== undefined) ? bill.paidAmounts[k] : bill.amount;
+                paidSum += amt;
+                paid.push({ bill: bill, date: date, amount: amt });
+            } else {
+                unpaidSum += bill.amount;
+            }
+        });
+    });
+    if (paidTotalEl) { paidTotalEl.innerText = formatMoneyShort(paidSum); }
+    if (unpaidTotalEl) { unpaidTotalEl.innerText = formatMoneyShort(unpaidSum); }
+    if (paidListEl) {
+        paidListEl.innerHTML = '';
+        if (!paid.length) {
+            paidListEl.appendChild(mk('div', 'card-desc', 'Nothing marked paid yet this month.'));
+        }
+        paid.sort(function(a, b) { return b.date - a.date; }).forEach(function(p) {
+            var row = mk('div', 'plan-line');
+            row.appendChild(mk('span', '', p.bill.name + ' · ' + p.date.toLocaleDateString(undefined, { month: 'short', day: 'numeric' })));
+            row.appendChild(mk('span', '', formatMoney(p.amount)));
+            paidListEl.appendChild(row);
+        });
+    }
+
+    // ----- the weeks -----
+    var plan = computePlan();
+    weeksEl.innerHTML = '';
+    var order = getSortedDebts().filter(function(d) { return d.balance > 0; });
+    var focus = order.length ? order[0] : null;
+    var fmt = function(d) { return d.toLocaleDateString(undefined, { weekday: 'short', month: 'short', day: 'numeric' }); };
+
+    if (!plan.hasPaycheck) {
+        var msg = mk('div', 'card-desc', 'Add your payday and I can plan each week for you. ');
+        msg.style.margin = '12px 0 0';
+        var goBtn = mk('button', 'glance-link', 'Add your payday');
+        goBtn.onclick = function() { switchView('settings'); };
+        msg.appendChild(goBtn);
+        weeksEl.appendChild(msg);
+    }
+
+    plan.periods.forEach(function(p, idx) {
+        var box = mk('div', 'plan-week');
+        box.appendChild(mk('div', 'plan-week-title', idx === 0 ? 'Now → ' + fmt(p.end) : fmt(p.start) + ' → ' + fmt(p.end)));
+
+        function line(label, value, cls) {
+            var l = mk('div', 'plan-line' + (cls ? ' ' + cls : ''));
+            l.appendChild(mk('span', '', label));
+            l.appendChild(mk('span', '', value));
+            box.appendChild(l);
+            return l;
+        }
+
+        if (idx === 0) {
+            line('Money you have', formatMoneyShort(p.money));
+        } else {
+            if (p.carry < 0) { line('Short from last week', '-' + formatMoneyShort(-p.carry)); }
+            var payLine = line('Pay lands', p.income > 0 ? formatMoneyShort(p.income) : '—');
+            var note = (p.incomeHigh > p.income + 0.5)
+                ? 'Counting the low end of ~' + formatPayRange(p.income, p.incomeHigh)
+                : (p.income > 0 ? '' : 'Add your pay range in Settings');
+            if (note) { box.appendChild(mk('div', 'plan-sub', note)); }
+        }
+
+        if (!p.items.length) {
+            box.appendChild(mk('div', 'plan-sub', 'No bills this stretch'));
+        }
+        p.items.forEach(function(it) {
+            var row = mk('div', 'plan-bill');
+            var chk = mk('button', 'plan-check', '');
+            chk.setAttribute('aria-label', 'Mark ' + it.bill.name + ' paid');
+            chk.onclick = function() { toggleBillPaid(it.bill.id, it.key); };
+            var nameWrap = mk('div', 'plan-bill-name');
+            nameWrap.appendChild(mk('div', '', it.bill.name));
+            nameWrap.appendChild(mk('div', 'plan-sub', it.date.toLocaleDateString(undefined, { weekday: 'short', month: 'short', day: 'numeric' })));
+            row.appendChild(chk);
+            row.appendChild(nameWrap);
+            row.appendChild(mk('div', '', '-' + formatMoney(it.amount)));
+            box.appendChild(row);
+        });
+
+        line('Spending money', '-' + formatMoneyShort(p.spend));
+
+        if (p.net >= 0) {
+            var left = line('Left for cards', formatMoneyShort(p.extra), 'strong');
+            left.lastChild.className = 't-low';
+            if (p.extra > 0 && focus) { box.appendChild(mk('div', 'plan-sub', '→ Put it on ' + focus.name)); }
+        } else {
+            var short = line('Short by', formatMoneyShort(-p.net), 'strong');
+            short.lastChild.className = 't-high';
+        }
+        weeksEl.appendChild(box);
+    });
+
+    // ----- paying off cards -----
+    payoffEl.innerHTML = '';
+    updateDebtStrategyButtons();
+    if (!order.length) {
+        payoffEl.appendChild(mk('div', 'card-desc', 'No cards added yet.'));
+        return;
+    }
+    var extraMonth = plan.extraPerWeek * 52 / 12;
+    var minOnly = simulatePayoff(0, false);
+    var withExtra = extraMonth > 0.5 ? simulatePayoff(extraMonth, true) : minOnly;
+
+    var head = mk('div', 'card-desc', extraMonth > 0.5
+        ? 'Putting about ' + formatMoneyShort(plan.extraPerWeek) + ' a week (' + formatMoneyShort(extraMonth) + ' a month) on top of your normal payments:'
+        : 'Nothing is left over after bills and spending money, so these are minimum-only dates. Lower your spending money to see how much faster it could go.');
+    head.style.marginBottom = '4px';
+    payoffEl.appendChild(head);
+
+    withExtra.slice().sort(function(a, b) {
+        return (a.month === null ? 9999 : a.month) - (b.month === null ? 9999 : b.month);
+    }).forEach(function(x) {
+        var base = minOnly.filter(function(y) { return y.id === x.id; })[0];
+        var row = mk('div', 'plan-card-row');
+        var left = mk('div');
+        left.appendChild(mk('div', 'glance-name', x.name));
+        var saved = (extraMonth > 0.5 && base && base.month !== null && x.month !== null && base.month > x.month)
+            ? 'minimums only: ' + monthsFromNowLabel(base.month) : '';
+        if (saved) { left.appendChild(mk('div', 'plan-sub', saved)); }
+        if (focus && focus.id === x.id && extraMonth > 0.5) { left.appendChild(mk('div', 'plan-sub', 'extra goes here first')); }
+        var right = mk('div', 'glance-num t-low', 'Paid off ' + monthsFromNowLabel(x.month));
+        right.style.textAlign = 'right';
+        row.appendChild(left);
+        row.appendChild(right);
+        payoffEl.appendChild(row);
+    });
+}
+
 function renderBills() {
+    renderPlan();
     renderBillsStillToGo();
     renderBillsUpcomingList();
     renderBillsList();
@@ -3362,6 +3636,7 @@ function renderDebts() {
     renderDebtList();
     updateDebtStrategyButtons();
     renderDebtPlan();
+    renderPlan();
 }
 
 /* ---------- Cards at a glance (condensed comparison) ---------- */
