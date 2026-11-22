@@ -544,7 +544,17 @@ html, body {
             <span>Spending money each week</span>
             <input type="number" step="1" class="form-input" id="plan-weekly-spend" placeholder="100" onchange="setWeeklySpending(this.value)">
         </div>
+        <div class="plan-spend-row">
+            <span>Put into savings each week</span>
+            <input type="number" step="1" class="form-input" id="plan-weekly-savings" placeholder="0" onchange="setWeeklySavings(this.value)">
+        </div>
         <div id="plan-weeks"><!-- week-by-week plan renders here --></div>
+    </div>
+
+    <div class="card">
+        <div class="card-tag">WHERE IT ALL GOES</div>
+        <div class="card-desc" style="margin-bottom:6px;">A typical month, from what you've entered.</div>
+        <div id="plan-where"><!-- breakdown renders here --></div>
     </div>
 
     <div class="card">
@@ -567,6 +577,13 @@ html, body {
                 <div class="form-group">
                     <label class="form-label">Amount</label>
                     <input type="number" step="0.01" class="form-input" id="bill-amount" placeholder="0.00">
+                </div>
+                <div class="form-group">
+                    <label class="form-label">Paid from</label>
+                    <select class="form-input" id="bill-pay-source">
+                        <option value="checking">Checking</option>
+                        <option value="savings">Savings</option>
+                    </select>
                 </div>
                 <div class="form-group">
                     <label class="form-label">How often</label>
@@ -1241,10 +1258,22 @@ function payRangeText(pc) {
     return formatPayRange(paycheckLow(pc), paycheckHigh(pc));
 }
 
+function billSource(bill) {
+    if (bill.linkedDebtId) {
+        var d = plannerState.debts.find(function(x) { return x.id === bill.linkedDebtId; });
+        return (d && d.paySource) || 'checking';
+    }
+    return bill.paySource || 'checking';
+}
+
+function billPaidFromSavings(bill) {
+    return billSource(bill) === 'savings';
+}
+
 function sumUnpaidBills(start, end) {
     var total = 0;
     plannerState.bills.forEach(function(bill) {
-        if (bill.setAside) { return; }
+        if (bill.setAside || billPaidFromSavings(bill)) { return; }
         getBillOccurrences(bill, start, end).forEach(function(date) {
             if (!isOccurrencePaid(bill, date)) { total += bill.amount; }
         });
@@ -1300,6 +1329,7 @@ function getPayPlan() {
 
     // 2) Every bill due after that: a growing share is put aside a little each day
     plannerState.bills.forEach(function(bill) {
+        if (billPaidFromSavings(bill)) { return; }
         var occs = getBillOccurrences(bill, addDays(plan.nextDate, 1), addDays(plan.nextDate, 400));
         for (var i = 0; i < occs.length; i++) {
             if (isOccurrencePaid(bill, occs[i])) { continue; }
@@ -2192,6 +2222,7 @@ function addBill() {
         amount: amount,
         recurrenceType: type,
         setAside: false,
+        paySource: (document.getElementById('bill-pay-source') || {}).value || 'checking',
         paidOccurrences: []
     };
 
@@ -2338,6 +2369,8 @@ function toggleBillPaid(billId, dKey) {
         if (bill.linkedDebtId) {
             var srcDebt = plannerState.debts.find(function(d) { return d.id === bill.linkedDebtId; });
             if (srcDebt && srcDebt.paySource) { paySrc = srcDebt.paySource; }
+        } else if (bill.paySource) {
+            paySrc = bill.paySource;
         }
         bill.paidOccurrences.push(dKey);
         if (!bill.paidAmounts) { bill.paidAmounts = {}; }
@@ -2440,25 +2473,51 @@ function setWeeklySpending(v) {
     renderPlan();
 }
 
-// Walk forward payday by payday: what you have, what's due, what's left for cards.
+function weeklySavingsAmount() {
+    return plannerState.weeklySavings > 0 ? plannerState.weeklySavings : 0;
+}
+
+function setWeeklySavings(v) {
+    var n = parseFloat(v);
+    plannerState.weeklySavings = (isNaN(n) || n < 0) ? 0 : n;
+    saveState();
+    renderPlan();
+}
+
+// Walk forward payday by payday, tracking checking and savings separately:
+// checking pays the bills marked "from checking" + your spending money + what you move to savings;
+// savings pays the bills marked "from savings" (like rent) and grows by what you put in.
 function computePlan() {
     var today = startOfDay(new Date());
     var groups = getPaydayGroups(4);
     var weekly = weeklySpendingAmount();
+    var weeklySav = weeklySavingsAmount();
     var plan = { hasPaycheck: groups.length > 0, periods: [], extraPerWeek: 0 };
     if (!groups.length) { return plan; }
 
+    function sumOf(list) { return list.reduce(function(sum, it) { return sum + it.amount; }, 0); }
+    function makePeriod(start, end, carry, income, incomeHigh, items, weeks, startMoney, savStart) {
+        var chkItems = items.filter(function(it) { return !billPaidFromSavings(it.bill); });
+        var savItems = items.filter(function(it) { return billPaidFromSavings(it.bill); });
+        var bills = sumOf(chkItems);
+        var savBills = sumOf(savItems);
+        var spend = weekly * weeks;
+        var transfer = weeklySav * weeks;
+        var net = startMoney - bills - spend - transfer;
+        return {
+            start: start, end: end, carry: carry, money: startMoney, income: income, incomeHigh: incomeHigh,
+            items: items, bills: bills, spend: spend, transfer: transfer, net: net, extra: Math.max(0, net),
+            savBills: savBills, savStart: savStart, savEnd: savStart + transfer - savBills
+        };
+    }
+
     var startMoney = plannerState.balance - plannerState.setAside - calculatePoolSpent();
     var items0 = unpaidBillItems(startOfCurrentMonth(), groups[0].date);
-    var bills0 = items0.reduce(function(sum, it) { return sum + it.amount; }, 0);
     var days0 = Math.max(Math.round((groups[0].date - today) / 86400000), 1);
-    var spend0 = weekly * days0 / 7;
-    var net0 = startMoney - bills0 - spend0;
-    plan.periods.push({
-        start: today, end: groups[0].date, carry: 0, money: startMoney, income: 0, incomeHigh: 0,
-        items: items0, bills: bills0, spend: spend0, net: net0, extra: Math.max(0, net0)
-    });
-    var carry = Math.min(0, net0);
+    var p0 = makePeriod(today, groups[0].date, 0, 0, 0, items0, days0 / 7, startMoney, plannerState.savingsBalance);
+    plan.periods.push(p0);
+    var carry = Math.min(0, p0.net);
+    var savCarry = p0.savEnd;
 
     for (var k = 1; k < groups.length; k++) {
         var prev = groups[k - 1];
@@ -2470,23 +2529,17 @@ function computePlan() {
             high += r.high;
         });
         var items = unpaidBillItems(addDays(prev.date, 1), cur.date);
-        var bills = items.reduce(function(sum, it) { return sum + it.amount; }, 0);
-        var spend = weekly * ((cur.date - prev.date) / 86400000) / 7;
-        var money = carry + low;
-        var net = money - bills - spend;
-        plan.periods.push({
-            start: prev.date, end: cur.date, carry: carry, money: money, income: low, incomeHigh: high,
-            items: items, bills: bills, spend: spend, net: net, extra: Math.max(0, net)
-        });
-        carry = Math.min(0, net);
+        var weeks = ((cur.date - prev.date) / 86400000) / 7;
+        var p = makePeriod(prev.date, cur.date, carry, low, high, items, weeks, carry + low, savCarry);
+        plan.periods.push(p);
+        carry = Math.min(0, p.net);
+        savCarry = p.savEnd;
     }
 
     var later = plan.periods.slice(1);
-    if (later.length) {
-        plan.extraPerWeek = later.reduce(function(sum, p) { return sum + p.extra; }, 0) / later.length;
-    } else {
-        plan.extraPerWeek = plan.periods[0].extra;
-    }
+    plan.extraPerWeek = later.length
+        ? later.reduce(function(sum, p) { return sum + p.extra; }, 0) / later.length
+        : plan.periods[0].extra;
     return plan;
 }
 
@@ -2543,6 +2596,92 @@ function monthsFromNowLabel(m) {
     return addMonths(startOfDay(new Date()), m).toLocaleDateString(undefined, { month: 'short', year: 'numeric' });
 }
 
+function monthlyPayFor(pc) {
+    var avg = (paycheckLow(pc) + paycheckHigh(pc)) / 2 || pc.amount || 0;
+    var perMonth = 1;
+    if (pc.frequency === 'weekly') { perMonth = 52 / 12; }
+    else if (pc.frequency === 'biweekly') { perMonth = 26 / 12; }
+    else if (pc.frequency === 'twice-monthly') { perMonth = 2; }
+    var total = avg * perMonth;
+    if (pc.commissionSecond) { total += pc.commissionAmount || 0; }
+    return total;
+}
+
+function renderWhere() {
+    var el = document.getElementById('plan-where');
+    if (!el) { return; }
+    el.innerHTML = '';
+
+    var pay = plannerState.paychecks.reduce(function(sum, pc) { return sum + monthlyPayFor(pc); }, 0);
+    var billList = [];
+    var cardList = [];
+    plannerState.bills.forEach(function(bill) {
+        var m = getBillMonthlyEquivalent(bill);
+        if (m <= 0) { return; }
+        (bill.linkedDebtId ? cardList : billList).push({ name: bill.name.replace(/ payment$/, ''), amount: m });
+    });
+    var billsTotal = billList.reduce(function(sum, x) { return sum + x.amount; }, 0);
+    var cardsTotal = cardList.reduce(function(sum, x) { return sum + x.amount; }, 0);
+    var interest = plannerState.debts.reduce(function(sum, d) { return sum + (d.balance > 0 ? d.balance * (d.apr || 0) / 100 / 12 : 0); }, 0);
+    var spending = weeklySpendingAmount() * 52 / 12;
+    var savingsIn = weeklySavingsAmount() * 52 / 12;
+    var left = pay - billsTotal - cardsTotal - spending - savingsIn;
+
+    function pct(x) { return pay > 0 ? Math.round(x / pay * 100) + '% of your pay' : ''; }
+    function row(label, value, sub, cls) {
+        var r = mk('div', 'plan-card-row');
+        var l = mk('div');
+        l.appendChild(mk('div', 'glance-name', label));
+        if (sub) { l.appendChild(mk('div', 'plan-sub', sub)); }
+        var v = mk('div', 'glance-num' + (cls ? ' ' + cls : ''), value);
+        v.style.textAlign = 'right';
+        r.appendChild(l);
+        r.appendChild(v);
+        el.appendChild(r);
+    }
+    function biggest(list) {
+        return list.slice().sort(function(a, b) { return b.amount - a.amount; }).slice(0, 3)
+            .map(function(x) { return x.name + ' ' + formatMoneyShort(x.amount); }).join(' · ');
+    }
+
+    row('Your pay', formatMoneyShort(pay), plannerState.paychecks.length ? '' : 'Add your payday in Settings');
+    row('Bills', '-' + formatMoneyShort(billsTotal), (billList.length ? biggest(billList) + ' · ' : '') + pct(billsTotal));
+    row('Card payments', '-' + formatMoneyShort(cardsTotal), (cardList.length ? biggest(cardList) + ' · ' : '') + pct(cardsTotal));
+    if (interest > 0.5) {
+        var ir = mk('div', 'plan-sub', 'About ' + formatMoneyShort(interest) + ' a month of your card payments is just interest.');
+        ir.style.cssText = 'padding:6px 0; color:var(--accent-red);';
+        el.appendChild(ir);
+    }
+    row('Spending money', '-' + formatMoneyShort(spending), pct(spending));
+    if (savingsIn > 0.5) { row('Into savings', '-' + formatMoneyShort(savingsIn), pct(savingsIn)); }
+    row("What's left", formatMoneyShort(left), left < 0 ? 'Your regular payments are more than your pay.' : '', left < 0 ? 't-high' : 't-low');
+
+    // what you actually logged this month, by category
+    var now = new Date();
+    var cats = {};
+    var total = 0;
+    plannerState.spends.forEach(function(sp) {
+        var d = parseDateInput(sp.date);
+        if (d && d.getFullYear() === now.getFullYear() && d.getMonth() === now.getMonth()) {
+            var c = sp.category || 'Other';
+            cats[c] = (cats[c] || 0) + sp.amount;
+            total += sp.amount;
+        }
+    });
+    var names = Object.keys(cats).sort(function(a, b) { return cats[b] - cats[a]; });
+    if (names.length) {
+        var title = mk('div', 'glance-name', 'Spent so far this month: ' + formatMoneyShort(total));
+        title.style.margin = '14px 0 4px';
+        el.appendChild(title);
+        names.slice(0, 5).forEach(function(n) {
+            var r = mk('div', 'plan-line');
+            r.appendChild(mk('span', '', n));
+            r.appendChild(mk('span', '', formatMoneyShort(cats[n])));
+            el.appendChild(r);
+        });
+    }
+}
+
 function renderPlan() {
     var paidTotalEl = document.getElementById('plan-paid-total');
     var unpaidTotalEl = document.getElementById('plan-unpaid-total');
@@ -2553,6 +2692,8 @@ function renderPlan() {
     if (!weeksEl || !payoffEl) { return; }
 
     if (spendInput && document.activeElement !== spendInput) { spendInput.value = weeklySpendingAmount(); }
+    var savInput = document.getElementById('plan-weekly-savings');
+    if (savInput && document.activeElement !== savInput) { savInput.value = weeklySavingsAmount() || ''; }
 
     // ----- this month: paid vs still to pay -----
     var mStart = startOfCurrentMonth();
@@ -2636,7 +2777,20 @@ function renderPlan() {
             chk.onclick = function() { toggleBillPaid(it.bill.id, it.key); };
             var nameWrap = mk('div', 'plan-bill-name');
             nameWrap.appendChild(mk('div', '', it.bill.name));
-            nameWrap.appendChild(mk('div', 'plan-sub', it.date.toLocaleDateString(undefined, { weekday: 'short', month: 'short', day: 'numeric' })));
+            var subLine = mk('div', 'plan-sub', it.date.toLocaleDateString(undefined, { weekday: 'short', month: 'short', day: 'numeric' }) + ' · ');
+            if (it.bill.linkedDebtId) {
+                subLine.appendChild(document.createTextNode('from ' + billSource(it.bill)));
+            } else {
+                var srcLink = mk('button', 'glance-link', 'from ' + billSource(it.bill));
+                srcLink.onclick = function() {
+                    it.bill.paySource = (billSource(it.bill) === 'savings') ? 'checking' : 'savings';
+                    saveState();
+                    renderBills();
+                    renderToday();
+                };
+                subLine.appendChild(srcLink);
+            }
+            nameWrap.appendChild(subLine);
             row.appendChild(chk);
             row.appendChild(nameWrap);
             row.appendChild(mk('div', '', '-' + formatMoney(it.amount)));
@@ -2644,6 +2798,14 @@ function renderPlan() {
         });
 
         line('Spending money', '-' + formatMoneyShort(p.spend));
+        if (p.transfer > 0.5) { line('Into savings', '-' + formatMoneyShort(p.transfer)); }
+        if (p.savBills > 0.5 || p.transfer > 0.5) {
+            var sl = line('Savings after', formatMoneyShort(p.savEnd));
+            if (p.savEnd < 0) {
+                sl.lastChild.className = 't-high';
+                box.appendChild(mk('div', 'plan-sub', 'Savings is short by ' + formatMoneyShort(-p.savEnd) + ' for the bills paid from it'));
+            }
+        }
 
         if (p.net >= 0) {
             var left = line('Left for cards', formatMoneyShort(p.extra), 'strong');
@@ -2655,6 +2817,8 @@ function renderPlan() {
         }
         weeksEl.appendChild(box);
     });
+
+    renderWhere();
 
     // ----- paying off cards -----
     payoffEl.innerHTML = '';
@@ -2866,8 +3030,25 @@ function renderBillsList() {
         btn.innerText = 'Remove';
         btn.onclick = function() { deleteBill(bill.id); };
 
+        var right = document.createElement('div');
+        right.style.cssText = 'display:flex; flex-direction:column; gap:6px; align-items:stretch;';
+        if (!bill.linkedDebtId) {
+            var srcBtn = document.createElement('button');
+            srcBtn.className = 'pill-btn selected';
+            srcBtn.style.cssText = 'padding:6px 12px; font-size:12px;';
+            srcBtn.innerText = 'From ' + (bill.paySource === 'savings' ? 'savings' : 'checking');
+            srcBtn.onclick = function() {
+                bill.paySource = (bill.paySource === 'savings') ? 'checking' : 'savings';
+                saveState();
+                renderBills();
+                renderToday();
+            };
+            right.appendChild(srcBtn);
+        }
+        right.appendChild(btn);
+
         item.appendChild(info);
-        item.appendChild(btn);
+        item.appendChild(right);
         listEl.appendChild(item);
     });
 }
