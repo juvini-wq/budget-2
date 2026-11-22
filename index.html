@@ -2722,8 +2722,16 @@ function renderPlan() {
         }
         paid.sort(function(a, b) { return b.date - a.date; }).forEach(function(p) {
             var row = mk('div', 'plan-line');
+            row.style.alignItems = 'center';
             row.appendChild(mk('span', '', p.bill.name + ' · ' + p.date.toLocaleDateString(undefined, { month: 'short', day: 'numeric' })));
-            row.appendChild(mk('span', '', formatMoney(p.amount)));
+            var rightSide = mk('span');
+            rightSide.style.cssText = 'display:flex; align-items:center; gap:10px;';
+            rightSide.appendChild(mk('span', '', formatMoney(p.amount)));
+            var undo = mk('button', 'pill-btn', 'Undo');
+            undo.style.cssText = 'padding:4px 12px; font-size:12px;';
+            undo.onclick = function() { toggleBillPaid(p.bill.id, dateKey(p.date)); };
+            rightSide.appendChild(undo);
+            row.appendChild(rightSide);
             paidListEl.appendChild(row);
         });
     }
