@@ -400,7 +400,7 @@ html, body {
             <div class="breakdown-row"><span>Bills before payday</span><span id="breakdown-bills">-$0.00</span></div>
             <div class="breakdown-row"><span>Saved for later bills</span><span id="breakdown-holdback">-$0.00</span></div>
             <div class="breakdown-row"><span>Spent</span><span id="breakdown-spent">-$0.00</span></div>
-            <div class="breakdown-row"><span>Set aside</span><span id="breakdown-setaside">-$0.00</span></div>
+            <div class="breakdown-row"><span>Set aside (Settings)</span><span id="breakdown-setaside">-$0.00</span></div>
             <div class="breakdown-row"><span>Safe until payday</span><span id="breakdown-total">$0.00</span></div>
         </div>
         <div class="safe-progress-track"><div class="safe-progress-fill" id="today-progress-fill" style="width:0%;"></div></div>
@@ -1852,12 +1852,20 @@ function renderComingUp() {
     }
 
     listEl.innerHTML = '';
-    var pool = calculateAvailablePool();
-    var shownTotal = 0;
+    // Check each upcoming bill against the account it actually comes out of
+    var remChecking = plannerState.balance - plannerState.setAside - calculatePoolSpent();
+    var remSavings = plannerState.savingsBalance;
+    var shortBill = null;
 
     items.forEach(function(occ) {
         var displayAmount = occ.bill.setAside ? getBillMonthlyEquivalent(occ.bill) : occ.bill.amount;
-        shownTotal += displayAmount;
+        if (billPaidFromSavings(occ.bill)) {
+            remSavings -= displayAmount;
+            if (remSavings < -0.005 && !shortBill) { shortBill = { bill: occ.bill, acct: 'savings', amount: displayAmount }; }
+        } else {
+            remChecking -= displayAmount;
+            if (remChecking < -0.005 && !shortBill) { shortBill = { bill: occ.bill, acct: 'checking', amount: displayAmount }; }
+        }
 
         var dKey = dateKey(occ.date);
         var daysAway = Math.round((occ.date - today) / 86400000);
@@ -1872,7 +1880,7 @@ function renderComingUp() {
         var title = document.createElement('h4');
         title.innerText = occ.bill.name;
         var span = document.createElement('span');
-        span.innerText = dateLabel + ' · ' + dayLabel;
+        span.innerText = dateLabel + ' · ' + dayLabel + (billPaidFromSavings(occ.bill) ? ' · from savings' : '');
         if (daysAway <= 2) {
             span.style.color = 'var(--accent-red)';
             span.style.fontWeight = '600';
@@ -1899,7 +1907,18 @@ function renderComingUp() {
         listEl.appendChild(item);
     });
 
-    if (noteEl) { noteEl.style.display = shownTotal > pool ? 'block' : 'none'; }
+    if (noteEl) {
+        if (shortBill) {
+            var note = shortBill.bill.name + " isn't fully covered by your " + shortBill.acct + ' yet.';
+            if (shortBill.acct === 'checking' && !shortBill.bill.linkedDebtId && plannerState.savingsBalance >= shortBill.amount) {
+                note += ' Paid from savings? Tap "from checking" on the Plan tab.';
+            }
+            noteEl.innerText = note;
+            noteEl.style.display = 'block';
+        } else {
+            noteEl.style.display = 'none';
+        }
+    }
 }
 
 function getApproxPreviousPaycheckDate(paycheck, nextDate) {
