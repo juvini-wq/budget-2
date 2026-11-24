@@ -351,6 +351,18 @@ html, body {
 .plan-check:active { background: var(--accent-purple-light); }
 .plan-card-row { display: flex; justify-content: space-between; align-items: flex-start; gap: 10px; padding: 10px 0; border-bottom: 1px solid var(--input-border); }
 .plan-card-row:last-child { border-bottom: none; }
+
+/* CARDS TABLE (spreadsheet style) */
+.cards-scroll { overflow-x: auto; -webkit-overflow-scrolling: touch; margin: 8px -14px 0; padding: 0 14px; }
+.cards-table { border-collapse: separate; border-spacing: 0; min-width: 560px; width: 100%; font-size: 12px; }
+.cards-table th { text-align: right; font-size: 10px; letter-spacing: 0.5px; text-transform: uppercase; color: var(--text-muted); padding: 6px 8px; font-weight: 700; white-space: nowrap; }
+.cards-table td { text-align: right; padding: 10px 8px; border-top: 1px solid var(--input-border); white-space: nowrap; vertical-align: top; }
+.cards-table th:first-child, .cards-table td:first-child { text-align: left; position: sticky; left: 0; z-index: 2; background: var(--bg-card); padding-left: 0; white-space: normal; min-width: 92px; max-width: 120px; }
+.cards-table tbody tr { cursor: pointer; }
+.cards-table tr.total td { background: var(--input-bg); font-weight: 700; }
+.cards-table tr.total td:first-child { background: var(--input-bg); padding-left: 8px; }
+.cards-table .main { font-size: 13px; font-weight: 600; }
+.cards-table .sub { font-size: 10.5px; color: var(--text-muted); margin-top: 2px; }
 </style>
 </head>
 <body data-theme="light">
@@ -624,16 +636,9 @@ html, body {
     </div>
 
     <div class="card" style="padding:16px 14px;">
-        <div class="card-tag">YOUR CARDS AT A GLANCE</div>
-        <div id="debt-glance-list"><!-- condensed comparison table renders here --></div>
-        <div class="card-desc" id="debt-glance-note" style="margin:10px 0 0; font-size:11px;"></div>
-    </div>
-
-
-        <div class="card">
         <div class="card-tag">YOUR CARDS</div>
-        <div class="card-desc" style="margin-bottom:0;">Tap a card to pay it or see the details.</div>
-        <div class="upcoming-list" id="debts-list"><!-- cards render here --></div>
+        <div class="cards-scroll" id="debt-glance-list"><!-- spreadsheet-style table renders here --></div>
+        <div class="card-desc" id="debt-glance-note" style="margin:10px 0 0; font-size:11px;"></div>
     </div>
 
     <div class="card">
@@ -850,6 +855,17 @@ html, body {
 
 </div>
 
+</div>
+
+<!-- CARD DETAILS (opens when you tap a card in the table) -->
+<div class="more-modal" id="card-detail-modal" onclick="closeCardDetail()">
+    <div class="more-content" onclick="event.stopPropagation()">
+        <div style="display:flex; justify-content:space-between; align-items:center; margin-bottom:12px;">
+            <div class="card-tag" style="margin-bottom:0;">CARD DETAILS</div>
+            <button class="action-btn-primary" style="width:auto; padding:6px 14px;" onclick="closeCardDetail()">Close</button>
+        </div>
+        <div class="upcoming-list" id="debts-list" style="margin-top:0;"><!-- the tapped card --></div>
+    </div>
 </div>
 
 <!-- NAV -->
@@ -3676,6 +3692,7 @@ function addDebt() {
 }
 
 function deleteDebt(id) {
+    closeCardDetail();
     plannerState.debts = plannerState.debts.filter(function(debt) { return debt.id !== id; });
     plannerState.bills = plannerState.bills.filter(function(bill) { return bill.linkedDebtId !== id; });
     saveState();
@@ -3974,13 +3991,23 @@ function setDebtLimit(debtId) {
     renderDebts();
 }
 
+function trendMark(now, then) {
+    if (then === null || then === undefined) { return { sym: '', cls: '' }; }
+    if (now < then - 0.5) { return { sym: '▼ ', cls: 't-low' }; }
+    if (now > then + 0.5) { return { sym: '▲ ', cls: 't-high' }; }
+    return { sym: '= ', cls: '' };
+}
+
 function renderDebtGlance() {
     var listEl = document.getElementById('debt-glance-list');
     var noteEl = document.getElementById('debt-glance-note');
     if (!listEl) { return; }
+    listEl.innerHTML = '';
 
     if (plannerState.debts.length === 0) {
-        listEl.innerHTML = '<div class="card-desc" style="margin:0;">No cards added yet</div>';
+        var empty = mk('div', 'card-desc', 'No cards added yet');
+        empty.style.margin = '0';
+        listEl.appendChild(empty);
         if (noteEl) { noteEl.innerText = ''; }
         return;
     }
@@ -3988,152 +4015,171 @@ function renderDebtGlance() {
     var rows = plannerState.debts.map(function(debt) {
         return { debt: debt, due: getDebtDueInfo(debt), prev: getPrevMonthBalance(debt) };
     });
-
-    // soonest due first, cards with no due date last
     rows.sort(function(a, b) {
         var ad = a.due ? a.due.date.getTime() : Infinity;
         var bd = b.due ? b.due.date.getTime() : Infinity;
         return ad - bd;
     });
 
-    listEl.innerHTML = '';
+    var table = document.createElement('table');
+    table.className = 'cards-table';
+    var headRow = document.createElement('tr');
+    ['Card', 'Balance', 'Used', 'Due', 'Pays', 'Limit', 'APR'].forEach(function(h) {
+        headRow.appendChild(mk('th', '', h));
+    });
+    var thead = document.createElement('thead');
+    thead.appendChild(headRow);
+    table.appendChild(thead);
+    var tbody = document.createElement('tbody');
+    table.appendChild(tbody);
 
-    var head = mk('div', 'glance-row glance-head');
-    head.appendChild(mk('div', '', 'Card · due'));
-    head.appendChild(mk('div', '', 'Balance'));
-    head.appendChild(mk('div', '', 'Used'));
-    head.appendChild(mk('div', '', 'Last month'));
-    listEl.appendChild(head);
+    function cell(main, mainCls, sub, subCls) {
+        var td = document.createElement('td');
+        td.appendChild(mk('div', 'main' + (mainCls ? ' ' + mainCls : ''), main));
+        if (sub !== null && sub !== undefined && sub !== '') { td.appendChild(mk('div', 'sub' + (subCls ? ' ' + subCls : ''), sub)); }
+        return td;
+    }
+    function linkIn(td, text, fn) {
+        var b = mk('button', 'glance-link', text);
+        b.onclick = function(e) { if (e && e.stopPropagation) { e.stopPropagation(); } fn(); };
+        var wrap = mk('div', 'sub');
+        wrap.appendChild(b);
+        td.appendChild(wrap);
+    }
 
-    var totBal = 0, totLimit = 0, totLimitedBal = 0, totPrev = 0, totPrevLimited = 0, anyPrev = false;
+    var totBal = 0, totLimit = 0, totLimitedBal = 0, totPay = 0, totPrev = 0, totPrevLimited = 0;
     var missingLimit = false, missingPrev = false;
 
     rows.forEach(function(r) {
         var debt = r.debt;
         var hasLimit = debt.creditLimit && debt.creditLimit > 0;
-        var usagePct = hasLimit ? (debt.balance / debt.creditLimit) * 100 : null;
+        var usedPct = hasLimit ? (debt.balance / debt.creditLimit) * 100 : null;
         var prevPct = (hasLimit && r.prev !== null) ? (r.prev / debt.creditLimit) * 100 : null;
 
         totBal += debt.balance;
+        totPay += debt.minimumPayment || 0;
         if (hasLimit) {
             totLimit += debt.creditLimit;
             totLimitedBal += debt.balance;
             if (r.prev !== null) { totPrevLimited += r.prev; }
-        } else {
-            missingLimit = true;
-        }
-        if (r.prev !== null) { totPrev += r.prev; anyPrev = true; } else { missingPrev = true; }
+        } else { missingLimit = true; }
+        if (r.prev !== null) { totPrev += r.prev; } else { missingPrev = true; }
 
-        var row = mk('div', 'glance-row');
+        var tr = document.createElement('tr');
+        tr.onclick = function() { openCardDetail(debt.id); };
 
-        // card + due
-        var c1 = mk('div');
-        c1.appendChild(mk('div', 'glance-name', debt.name));
-        var dueLine = mk('div', 'glance-sub');
-        if (r.due) {
-            var dLabel = r.due.date.toLocaleDateString(undefined, { month: 'short', day: 'numeric' });
-            if (r.due.status === 'paid') {
-                var p = mk('span', 't-paid', 'Paid');
-                dueLine.appendChild(p);
-                if (r.due.nextDate) {
-                    dueLine.appendChild(document.createTextNode(' · next ' + r.due.nextDate.toLocaleDateString(undefined, { month: 'short', day: 'numeric' })));
-                }
-            } else {
-                var cls = r.due.status === 'overdue' ? 't-overdue' : (r.due.status === 'soon' ? 't-soon' : '');
-                var tag = r.due.status === 'overdue' ? ' · overdue' : (r.due.status === 'soon' ? ' · soon' : '');
-                dueLine.appendChild(mk('span', cls, 'Due ' + dLabel + tag));
-            }
-        } else {
-            var setBtn = mk('button', 'glance-link', 'set due day');
-            setBtn.onclick = function() { setDebtDueDay(debt.id); };
-            dueLine.appendChild(setBtn);
-        }
-        c1.appendChild(dueLine);
+        // Card
+        var tdName = document.createElement('td');
+        tdName.appendChild(mk('div', 'main', debt.name));
+        tr.appendChild(tdName);
 
-        // balance (+ minimum)
-        var c2 = mk('div');
-        c2.appendChild(mk('div', 'glance-num', formatMoneyShort(debt.balance)));
-        c2.appendChild(mk('div', 'glance-sub', (debt.fixedPayment > 0 ? 'pays ' : 'min ') + formatMoneyShort(debt.minimumPayment)));
-        if (debt.balance > 0) {
-            var gSplit = calculateDebtInterestSplit(debt, debt.minimumPayment);
-            c2.appendChild(mk('div', 'glance-sub', formatMoneyShort(Math.max(gSplit.principalPortion, 0)) + ' to balance'));
-        }
-
-        // utilization
-        var c3 = mk('div');
-        if (usagePct !== null) {
-            var tier = utilTier(usagePct);
-            c3.appendChild(mk('div', 'glance-num t-' + tier, Math.round(usagePct) + '%'));
-            var bar = mk('div', 'glance-bar');
-            var fill = mk('div');
-            fill.style.width = Math.min(100, usagePct) + '%';
-            fill.style.background = tier === 'low' ? 'var(--accent-green)' : (tier === 'medium' ? '#e0a731' : 'var(--accent-red)');
-            bar.appendChild(fill);
-            c3.appendChild(bar);
-        } else {
-            var limBtn = mk('button', 'glance-link', 'set limit');
-            limBtn.onclick = function() { setDebtLimit(debt.id); };
-            c3.appendChild(mk('div', 'glance-num', '—'));
-            c3.appendChild(limBtn);
-        }
-
-        // last month
-        var c4 = mk('div');
+        // Balance (+ last month)
+        var tdBal = cell(formatMoneyShort(debt.balance), '', null);
         if (r.prev !== null) {
-            c4.style.cursor = 'pointer';
-            c4.onclick = function() { setPrevMonthBalance(debt.id); };
-            c4.appendChild(mk('div', 'glance-num', formatMoneyShort(r.prev)));
+            var bm = trendMark(debt.balance, r.prev);
+            var balSub = mk('div', 'sub ' + bm.cls, bm.sym + 'was ' + formatMoneyShort(r.prev));
+            tdBal.appendChild(balSub);
+        } else {
+            linkIn(tdBal, 'add last mo.', function() { setPrevMonthBalance(debt.id); });
+        }
+        tr.appendChild(tdBal);
+
+        // Used (+ last month)
+        var tdUsed;
+        if (usedPct !== null) {
+            tdUsed = cell(Math.round(usedPct) + '%', 't-' + utilTier(usedPct), null);
             if (prevPct !== null) {
-                c4.appendChild(mk('div', 'glance-sub t-' + utilTier(prevPct), Math.round(prevPct) + '% used'));
-            } else {
-                c4.appendChild(mk('div', 'glance-sub', '—'));
+                var um = trendMark(Math.round(usedPct), Math.round(prevPct));
+                tdUsed.appendChild(mk('div', 'sub ' + um.cls, um.sym + 'was ' + Math.round(prevPct) + '%'));
             }
         } else {
-            var addPrevBtn = mk('button', 'glance-link', 'add');
-            addPrevBtn.onclick = function() { setPrevMonthBalance(debt.id); };
-            c4.appendChild(mk('div', 'glance-num', '—'));
-            c4.appendChild(addPrevBtn);
+            tdUsed = cell('—', '', null);
+            linkIn(tdUsed, 'set limit', function() { setDebtLimit(debt.id); });
         }
+        tr.appendChild(tdUsed);
 
-        row.appendChild(c1);
-        row.appendChild(c2);
-        row.appendChild(c3);
-        row.appendChild(c4);
-        listEl.appendChild(row);
+        // Due
+        var tdDue;
+        if (r.due) {
+            var dShort = r.due.date.toLocaleDateString(undefined, { month: 'short', day: 'numeric' });
+            if (r.due.status === 'paid') {
+                tdDue = cell('Paid', 't-paid', r.due.nextDate ? 'next ' + r.due.nextDate.toLocaleDateString(undefined, { month: 'short', day: 'numeric' }) : '');
+            } else if (r.due.status === 'overdue') {
+                tdDue = cell(dShort, 't-overdue', 'overdue');
+            } else if (r.due.status === 'soon') {
+                tdDue = cell(dShort, 't-soon', 'soon');
+            } else {
+                tdDue = cell(dShort, '', null);
+            }
+        } else {
+            tdDue = cell('—', '', null);
+            linkIn(tdDue, 'set day', function() { setDebtDueDay(debt.id); });
+        }
+        tr.appendChild(tdDue);
+
+        // Pays
+        var paySub = debt.fixedPayment > 0
+            ? 'fixed' + (debt.paymentsLeft > 0 ? ' · ' + debt.paymentsLeft + ' left' : '')
+            : 'min';
+        tr.appendChild(cell(formatMoneyShort(debt.minimumPayment || 0), '', paySub));
+
+        // Limit
+        var tdLimit;
+        if (hasLimit) {
+            tdLimit = cell(formatMoneyShort(debt.creditLimit), '', null);
+        } else {
+            tdLimit = cell('—', '', null);
+            linkIn(tdLimit, 'set', function() { setDebtLimit(debt.id); });
+        }
+        tr.appendChild(tdLimit);
+
+        // APR
+        var tdApr;
+        if (debt.apr) {
+            tdApr = cell(debt.apr + '%', '', null);
+        } else {
+            tdApr = cell('0%', '', null);
+            linkIn(tdApr, 'add', function() { setDebtApr(debt.id); });
+        }
+        tr.appendChild(tdApr);
+
+        tbody.appendChild(tr);
     });
 
-    // totals row
-    var total = mk('div', 'glance-row glance-total');
-    total.appendChild(mk('div', 'glance-name', 'All cards'));
-    var t2 = mk('div');
-    t2.appendChild(mk('div', 'glance-num', formatMoneyShort(totBal)));
-    t2.appendChild(mk('div', 'glance-sub', 'min ' + formatMoneyShort(calculateTotalDebtMinimums())));
-    var t3 = mk('div');
+    // totals
+    var tot = document.createElement('tr');
+    tot.className = 'total';
+    tot.onclick = null;
+    tot.appendChild(cell('All cards', '', null));
+    var tdTb = cell(formatMoneyShort(totBal), '', null);
+    if (!missingPrev) {
+        var tm = trendMark(totBal, totPrev);
+        tdTb.appendChild(mk('div', 'sub ' + tm.cls, tm.sym + 'was ' + formatMoneyShort(totPrev)));
+    }
+    tot.appendChild(tdTb);
+    var tdTu;
     if (totLimit > 0) {
         var allPct = (totLimitedBal / totLimit) * 100;
-        t3.appendChild(mk('div', 'glance-num t-' + utilTier(allPct), Math.round(allPct) + '%'));
-    } else {
-        t3.appendChild(mk('div', 'glance-num', '—'));
-    }
-    var t4 = mk('div');
-    if (anyPrev && !missingPrev) {
-        t4.appendChild(mk('div', 'glance-num', formatMoneyShort(totPrev)));
-        if (totLimit > 0) {
+        tdTu = cell(Math.round(allPct) + '%', 't-' + utilTier(allPct), null);
+        if (!missingPrev && !missingLimit) {
             var prevAll = (totPrevLimited / totLimit) * 100;
-            t4.appendChild(mk('div', 'glance-sub t-' + utilTier(prevAll), Math.round(prevAll) + '% used'));
+            var tu = trendMark(Math.round(allPct), Math.round(prevAll));
+            tdTu.appendChild(mk('div', 'sub ' + tu.cls, tu.sym + 'was ' + Math.round(prevAll) + '%'));
         }
     } else {
-        t4.appendChild(mk('div', 'glance-num', '—'));
+        tdTu = cell('—', '', null);
     }
-    total.appendChild(t2);
-    total.appendChild(t3);
-    total.appendChild(t4);
-    listEl.appendChild(total);
+    tot.appendChild(tdTu);
+    tot.appendChild(cell('', '', null));
+    tot.appendChild(cell(formatMoneyShort(totPay), '', 'a month'));
+    tot.appendChild(cell(totLimit > 0 ? formatMoneyShort(totLimit) : '—', '', null));
+    tot.appendChild(cell('', '', null));
+    tbody.appendChild(tot);
+
+    listEl.appendChild(table);
 
     if (noteEl) {
-        var notes = ['"Last month" is the balance recorded last month. Tap "add" (or the number) to enter it from your statement.'];
-        if (missingLimit) { notes.push('Add a credit limit to see utilization.'); }
-        noteEl.innerText = notes.join(' ');
+        noteEl.innerText = 'Tap a card to pay it or edit it. "was" is last month. Swipe the table sideways for more.';
     }
 }
 
@@ -4302,18 +4348,31 @@ function removeDebtFromCalendar(debtId) {
     renderDebts();
 }
 
-var openDebtCards = {};
+var selectedDebtId = null;
+
+function openCardDetail(id) {
+    selectedDebtId = id;
+    renderDebtList();
+    var modal = document.getElementById('card-detail-modal');
+    if (modal) { modal.classList.add('open'); }
+}
+
+function closeCardDetail() {
+    selectedDebtId = null;
+    var modal = document.getElementById('card-detail-modal');
+    if (modal) { modal.classList.remove('open'); }
+    var listEl = document.getElementById('debts-list');
+    if (listEl) { listEl.innerHTML = ''; }
+}
 
 function renderDebtList() {
     var listEl = document.getElementById('debts-list');
     if (!listEl) { return; }
 
-    var debts = getSortedDebts();
-    if (debts.length === 0) {
-        listEl.innerHTML = '<div class="card-desc" style="margin:0;">No debts added yet</div>';
-        return;
-    }
+    var debts = getSortedDebts().filter(function(d) { return d.id === selectedDebtId; });
     listEl.innerHTML = '';
+    if (!selectedDebtId) { return; }
+    if (debts.length === 0) { closeCardDetail(); return; }
 
     debts.forEach(function(debt, index) {
         var payoff = calculateDebtPayoff(debt);
@@ -4792,16 +4851,8 @@ function renderDebtList() {
         while (card.children.length > 1) { bodyWrap.appendChild(card.children[1]); }
         card.appendChild(bodyWrap);
 
-        var isOpenCard = !!openDebtCards[debt.id];
-        bodyWrap.style.display = isOpenCard ? 'flex' : 'none';
-        chev.style.transform = isOpenCard ? 'rotate(90deg)' : '';
-        topRow.style.cursor = 'pointer';
-        topRow.onclick = function() {
-            var opening = bodyWrap.style.display === 'none';
-            bodyWrap.style.display = opening ? 'flex' : 'none';
-            chev.style.transform = opening ? 'rotate(90deg)' : '';
-            openDebtCards[debt.id] = opening;
-        };
+        bodyWrap.style.display = 'flex';
+        chev.style.display = 'none';
 
         listEl.appendChild(card);
     });
